@@ -6,13 +6,12 @@ import {
   MapPin,
   RefreshCw,
   Radio,
-  PlaneTakeoff,
   Droplets,
   AlertCircle,
   CheckCircle2,
   AlertTriangle,
   OctagonAlert,
-  Navigation2,
+  Sun,
 } from 'lucide-react';
 import {
   FLYING_LOCATIONS,
@@ -64,7 +63,6 @@ async function fetchLocationWeather(location) {
   const currentGusts = Math.round(Number(data.current?.wind_gusts_10m ?? currentWind) * 10) / 10;
   const currentDir = Math.round(Number(data.current?.wind_direction_10m ?? 0));
 
-  // Parse next 24 hours starting from current hour in Open-Meteo's returned timeline
   const times = data.hourly?.time || [];
   const temps = data.hourly?.temperature_2m || [];
   const winds = data.hourly?.wind_speed_10m || [];
@@ -72,7 +70,6 @@ async function fetchLocationWeather(location) {
   const dirs = data.hourly?.wind_direction_10m || [];
   const precips = data.hourly?.precipitation_probability || [];
 
-  // Find index matching current hour (or closest hour not in the past)
   const currentIsoPrefix = data.current?.time ? data.current.time.slice(0, 13) : null;
   let startIndex = 0;
   if (currentIsoPrefix) {
@@ -132,7 +129,6 @@ async function fetchLocationWeather(location) {
       fetchedAt: new Date().toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        second: '2-digit',
       }),
       isFallback: false,
     },
@@ -146,6 +142,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorNote, setErrorNote] = useState(null);
+  const [daylightBoost, setDaylightBoost] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle('daylight-boost', daylightBoost);
+  }, [daylightBoost]);
 
   const loadAllLocations = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) {
@@ -163,7 +164,7 @@ export default function App() {
         try {
           const result = await fetchLocationWeather(loc);
           nextMap[loc.id] = result;
-        } catch (err) {
+        } catch {
           anyFailed = true;
           nextMap[loc.id] = buildOfflineFallbackWeather(loc);
         }
@@ -194,7 +195,15 @@ export default function App() {
   const status = getWindStatus(current.windSpeed, current.windGusts);
 
   return (
-    <div className="min-h-svh flex flex-col justify-between text-slate-100">
+    <div className="min-h-dvh flex flex-col justify-between pb-20 md:pb-0 text-slate-100">
+      {/* Skip Link for Keyboard Accessibility */}
+      <a
+        href="#main-content"
+        className="visually-hidden fixed top-2 left-2 z-50 rounded-lg bg-sky-500 px-4 py-2 font-mono-tech text-xs font-bold text-slate-950 shadow-lg"
+      >
+        Skip to flight telemetry
+      </a>
+
       {/* Shared Inline SVG Symbol for RC Airplane App Emblem (reused via <use href="#rc-airplane-symbol" />) */}
       <svg aria-hidden="true" className="hidden" width="0" height="0">
         <symbol id="rc-airplane-symbol" viewBox="0 0 512 512">
@@ -280,54 +289,71 @@ export default function App() {
         </symbol>
       </svg>
 
-      {/* Top Tactical Header & Location Pill Navigation */}
-      <header className="sticky top-0 z-30 border-b border-slate-800/90 bg-[#070b12]/90 backdrop-blur-md">
-        <div className="mx-auto max-w-6xl px-3 py-3 sm:px-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            {/* Brand & Title */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-emerald-500/50 bg-[#0b1324] shadow-[0_0_16px_rgba(16,185,129,0.28)]">
-                  <svg width="42" height="42" aria-hidden="true" className="block">
+      {/* Top Tactical Header & Location Pill Selector */}
+      <header className="safe-top-header sticky top-0 z-30 border-b border-slate-800/90 bg-[#070b12]/95 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl px-3 py-2.5 sm:px-6 sm:py-3">
+          <div className="flex flex-col gap-2.5 md:flex-row md:items-center md:justify-between">
+            {/* Brand & Mobile Quick Actions */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-emerald-500/50 bg-[#0b1324] shadow-[0_0_16px_rgba(16,185,129,0.28)]">
+                  <svg width="40" height="40" aria-hidden="true" className="block">
                     <use href="#rc-airplane-symbol" />
                   </svg>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono-tech text-[11px] font-semibold uppercase tracking-widest text-emerald-400">
-                      NORTH GA RC METEOROLOGY
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono-tech text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-emerald-400 truncate">
+                      NORTH GA RC MET
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.2 font-mono-tech text-[10px] text-emerald-300">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.2 font-mono-tech text-[9px] sm:text-[10px] text-emerald-300 shrink-0">
                       <Radio className="h-2.5 w-2.5 animate-pulse" aria-hidden="true" />
-                      OPEN-METEO LIVE
+                      LIVE
                     </span>
                   </div>
-                  <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-white">
-                    RC Flight Deck // Wind &amp; Telemetry
+                  <h1 className="font-display text-base sm:text-xl font-bold tracking-tight text-white truncate">
+                    RC Flight Deck // Wind
                   </h1>
                 </div>
               </div>
 
-              {/* Mobile Refresh Button */}
-              <button
-                type="button"
-                onClick={() => loadAllLocations(true)}
-                disabled={refreshing}
-                aria-label="Refresh weather telemetry"
-                className="inline-flex md:hidden items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-900/90 px-3 py-2 font-mono-tech text-xs font-semibold text-slate-200 active:scale-95"
-              >
-                <RefreshCw
-                  className={`h-3.5 w-3.5 text-sky-400 ${refreshing ? 'animate-spin' : ''}`}
-                  aria-hidden="true"
-                />
-                <span>SYNC</span>
-              </button>
+              {/* Action Buttons: Daylight Sun Boost + Sync */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setDaylightBoost((prev) => !prev)}
+                  aria-pressed={daylightBoost}
+                  title="Toggle high-contrast outdoor daylight mode"
+                  className={`touch-target inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-2 font-mono-tech text-xs font-semibold transition active:scale-95 ${
+                    daylightBoost
+                      ? 'border-amber-400 bg-amber-400/20 text-amber-200'
+                      : 'border-slate-700/80 bg-slate-900/90 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Sun className="h-3.5 w-3.5 text-amber-400 shrink-0" aria-hidden="true" />
+                  <span className="hidden xs:inline sm:inline">SUN</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => loadAllLocations(true)}
+                  disabled={refreshing}
+                  aria-label="Refresh weather telemetry"
+                  className="touch-target inline-flex md:hidden items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-900/90 px-2.5 py-2 font-mono-tech text-xs font-semibold text-slate-200 active:scale-95"
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 text-sky-400 ${refreshing ? 'animate-spin' : ''}`}
+                    aria-hidden="true"
+                  />
+                  <span>SYNC</span>
+                </button>
+              </div>
             </div>
 
-            {/* 1. LOCATION SELECTOR / TABS */}
+            {/* 1. LOCATION SELECTOR / TABS (Top Bar) */}
             <nav
-              aria-label="Flying field location selector"
-              className="grid grid-cols-3 gap-1.5 rounded-2xl border border-slate-800 bg-[#0b1220] p-1.5 shadow-inner"
+              aria-label="Flying field locations"
+              className="grid grid-cols-3 gap-1.5 rounded-2xl border border-slate-800 bg-[#0b1220] p-1 shadow-inner"
             >
               {FLYING_LOCATIONS.map((loc) => {
                 const isSelected = loc.id === activeLocation.id;
@@ -342,9 +368,9 @@ export default function App() {
                     type="button"
                     onClick={() => setSelectedId(loc.id)}
                     aria-pressed={isSelected}
-                    className={`group relative flex flex-col items-start justify-between rounded-xl px-3 py-2 text-left transition sm:flex-row sm:items-center sm:gap-2.5 ${
+                    className={`touch-target group relative flex flex-col items-center justify-center rounded-xl px-2 py-1.5 text-center transition sm:flex-row sm:justify-between sm:px-3 sm:py-2 sm:text-left ${
                       isSelected
-                        ? 'bg-slate-800/95 text-white shadow-md ring-1 ring-sky-400/50'
+                        ? 'bg-slate-800/95 text-white shadow-md ring-1 ring-sky-400/60'
                         : 'text-slate-400 hover:bg-slate-900/70 hover:text-slate-200'
                     }`}
                   >
@@ -362,7 +388,7 @@ export default function App() {
 
                     {locData && (
                       <span
-                        className={`mt-0.5 sm:mt-0 font-mono-tech text-[11px] font-semibold ${
+                        className={`font-mono-tech text-[11px] font-semibold ${
                           isSelected ? locStatus.textClass : 'text-slate-400'
                         }`}
                       >
@@ -378,42 +404,46 @@ export default function App() {
       </header>
 
       {/* Main Content Container */}
-      <main className="mx-auto w-full max-w-6xl flex-1 space-y-5 px-3 py-4 sm:px-6 sm:py-6">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-6xl flex-1 space-y-4 sm:space-y-5 px-3 py-3 sm:px-6 sm:py-6 focus:outline-none"
+      >
         {errorNote && (
           <div
             role="status"
-            className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs font-mono-tech text-amber-200"
+            className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs font-mono-tech text-amber-200"
           >
             <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
             <span>{errorNote}</span>
           </div>
         )}
 
-        {/* 2. CURRENT CONDITIONS BANNER */}
+        {/* 2. CURRENT CONDITIONS BANNER (Mobile-Optimized 2x2 Cockpit Layout) */}
         <section
           aria-labelledby="current-conditions-heading"
-          className={`tactical-card relative overflow-hidden rounded-2xl border ${status.borderClass} bg-[#0b111e]/95 p-4 sm:p-6 shadow-2xl`}
+          className={`tactical-card relative overflow-hidden rounded-2xl border ${status.borderClass} bg-[#0b111e]/95 p-3.5 sm:p-6 shadow-2xl`}
         >
           {/* Top Location Telemetry Strip + Flight Status Badge */}
-          <div className="flex flex-col gap-4 border-b border-slate-800/90 pb-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center gap-2 text-xs font-mono-tech text-slate-400">
+          <div className="flex flex-col gap-3 border-b border-slate-800/90 pb-3.5 sm:pb-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-1">
+              <div className="pill-wrap-balance gap-1.5 text-[11px] sm:text-xs font-mono-tech text-slate-400">
                 <span className="inline-flex items-center gap-1 rounded-md border border-slate-700/80 bg-slate-900/90 px-2 py-0.5 font-semibold text-sky-300">
-                  <MapPin className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
+                  <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sky-400" aria-hidden="true" />
                   {activeLocation.coordsDisplay}
                 </span>
                 <span className="rounded-md border border-slate-800 bg-slate-900/60 px-2 py-0.5 text-slate-300">
-                  {activeLocation.sectorCode}
+                  ELEV {activeLocation.elevationFt} FT
                 </span>
-                <span className="rounded-md border border-slate-800 bg-slate-900/60 px-2 py-0.5 text-slate-400">
-                  ELEV {activeLocation.elevationFt} FT MSL
+                <span className="hidden sm:inline-block rounded-md border border-slate-800 bg-slate-900/60 px-2 py-0.5 text-slate-400">
+                  {activeLocation.sectorCode}
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-baseline gap-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2
                   id="current-conditions-heading"
-                  className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white"
+                  className="font-display text-xl sm:text-3xl font-bold tracking-tight text-white"
                 >
                   {activeLocation.name}
                 </h2>
@@ -424,11 +454,11 @@ export default function App() {
             </div>
 
             {/* Primary Flight Status Badge + Desktop Refresh */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-start gap-2.5">
               <div
                 role="status"
                 aria-live="polite"
-                className={`status-pill flex items-center gap-2.5 rounded-2xl border px-4 py-2.5 font-display text-sm sm:text-base font-bold tracking-tight shadow-lg ${status.pillClass}`}
+                className={`status-pill flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-3.5 py-2 sm:px-4 sm:py-2.5 font-display text-sm sm:text-base font-bold tracking-tight shadow-lg ${status.pillClass}`}
               >
                 {status.level === 'excellent' && (
                   <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" aria-hidden="true" />
@@ -446,7 +476,7 @@ export default function App() {
                 type="button"
                 onClick={() => loadAllLocations(true)}
                 disabled={refreshing || loading}
-                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2.5 font-mono-tech text-xs font-semibold text-slate-200 hover:border-sky-500/50 hover:text-white transition cursor-pointer"
+                className="touch-target hidden md:inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2.5 font-mono-tech text-xs font-semibold text-slate-200 hover:border-sky-500/50 hover:text-white transition cursor-pointer"
               >
                 <RefreshCw
                   className={`h-3.5 w-3.5 text-sky-400 ${
@@ -459,42 +489,41 @@ export default function App() {
             </div>
           </div>
 
-          {/* Main Telemetry Grid: Wind Speed, Wind Gusts, Temperature, & Rotating Compass */}
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* 2x2 Mobile Cockpit Grid (All 4 primary instruments visible above the fold on phones!) */}
+          <div className="mt-3.5 sm:mt-5 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
             {/* Metric 1: Sustained Wind Speed */}
-            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-4 sm:p-5">
-              <div className="flex items-center justify-between text-xs font-mono-tech uppercase tracking-wider text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Wind className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-                  SUSTAINED WIND
+            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-3.5 sm:p-5">
+              <div className="flex items-center justify-between gap-1 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider text-slate-400">
+                <span className="flex items-center gap-1 truncate">
+                  <Wind className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                  <span className="truncate">WIND SPEED</span>
                 </span>
-                <span className={`font-bold ${status.textClass}`}>{status.code}</span>
               </div>
 
-              <div className="my-4">
-                <div className="flex items-baseline gap-2">
+              <div className="my-2.5 sm:my-4">
+                <div className="flex items-baseline gap-1.5">
                   <span
-                    className={`font-mono-tech text-4xl sm:text-5xl font-extrabold tracking-tight ${status.textClass}`}
+                    className={`font-mono-tech text-3xl sm:text-5xl font-extrabold tracking-tight ${status.textClass}`}
                   >
                     {current.windSpeed}
                   </span>
-                  <span className="font-mono-tech text-lg font-semibold text-slate-400">
+                  <span className="font-mono-tech text-sm sm:text-lg font-semibold text-slate-400">
                     mph
                   </span>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-400">
-                  10m AGL surface wind speed
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-400">
+                  10m AGL sustained
                 </p>
               </div>
 
               {/* Scale Meter */}
-              <div className="space-y-1.5 border-t border-slate-800/80 pt-3">
-                <div className="flex justify-between font-mono-tech text-[10px] text-slate-400">
-                  <span>0 MPH</span>
-                  <span>8 MPH</span>
-                  <span>15+ MPH</span>
+              <div className="space-y-1 border-t border-slate-800/80 pt-2 sm:pt-3">
+                <div className="flex justify-between font-mono-tech text-[9px] sm:text-[10px] text-slate-400">
+                  <span>0</span>
+                  <span>8</span>
+                  <span>15+ mph</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                <div className="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-slate-800">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${status.barClass}`}
                     style={{
@@ -506,80 +535,80 @@ export default function App() {
             </div>
 
             {/* Metric 2: Wind Gusts & Shear Spread */}
-            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-4 sm:p-5">
-              <div className="flex items-center justify-between text-xs font-mono-tech uppercase tracking-wider text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Gauge className="h-4 w-4 text-amber-400" aria-hidden="true" />
-                  PEAK WIND GUSTS
+            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-3.5 sm:p-5">
+              <div className="flex items-center justify-between gap-1 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider text-slate-400">
+                <span className="flex items-center gap-1 truncate">
+                  <Gauge className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-amber-400" aria-hidden="true" />
+                  <span className="truncate">GUSTS</span>
                 </span>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-amber-300">
-                  Δ +{status.gustSpread} MPH
+                <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                  +{status.gustSpread}
                 </span>
               </div>
 
-              <div className="my-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono-tech text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+              <div className="my-2.5 sm:my-4">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-mono-tech text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
                     {current.windGusts}
                   </span>
-                  <span className="font-mono-tech text-lg font-semibold text-slate-400">
+                  <span className="font-mono-tech text-sm sm:text-lg font-semibold text-slate-400">
                     mph
                   </span>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-400">
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-400">
                   {status.gustSpread >= 7
-                    ? 'Elevated gust shear — carry extra approach speed'
-                    : 'Low gust variance — predictable approach air'}
+                    ? 'Elevated gust shear'
+                    : 'Low gust variance'}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between border-t border-slate-800/80 pt-3 font-mono-tech text-xs">
-                <span className="text-slate-400">TURBULENCE FACTOR</span>
+              <div className="flex items-center justify-between border-t border-slate-800/80 pt-2 sm:pt-3 font-mono-tech text-[10px] sm:text-xs">
+                <span className="text-slate-400">AIR</span>
                 <span
                   className={`font-bold ${
                     status.gustSpread >= 7 ? 'text-amber-300' : 'text-emerald-300'
                   }`}
                 >
-                  {status.gustSpread >= 7 ? 'MODERATE CHOP' : 'LAMINAR / LOW'}
+                  {status.gustSpread >= 7 ? 'CHOPPY' : 'SMOOTH'}
                 </span>
               </div>
             </div>
 
             {/* Metric 3: Current Temperature & Air Density Info */}
-            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-4 sm:p-5">
-              <div className="flex items-center justify-between text-xs font-mono-tech uppercase tracking-wider text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Thermometer className="h-4 w-4 text-sky-400" aria-hidden="true" />
-                  AMBIENT TEMP
+            <div className="tactical-card flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-[#0b1220]/90 p-3.5 sm:p-5">
+              <div className="flex items-center justify-between gap-1 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider text-slate-400">
+                <span className="flex items-center gap-1 truncate">
+                  <Thermometer className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-sky-400" aria-hidden="true" />
+                  <span className="truncate">TEMP</span>
                 </span>
-                <span className="inline-flex items-center gap-1 text-slate-300">
+                <span className="inline-flex items-center gap-0.5 text-[10px] sm:text-xs text-slate-300 shrink-0">
                   <Droplets className="h-3 w-3 text-sky-400" aria-hidden="true" />
-                  {current.humidity}% RH
+                  {current.humidity}%
                 </span>
               </div>
 
-              <div className="my-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono-tech text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+              <div className="my-2.5 sm:my-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="font-mono-tech text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
                     {current.temperature}°
                   </span>
-                  <span className="font-mono-tech text-lg font-semibold text-slate-400">
+                  <span className="font-mono-tech text-sm sm:text-lg font-semibold text-slate-400">
                     F
                   </span>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-400">
-                  Feels like <strong className="text-slate-200">{current.apparentTemperature}°F</strong> at field level
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-400">
+                  Feels <strong className="text-slate-200">{current.apparentTemperature}°F</strong>
                 </p>
               </div>
 
-              <div className="flex items-center justify-between border-t border-slate-800/80 pt-3 font-mono-tech text-xs">
-                <span className="text-slate-400">LIPO / AIR DENSITY</span>
+              <div className="flex items-center justify-between border-t border-slate-800/80 pt-2 sm:pt-3 font-mono-tech text-[10px] sm:text-xs">
+                <span className="text-slate-400">LIPO</span>
                 <span className="font-bold text-sky-300">
                   {current.temperature < 50
-                    ? 'PRE-WARM LIPOS'
+                    ? 'WARM PACKS'
                     : current.temperature > 88
-                    ? 'HIGH DENSITY ALT'
-                    : 'OPTIMAL THRUST'}
+                    ? 'HOT / VENT'
+                    : 'OPTIMAL'}
                 </span>
               </div>
             </div>
@@ -594,18 +623,18 @@ export default function App() {
           </div>
 
           {/* Bottom Pilot Advisory Strip inside Banner */}
-          <div className="mt-4 flex flex-col gap-2 rounded-xl border border-slate-800/90 bg-slate-950/75 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-3 sm:mt-4 flex flex-col gap-1.5 sm:gap-2 rounded-xl border border-slate-800/90 bg-slate-950/75 px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-0.5">
               <div className="font-mono-tech font-bold uppercase tracking-wider text-slate-200">
                 ADVISORY: <span className={status.textClass}>{status.summary}</span>
               </div>
               <div className="text-slate-400">
-                <strong className="text-slate-300">Local Sector Note:</strong> {activeLocation.notes}
+                <strong className="text-slate-300">Field Note:</strong> {activeLocation.notes}
               </div>
             </div>
-            <div className="shrink-0 font-mono-tech text-[11px] text-slate-400 sm:text-right">
-              <div>RECOMMENDED AIRFRAMES:</div>
-              <div className="font-bold text-sky-300">{status.recommendedCrafts}</div>
+            <div className="shrink-0 font-mono-tech text-[11px] text-slate-400 sm:text-right border-t border-slate-800/60 pt-1.5 sm:border-t-0 sm:pt-0">
+              <span className="sm:block">RECOMMENDED AIRFRAMES: </span>
+              <span className="font-bold text-sky-300">{status.recommendedCrafts}</span>
             </div>
           </div>
         </section>
@@ -620,14 +649,69 @@ export default function App() {
         />
       </main>
 
+      {/* One-Handed Mobile Bottom Location & Telemetry Dock (Thumb-Zone Optimized) */}
+      <aside
+        aria-label="Mobile quick field switcher"
+        className="safe-bottom-dock fixed inset-x-0 bottom-0 z-40 border-t border-slate-800/95 bg-[#070b12]/95 px-2.5 pt-2 backdrop-blur-lg md:hidden shadow-[0_-8px_25px_rgba(0,0,0,0.65)]"
+      >
+        <div className="mx-auto grid max-w-md grid-cols-3 gap-1.5">
+          {FLYING_LOCATIONS.map((loc) => {
+            const isSelected = loc.id === activeLocation.id;
+            const locData = weatherById[loc.id];
+            const locStatus = locData
+              ? getWindStatus(locData.current.windSpeed, locData.current.windGusts)
+              : null;
+
+            return (
+              <button
+                key={loc.id}
+                type="button"
+                onClick={() => {
+                  setSelectedId(loc.id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                aria-pressed={isSelected}
+                className={`touch-target flex flex-col items-center justify-center rounded-xl border px-2 py-1.5 transition active:scale-95 ${
+                  isSelected
+                    ? `${locStatus ? locStatus.borderClass : 'border-sky-400'} bg-slate-800/95 text-white shadow`
+                    : 'border-slate-800/80 bg-slate-900/70 text-slate-400'
+                }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      locStatus ? locStatus.dotClass : 'bg-slate-600'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span className="font-display text-xs font-bold tracking-tight">
+                    {loc.shortName}
+                  </span>
+                </div>
+                {locData && (
+                  <div className="mt-0.5 flex items-center gap-1 font-mono-tech text-[10px]">
+                    <span className={`font-bold ${locStatus.textClass}`}>
+                      {locData.current.windSpeed} mph
+                    </span>
+                    <span className="text-slate-400">
+                      • {locData.current.temperature}°
+                    </span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
       {/* Footer */}
-      <footer className="mt-8 border-t border-slate-800/80 bg-[#05080e] py-5 text-xs text-slate-400">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 sm:flex-row sm:px-6 font-mono-tech">
+      <footer className="mt-6 border-t border-slate-800/80 bg-[#05080e] py-5 text-xs text-slate-400">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 sm:flex-row sm:px-6 font-mono-tech text-center sm:text-left">
           <div>
             AERO-MET NORTH GEORGIA // ALPHARETTA • ROSWELL • WOODSTOCK RC PILOT DASHBOARD
           </div>
           <div>
-            TELEMETRY SOURCE: OPEN-METEO API (10M AGL) • UPDATED {current.fetchedAt}
+            OPEN-METEO (10M AGL) • UPDATED {current.fetchedAt}
           </div>
         </div>
       </footer>

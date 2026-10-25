@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Clock,
-  Wind,
-  Gauge,
   Thermometer,
   Navigation2,
   CheckCircle2,
@@ -26,9 +24,12 @@ function StatusIcon({ level, className = 'h-3.5 w-3.5' }) {
 
 export default function HourlyForecast({ hourly = [], locationName = '' }) {
   const [filterMode, setFilterMode] = useState('all'); // 'all' | 'flyable' | 'calm'
-  const [layoutMode, setLayoutMode] = useState('both'); // 'both' | 'strip' | 'table'
+  // Default to swipeable horizontal cards on mobile screens to avoid excessive vertical scrolling, and 'both' on desktop
+  const [layoutMode, setLayoutMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'strip' : 'both'
+  );
+  const stripRef = useRef(null);
 
-  // Identify best flying windows (< 8 mph sustained, <= 14 mph gusts)
   const calmHoursCount = hourly.filter(
     (h) => getWindStatus(h.windSpeed, h.windGusts).level === 'excellent'
   ).length;
@@ -43,55 +44,63 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
     return true;
   });
 
-  // Find lowest wind hour in next 24h for quick pilot callout
   const bestHour =
     hourly.length > 0
       ? hourly.reduce((best, item) => (item.windSpeed < best.windSpeed ? item : best), hourly[0])
       : null;
 
+  const scrollToHourCard = (isoTime) => {
+    if (!stripRef.current) return;
+    const target = stripRef.current.querySelector(`[data-hour-iso="${isoTime}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
   return (
     <section
+      id="forecast-section"
       aria-labelledby="forecast-section-heading"
-      className="space-y-4 rounded-2xl border border-slate-800/90 bg-[#0b111e]/95 p-4 sm:p-6 shadow-xl"
+      className="tactical-card space-y-3.5 sm:space-y-4 rounded-2xl border border-slate-800/90 bg-[#0b111e]/95 p-3.5 sm:p-6 shadow-xl"
     >
-      {/* Section Header + Legend + Controls */}
-      <div className="flex flex-col gap-3 border-b border-slate-800/90 pb-4 lg:flex-row lg:items-center lg:justify-between">
+      {/* Section Header + Controls */}
+      <div className="flex flex-col gap-3 border-b border-slate-800/90 pb-3.5 sm:pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-sky-400" aria-hidden="true" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Clock className="h-5 w-5 text-sky-400 shrink-0" aria-hidden="true" />
             <h2
               id="forecast-section-heading"
-              className="font-display text-lg sm:text-xl font-bold tracking-tight text-white"
+              className="font-display text-base sm:text-xl font-bold tracking-tight text-white"
             >
-              24-Hour Tactical Flight Forecast
+              24-Hour Flight Forecast
             </h2>
-            <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 font-mono-tech text-xs font-semibold text-sky-300">
-              NEXT 24 HRS
+            <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 font-mono-tech text-[11px] font-semibold text-sky-300">
+              NEXT 24H
             </span>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-slate-400">
-            Hourly surface telemetry (10m AGL) for <strong className="text-slate-200">{locationName}</strong>.
+            Hourly 10m AGL wind &amp; gusts for <strong className="text-slate-200">{locationName}</strong>.
             {bestHour && (
-              <span className="ml-1.5 inline-flex items-center gap-1 text-emerald-300 font-medium">
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                Calmest window: {bestHour.timeLabel} ({bestHour.windSpeed} mph / gusts {bestHour.windGusts} mph)
+              <span className="mt-1 sm:mt-0 sm:ml-1.5 inline-flex items-center gap-1 text-emerald-300 font-medium">
+                <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                Calmest: {bestHour.timeLabel} ({bestHour.windSpeed} mph / gusts {bestHour.windGusts} mph)
               </span>
             )}
           </p>
         </div>
 
-        {/* Filter & View Controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Mobile-friendly Filter & View Controls */}
+        <div className="pill-wrap-balance gap-2">
           {/* Intensity Filter Pills */}
           <div
-            className="inline-flex rounded-xl border border-slate-800 bg-slate-950/90 p-1"
+            className="inline-flex flex-1 sm:flex-initial rounded-xl border border-slate-800 bg-slate-950/90 p-1"
             role="group"
             aria-label="Filter forecast hours by wind limit"
           >
             <button
               type="button"
               onClick={() => setFilterMode('all')}
-              className={`rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+              className={`touch-target flex-1 sm:flex-initial rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
                 filterMode === 'all'
                   ? 'bg-sky-500/20 text-sky-200 border border-sky-400/40'
                   : 'text-slate-400 hover:text-slate-200'
@@ -102,48 +111,37 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
             <button
               type="button"
               onClick={() => setFilterMode('calm')}
-              className={`rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+              className={`touch-target flex-1 sm:flex-initial rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
                 filterMode === 'calm'
                   ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              🟢 &lt;8 MPH ({calmHoursCount})
+              🟢 &lt;8 ({calmHoursCount})
             </button>
             <button
               type="button"
               onClick={() => setFilterMode('flyable')}
-              className={`rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+              className={`touch-target flex-1 sm:flex-initial rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
                 filterMode === 'flyable'
                   ? 'bg-amber-500/20 text-amber-200 border border-amber-400/40'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              ≤15 MPH ({calmHoursCount + moderateHoursCount})
+              ≤15 ({calmHoursCount + moderateHoursCount})
             </button>
           </div>
 
           {/* View Mode Selector */}
           <div
-            className="inline-flex rounded-xl border border-slate-800 bg-slate-950/90 p-1"
+            className="inline-flex flex-1 sm:flex-initial rounded-xl border border-slate-800 bg-slate-950/90 p-1"
             role="group"
             aria-label="Forecast display mode"
           >
             <button
               type="button"
-              onClick={() => setLayoutMode('both')}
-              className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
-                layoutMode === 'both'
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              BOTH
-            </button>
-            <button
-              type="button"
               onClick={() => setLayoutMode('strip')}
-              className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+              className={`touch-target flex-1 sm:flex-initial flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
                 layoutMode === 'strip'
                   ? 'bg-slate-800 text-white'
                   : 'text-slate-400 hover:text-slate-200'
@@ -155,7 +153,7 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
             <button
               type="button"
               onClick={() => setLayoutMode('table')}
-              className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+              className={`touch-target flex-1 sm:flex-initial flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
                 layoutMode === 'table'
                   ? 'bg-slate-800 text-white'
                   : 'text-slate-400 hover:text-slate-200'
@@ -164,38 +162,91 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
               <Table2 className="h-3.5 w-3.5" aria-hidden="true" />
               TABLE
             </button>
+            <button
+              type="button"
+              onClick={() => setLayoutMode('both')}
+              className={`touch-target flex-1 sm:flex-initial flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 font-mono-tech text-xs font-semibold transition ${
+                layoutMode === 'both'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              BOTH
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Wind Intensity Legend Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800/80 bg-slate-950/60 px-3.5 py-2 text-xs font-mono-tech">
-        <span className="text-slate-400 uppercase tracking-wider">WIND INTENSITY KEY:</span>
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="inline-flex items-center gap-1.5 text-emerald-300">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" aria-hidden="true" />
-            <span>&lt; 8 mph (Park Flyer / Optimal)</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-amber-300">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]" aria-hidden="true" />
-            <span>8–15 mph (Moderate / Caution)</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-rose-300">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" aria-hidden="true" />
-            <span>&gt; 15 mph (Too Windy / No-Go)</span>
-          </span>
+      {/* 24-Hour Quick Flight Window Ribbon (Tap any hour bar to jump to it) */}
+      {hourly.length > 0 && (
+        <div className="rounded-xl border border-slate-800/80 bg-slate-950/75 p-2.5 sm:p-3">
+          <div className="mb-1.5 flex items-center justify-between font-mono-tech text-[10px] sm:text-xs text-slate-400">
+            <span>24H FLIGHT WINDOW RIBBON (TAP BAR TO JUMP)</span>
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-1 text-emerald-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                &lt;8
+              </span>
+              <span className="inline-flex items-center gap-1 text-amber-300">
+                <span className="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
+                8–15
+              </span>
+              <span className="inline-flex items-center gap-1 text-rose-300">
+                <span className="h-2 w-2 rounded-full bg-rose-500" aria-hidden="true" />
+                &gt;15 mph
+              </span>
+            </div>
+          </div>
+
+          <div
+            className="grid grid-cols-24 gap-0.5 sm:gap-1 items-end h-10 pt-1"
+            role="group"
+            aria-label="24-hour wind intensity overview bars"
+          >
+            {hourly.map((item) => {
+              const st = getWindStatus(item.windSpeed, item.windGusts);
+              const heightPct = Math.max(25, Math.min(100, Math.round((item.windSpeed / 20) * 100)));
+              return (
+                <button
+                  key={item.isoTime}
+                  type="button"
+                  onClick={() => {
+                    if (layoutMode === 'table') setLayoutMode('strip');
+                    setFilterMode('all');
+                    setTimeout(() => scrollToHourCard(item.isoTime), 50);
+                  }}
+                  aria-label={`${item.timeLabel}: ${item.windSpeed} mph wind, gusts ${item.windGusts} mph (${st.badgeText})`}
+                  className="group relative flex h-full w-full flex-col justify-end rounded-sm focus:outline-none"
+                >
+                  <span
+                    className={`w-full rounded-t-sm transition-all group-hover:opacity-100 ${st.barClass} ${
+                      item.isCurrentHour ? 'ring-1 ring-white opacity-100' : 'opacity-85'
+                    }`}
+                    style={{ height: `${heightPct}%` }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-1 flex justify-between font-mono-tech text-[10px] text-slate-400">
+            <span>NOW</span>
+            <span>+6H</span>
+            <span>+12H</span>
+            <span>+18H</span>
+            <span>+23H</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {filteredHours.length === 0 ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-8 text-center">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 text-center">
           <p className="font-mono-tech text-sm text-slate-300">
             No forecast hours match the selected wind filter ({filterMode.toUpperCase()}).
           </p>
           <button
             type="button"
             onClick={() => setFilterMode('all')}
-            className="mt-3 rounded-lg border border-sky-500/40 bg-sky-500/15 px-3.5 py-1.5 font-mono-tech text-xs font-semibold text-sky-300 hover:bg-sky-500/25"
+            className="touch-target mt-3 rounded-lg border border-sky-500/40 bg-sky-500/15 px-4 py-2 font-mono-tech text-xs font-semibold text-sky-300 hover:bg-sky-500/25"
           >
             Show All 24 Hours
           </button>
@@ -204,16 +255,17 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
         <>
           {/* 1. HORIZONTAL TACTICAL SCROLL STRIP */}
           {(layoutMode === 'both' || layoutMode === 'strip') && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-mono-tech text-slate-400">
-                <span>QUICK-SCAN HORIZONTAL STRIP (SWIPE / SCROLL)</span>
-                <span>{filteredHours.length} SLOTS SHOWN</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-mono-tech text-slate-400">
+                <span>SWIPE HORIZONTALLY FOR HOURLY TELEMETRY</span>
+                <span>{filteredHours.length} HRS</span>
               </div>
               <div
+                ref={stripRef}
                 tabIndex={0}
                 role="region"
                 aria-label={`Horizontal 24-hour forecast strip for ${locationName}`}
-                className="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-thin focus:outline-none focus:ring-2 focus:ring-sky-500/60 rounded-xl"
+                className="forecast-strip-scroller flex gap-2.5 sm:gap-3 pb-2.5 pt-1 rounded-xl"
               >
                 {filteredHours.map((item) => {
                   const st = getWindStatus(item.windSpeed, item.windGusts);
@@ -223,15 +275,16 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
                   return (
                     <article
                       key={item.isoTime}
-                      className={`tactical-card relative flex min-w-[148px] sm:min-w-[156px] shrink-0 flex-col justify-between rounded-xl border p-3 transition hover:border-slate-600 ${
+                      data-hour-iso={item.isoTime}
+                      className={`forecast-strip-card tactical-card relative flex min-w-[138px] sm:min-w-[154px] shrink-0 flex-col justify-between rounded-xl border p-3 transition hover:border-slate-600 ${
                         item.isCurrentHour
-                          ? `${st.borderClass} bg-slate-900/95 ring-1 ring-sky-400/40`
-                          : 'border-slate-800/90 bg-slate-950/80'
+                          ? `${st.borderClass} bg-slate-900/95 ring-1 ring-sky-400/50`
+                          : 'border-slate-800/90 bg-slate-950/85'
                       }`}
                     >
                       {/* Top Color Indicator Bar */}
                       <div
-                        className={`-mx-3 -mt-3 mb-2.5 h-1.5 rounded-t-xl ${st.barClass}`}
+                        className={`-mx-3 -mt-3 mb-2 h-1.5 rounded-t-xl ${st.barClass}`}
                         aria-hidden="true"
                       />
 
@@ -258,9 +311,9 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
                       </div>
 
                       {/* Primary Sustained Wind + Gusts Readout */}
-                      <div className="my-3 space-y-1.5">
+                      <div className="my-2.5 space-y-1">
                         <div className="flex items-baseline justify-between">
-                          <span className="text-[11px] font-mono-tech text-slate-400">WIND</span>
+                          <span className="text-[10px] font-mono-tech text-slate-400">WIND</span>
                           <span className={`font-mono-tech text-lg font-extrabold ${st.textClass}`}>
                             {item.windSpeed}{' '}
                             <span className="text-xs font-normal text-slate-400">mph</span>
@@ -268,7 +321,7 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
                         </div>
 
                         <div className="flex items-baseline justify-between">
-                          <span className="text-[11px] font-mono-tech text-slate-400">GUSTS</span>
+                          <span className="text-[10px] font-mono-tech text-slate-400">GUSTS</span>
                           <span className="font-mono-tech text-sm font-bold text-slate-200">
                             {item.windGusts}{' '}
                             <span className="text-[11px] font-normal text-slate-400">mph</span>
@@ -293,14 +346,14 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
 
                       {/* Footer: Direction + Temp */}
                       <div className="flex items-center justify-between border-t border-slate-800/80 pt-2 text-xs font-mono-tech">
-                        <div className="flex items-center gap-1 text-slate-200" title={`Wind from ${item.cardinal} (${item.windDirection}°)`}>
+                        <div className="flex items-center gap-1 text-slate-200">
                           <Navigation2
                             className="wind-arrow-dynamic h-3.5 w-3.5 text-sky-400 shrink-0"
                             style={{ '--wind-deg': `${item.windDirection}deg` }}
                             aria-hidden="true"
                           />
                           <span className="font-semibold">{item.cardinal}</span>
-                          <span className="text-[11px] text-slate-400">{item.windDirection}°</span>
+                          <span className="text-[10px] text-slate-400">{item.windDirection}°</span>
                         </div>
                         <div className="font-semibold text-amber-200">
                           {item.temperature}°F
@@ -315,9 +368,9 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
 
           {/* 2. STRUCTURED RESPONSIVE TELEMETRY TABLE */}
           {(layoutMode === 'both' || layoutMode === 'table') && (
-            <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between text-xs font-mono-tech text-slate-400">
-                <span>DETAILED TELEMETRY LOG (STICKY HEADERS // MOBILE CARD ADAPTIVE)</span>
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between text-[11px] font-mono-tech text-slate-400">
+                <span>DETAILED TELEMETRY LOG (STICKY HEADERS)</span>
                 <span>10M AGL SENSOR GRID</span>
               </div>
 

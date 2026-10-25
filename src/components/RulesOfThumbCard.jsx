@@ -1,22 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  ShieldAlert,
-  Plane,
   Wind,
   Gauge,
   Compass,
   CheckCircle2,
-  AlertTriangle,
   OctagonAlert,
 } from 'lucide-react';
 
 export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 0 }) {
+  // Collapse by default on narrow mobile screens to keep the primary flight deck compact; open by default on tablet/desktop
+  const [defaultOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  );
   const gustSpread = Math.max(0, Math.round((currentGusts - currentWindSpeed) * 10) / 10);
 
   const aircraftTiers = [
     {
       title: 'Micro & Ultra-Light Park Flyers',
-      subtitle: 'UMX, Slow Stick, Sub-250g Foamies, Indoor/Backyard Flyers',
+      subtitle: 'UMX, Slow Stick, Sub-250g Foamies, Backyard Flyers',
       windLimit: '0 – 7 mph',
       maxGusts: '≤ 10 mph',
       badge: '🟢 < 8 mph Zone',
@@ -59,36 +60,40 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
   ];
 
   return (
-    <section aria-label="RC Pilot Wind Limits and Rules of Thumb">
+    <section id="rules-section" aria-labelledby="rules-section-heading" className="space-y-2">
+      <h2 id="rules-section-heading" className="visually-hidden">
+        RC Pilot Field Manual: Wind Rules of Thumb
+      </h2>
+
       <details
-        open
+        open={defaultOpen}
         className="tactical-details tactical-card group rounded-2xl border border-slate-800/90 bg-[#0b111e]/95 shadow-xl transition"
       >
-        <summary className="flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 sm:p-6 hover:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-sky-500/60">
-          <div className="flex items-center gap-3">
+        <summary className="touch-target flex flex-wrap items-center justify-between gap-2.5 rounded-2xl p-3.5 sm:p-6 hover:bg-slate-900/50">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sky-500/40 bg-[#0b1324]">
               <svg width="36" height="36" aria-hidden="true" className="block">
                 <use href="#rc-airplane-symbol" />
               </svg>
             </div>
-            <div>
-              <span className="block font-display text-lg sm:text-xl font-bold tracking-tight text-white">
-                RC Pilot Field Manual: Wind Rules of Thumb
+            <div className="min-w-0">
+              <span className="block font-display text-base sm:text-xl font-bold tracking-tight text-white truncate">
+                RC Pilot Field Manual: Rules of Thumb
               </span>
-              <span className="block text-xs sm:text-sm text-slate-400">
-                Safe wind envelopes for Park Flyers vs. Sport Trainers vs. Larger Scale RC Aircraft
+              <span className="block text-xs sm:text-sm text-slate-400 truncate">
+                Safe wind envelopes for Park Flyers vs. Sport vs. Scale Aircraft
               </span>
             </div>
           </div>
         </summary>
 
-        <div className="space-y-5 border-t border-slate-800/90 p-4 sm:p-6">
+        <div className="space-y-4 sm:space-y-5 border-t border-slate-800/90 p-3.5 sm:p-6">
           {/* Three Aircraft Class Cards */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3.5 sm:gap-4 lg:grid-cols-3">
             {aircraftTiers.map((tier) => (
               <article
                 key={tier.title}
-                className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/85 p-4"
+                className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/85 p-3.5 sm:p-4"
               >
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -118,9 +123,9 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
                     </span>
                   </div>
 
-                  <h3 className="mt-3 font-display text-base font-bold text-white">
+                  <div className="mt-2.5 font-display text-base font-bold text-white">
                     {tier.title}
-                  </h3>
+                  </div>
                   <p className="mt-0.5 text-xs text-slate-400">{tier.subtitle}</p>
 
                   {/* Metrics Box */}
@@ -140,10 +145,10 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
                   </div>
 
                   {/* Bullet guidance */}
-                  <ul className="space-y-2 text-xs leading-relaxed text-slate-300">
+                  <ul className="space-y-1.5 text-xs leading-relaxed text-slate-300">
                     {tier.guidance.map((tip, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400" aria-hidden="true" />
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400" aria-hidden="true" />
                         <span>{tip}</span>
                       </li>
                     ))}
@@ -154,13 +159,13 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
           </div>
 
           {/* Tactical Field Rules Footer Strip */}
-          <div className="grid grid-cols-1 gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 p-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 p-3.5 sm:p-4 sm:grid-cols-3">
             <div className="flex items-start gap-3">
               <Gauge className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" aria-hidden="true" />
               <div>
-                <h4 className="font-mono-tech text-xs font-bold uppercase text-amber-300">
+                <div className="font-mono-tech text-xs font-bold uppercase text-amber-300">
                   The 50% Groundspeed Rule
-                </h4>
+                </div>
                 <p className="mt-1 text-xs text-slate-300">
                   Never fly an aircraft when peak gusts exceed <strong>50% of its top level airspeed</strong>. Currently gust spread is{' '}
                   <strong className="text-white">+{gustSpread} mph</strong> over sustained wind.
@@ -171,9 +176,9 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
             <div className="flex items-start gap-3">
               <Compass className="mt-0.5 h-5 w-5 shrink-0 text-sky-400" aria-hidden="true" />
               <div>
-                <h4 className="font-mono-tech text-xs font-bold uppercase text-sky-300">
+                <div className="font-mono-tech text-xs font-bold uppercase text-sky-300">
                   Crosswind Vector Math
-                </h4>
+                </div>
                 <p className="mt-1 text-xs text-slate-300">
                   A <strong>30° crosswind</strong> equals 50% of total wind speed across the runway; a <strong>45° crosswind</strong> equals 70%; a <strong>60°+ angle</strong> equals ~90%+ full crosswind.
                 </p>
@@ -183,9 +188,9 @@ export default function RulesOfThumbCard({ currentWindSpeed = 0, currentGusts = 
             <div className="flex items-start gap-3">
               <Wind className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
               <div>
-                <h4 className="font-mono-tech text-xs font-bold uppercase text-emerald-300">
+                <div className="font-mono-tech text-xs font-bold uppercase text-emerald-300">
                   Tree-Line Rotor Zone
-                </h4>
+                </div>
                 <p className="mt-1 text-xs text-slate-300">
                   At North Georgia fields (Alpharetta, Roswell, Woodstock), tall pines create mechanical curl turbulence extending <strong>7× tree height</strong> downwind.
                 </p>

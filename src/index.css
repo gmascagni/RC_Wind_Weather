@@ -7,6 +7,11 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -17,7 +22,26 @@ body {
     linear-gradient(to bottom, rgba(30, 41, 59, 0.22) 1px, transparent 1px);
   background-size: 100% 100%, 32px 32px, 32px 32px;
   color: #f8fafc;
-  min-height: 100svh;
+  min-block-size: 100dvh;
+  padding-inline-start: env(safe-area-inset-left, 0px);
+  padding-inline-end: env(safe-area-inset-right, 0px);
+}
+
+/* Outdoor Daylight High-Contrast Boost Mode for bright sun at the flying field */
+body.daylight-boost {
+  background-color: #000000;
+  background-image: none;
+  color: #ffffff;
+}
+
+body.daylight-boost .tactical-card {
+  background-color: #030712 !important;
+  border-color: #64748b !important;
+  border-width: 1.5px;
+}
+
+body.daylight-boost .text-slate-400 {
+  color: #cbd5e1 !important;
 }
 
 .font-display {
@@ -27,6 +51,65 @@ body {
 .font-mono-tech {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Safe area top/bottom helpers for installed iOS/Android Home Screen web app */
+.safe-top-header {
+  padding-block-start: max(0.5rem, env(safe-area-inset-top, 0px));
+}
+
+.safe-bottom-dock {
+  padding-block-end: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Balanced wrapping and safe alignment from css-layout guidance */
+.pill-wrap-balance {
+  display: flex;
+  flex-wrap: wrap;
+  flex-wrap: balance;
+  align-items: safe center;
+}
+
+/* Visually hidden utility that reveals on focus for Skip Link */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* High-contrast visible focus indicators with outline-offset */
+:where(a:any-link, button, summary):focus-visible {
+  outline: 3px solid #38bdf8;
+  outline-offset: 3px;
+}
+
+/* Enforce generous touch targets on mobile/coarse pointer devices */
+@media (pointer: coarse) {
+  .touch-target {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}
+
+/* Horizontal forecast strip: snap cards cleanly and contain horizontal overscroll while preserving vertical page scroll */
+.forecast-strip-scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #0f172a;
+  -webkit-overflow-scrolling: touch;
+}
+
+.forecast-strip-card {
+  scroll-snap-align: start;
 }
 
 /* Dynamic CSS custom property rotation for wind vectors and compass needle */
@@ -47,32 +130,34 @@ details.tactical-details > summary::-webkit-details-marker {
 }
 
 details.tactical-details > summary::after {
-  content: "▸ EXPAND BRIEFING";
+  content: "▸ EXPAND";
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: #38bdf8;
-  padding: 0.25rem 0.625rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 9999px;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  background: rgba(14, 116, 144, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(14, 116, 144, 0.22);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 details.tactical-details[open] > summary::after {
-  content: "▾ COLLAPSE BRIEFING";
+  content: "▾ COLLAPSE";
   color: #34d399;
-  border-color: rgba(52, 211, 153, 0.4);
-  background: rgba(6, 95, 70, 0.25);
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(6, 95, 70, 0.28);
 }
 
-/* Responsive Table with Sticky Headers and Container Query Stacked Cards */
+/* Responsive Table with Sticky Headers, Scrollbar Stability, and Container Query Stacked Cards */
 .table-wrapper {
   overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   max-inline-size: 100%;
-  max-block-size: min(640px, 78vh);
+  max-block-size: min(600px, 72dvh);
   container-type: inline-size;
   scrollbar-width: thin;
   scrollbar-color: #334155 #0f172a;
@@ -113,16 +198,16 @@ details.tactical-details[open] > summary::after {
   }
 
   .tactical-table thead {
-    /* Hide column header from layout and screen readers when stacked */
+    /* MANDATORY: Hide column header from layout and screen readers. */
     display: none;
   }
 
   .tactical-table tbody tr {
-    margin-block-end: 0.875rem;
+    margin-block-end: 0.75rem;
     border: 1px solid rgba(51, 65, 85, 0.9);
     border-radius: 0.75rem;
-    background-color: rgba(15, 23, 42, 0.85);
-    overflow: hidden;
+    background-color: rgba(15, 23, 42, 0.9);
+    overflow: clip;
   }
 
   .tactical-table tbody th {
@@ -131,14 +216,14 @@ details.tactical-details[open] > summary::after {
     z-index: 2;
     background-color: #111a2e;
     border-bottom: 1px solid rgba(51, 65, 85, 0.8);
-    padding: 0.625rem 1rem;
+    padding: 0.625rem 0.875rem;
   }
 
   .tactical-table tbody td {
     display: flex;
-    align-items: center;
+    align-items: safe center;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.875rem;
     border-bottom: 1px solid rgba(30, 41, 59, 0.6);
   }
 
