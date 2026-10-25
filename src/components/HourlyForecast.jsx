@@ -322,7 +322,15 @@ export default function HourlyForecast({ hourly = [], locationName = '' }) {
 
                         <div className="flex items-baseline justify-between">
                           <span className="text-[10px] font-mono-tech text-slate-400">GUSTS</span>
-                          <span className="font-mono-tech text-sm font-bold text-slate-200">
+                          <span
+                            className={`font-mono-tech text-sm font-bold ${
+                              item.windGusts > 20
+                                ? 'text-rose-300'
+                                : item.windGusts > 14
+                                ? 'text-amber-200'
+                                : 'text-slate-200'
+                            }`}
+                          >
                             {item.windGusts}{' '}
                             <span className="text-[11px] font-normal text-slate-400">mph</span>
                           </span>

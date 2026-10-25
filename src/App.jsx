@@ -91,20 +91,20 @@ async function fetchLocationWeather(location) {
     if (idx >= times.length) break;
     const rawTime = times[idx];
     const parsedDate = new Date(rawTime);
-    const wSpeed = Math.round(Number(winds[idx] ?? 0) * 10) / 10;
-    const wGust = Math.round(Number(gusts[idx] ?? wSpeed) * 10) / 10;
-    const wDir = Math.round(Number(dirs[idx] ?? 0));
-    const tVal = Math.round(Number(temps[idx] ?? currentTemp));
+    const isNow = i === 0;
+    const wSpeed = isNow ? currentWind : Math.round(Number(winds[idx] ?? 0) * 10) / 10;
+    const wGust = isNow ? currentGusts : Math.round(Number(gusts[idx] ?? wSpeed) * 10) / 10;
+    const wDir = isNow ? currentDir : Math.round(Number(dirs[idx] ?? 0));
+    const tVal = isNow ? currentTemp : Math.round(Number(temps[idx] ?? currentTemp));
 
     hourlySlice.push({
       isoTime: rawTime,
-      timeLabel:
-        i === 0
-          ? 'NOW'
-          : parsedDate.toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              minute: '2-digit',
-            }),
+      timeLabel: isNow
+        ? 'NOW'
+        : parsedDate.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+          }),
       hourShort: parsedDate.toLocaleTimeString('en-US', { hour: 'numeric' }),
       dayLabel: rawTime.slice(0, 10) === nowDateStr ? 'Today' : 'Tomorrow',
       temperature: tVal,
@@ -113,7 +113,7 @@ async function fetchLocationWeather(location) {
       windDirection: wDir,
       cardinal: degreesToCardinal(wDir),
       precipProb: Number(precips[idx] ?? 0),
-      isCurrentHour: i === 0,
+      isCurrentHour: isNow,
     });
   }
 

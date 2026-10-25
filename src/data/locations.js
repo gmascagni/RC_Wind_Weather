@@ -51,25 +51,30 @@ export function degreesToCardinal(deg) {
 }
 
 /**
- * Evaluates RC flying condition based on sustained wind speed (mph) and wind gusts (mph).
- * Thresholds:
+ * Evaluates RC flying condition strictly based on sustained wind speed (mph) thresholds:
  *  - Green (< 8 mph): "🟢 Excellent for Flying"
  *  - Yellow (8-15 mph): "🟡 Moderate Winds - Exercise Caution"
  *  - Red (> 15 mph): "🔴 Too Windy"
+ * Gust spread and gust warnings are computed alongside without contradicting the wind speed tier.
  */
 export function getWindStatus(windSpeedMph, windGustsMph = 0) {
   const speed = Number(windSpeedMph) || 0;
   const gusts = Number(windGustsMph) || speed;
   const gustSpread = Math.max(0, Math.round((gusts - speed) * 10) / 10);
+  const hasHighGusts = gusts > 18 || gustSpread >= 10;
 
-  if (speed < 8 && gusts <= 14) {
+  if (speed < 8) {
     return {
       level: 'excellent',
       badgeText: '🟢 Excellent for Flying',
-      shortLabel: 'CALM // GO FLY',
+      shortLabel: 'CALM // <8 MPH',
       code: 'COND-GREEN',
-      summary: 'Ideal laminar air for micro foamies, park flyers, BNF trainers, and giant scale.',
-      recommendedCrafts: 'All Classes (Micro, Park Flyer, Sport, Scale)',
+      summary: hasHighGusts
+        ? `Sustained wind is calm (${speed} mph), but watch for ${gusts} mph gusts (Δ +${gustSpread} mph) on landing.`
+        : 'Ideal laminar air for micro foamies, park flyers, BNF trainers, and giant scale.',
+      recommendedCrafts: hasHighGusts
+        ? 'Park Flyers (with caution on gusts), Sport & Scale'
+        : 'All Classes (Micro, Park Flyer, Sport, Scale)',
       accentHex: '#10b981',
       bgClass: 'bg-emerald-500/15',
       borderClass: 'border-emerald-400/50',
@@ -78,19 +83,19 @@ export function getWindStatus(windSpeedMph, windGustsMph = 0) {
       barClass: 'bg-emerald-400',
       dotClass: 'bg-emerald-400 shadow-[0_0_12px_#10b981]',
       gustSpread,
+      hasHighGusts,
     };
   }
 
-  if (speed <= 15 && gusts <= 22) {
+  if (speed <= 15) {
     return {
       level: 'moderate',
       badgeText: '🟡 Moderate Winds - Exercise Caution',
-      shortLabel: 'CAUTION // 8-15 MPH',
+      shortLabel: 'MOD // 8-15 MPH',
       code: 'COND-YELLOW',
-      summary:
-        speed < 8 && gusts > 14
-          ? 'Sustained breeze is light, but elevated gusts require active throttle management on landing.'
-          : 'Park flyers & lightweight foamies will weathercock; suitable for AS3X/gyro-stabilized sport & scale models.',
+      summary: hasHighGusts
+        ? `Moderate ${speed} mph wind with strong ${gusts} mph gusts (Δ +${gustSpread} mph) — carry extra throttle on approach.`
+        : 'Park flyers & lightweight foamies will weathercock; suitable for AS3X/gyro-stabilized sport & scale models.',
       recommendedCrafts: '3S–6S Sport, Warbirds (w/ Gyro), 60"+ Scale & EDFs',
       accentHex: '#f59e0b',
       bgClass: 'bg-amber-500/15',
@@ -100,15 +105,16 @@ export function getWindStatus(windSpeedMph, windGustsMph = 0) {
       barClass: 'bg-amber-400',
       dotClass: 'bg-amber-400 shadow-[0_0_12px_#f59e0b]',
       gustSpread,
+      hasHighGusts,
     };
   }
 
   return {
     level: 'high',
     badgeText: '🔴 Too Windy',
-    shortLabel: 'NO-GO // >15 MPH',
+    shortLabel: 'HIGH // >15 MPH',
     code: 'COND-RED',
-    summary: 'High sustained winds or severe gust shear. Ground lightweight models; experienced heavy-wing-loading pilots only.',
+    summary: 'High sustained winds (> 15 mph). Ground lightweight models; experienced heavy-wing-loading pilots only.',
     recommendedCrafts: 'Grounded / Heavy Slope Soarers & Giant Scale Only',
     accentHex: '#f43f5e',
     bgClass: 'bg-rose-500/15',
@@ -118,6 +124,7 @@ export function getWindStatus(windSpeedMph, windGustsMph = 0) {
     barClass: 'bg-rose-500',
     dotClass: 'bg-rose-500 shadow-[0_0_12px_#f43f5e]',
     gustSpread,
+    hasHighGusts: true,
   };
 }
 
