@@ -1,16 +1,32 @@
-# React + Vite
+# RC Wind Weather — North Georgia Flight Deck
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Live site: **[https://gmascagni.github.io/RC_Wind_Weather/](https://gmascagni.github.io/RC_Wind_Weather/)**
 
-Currently, two official plugins are available:
+An avionics-grade mobile weather and wind dashboard built for RC airplane pilots flying in **Alpharetta, GA**, **Roswell, GA**, and **Woodstock, GA**. Designed for bright outdoor smartphone viewing at the flying field and installable as a standalone home-screen PWA.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Capabilities
 
-## React Compiler
+- **Instant Go / Marginal / No-Go Verdict**: Evaluates sustained 10m wind, peak gusts, gust spread, active precipitation, visibility, and ambient LiPo/airframe temperature limits.
+- **Tuned for 60-Class Electric Warbirds (Customizable)**: Ships with sensible defaults for 60-class electric warbirds (max 14 mph sustained, 20 mph gusts, 8 mph gust spread) plus one-tap presets (*Micro/Park Flyer*, *Sport/Trainer*, *60-Class Warbird*, *Giant Scale*) and custom sliders saved in `localStorage`.
+- **SVG Wind Compass & Runway Crosswind Calculator**: Distinguishes meteorological wind origin (**FROM**) vs. airflow vector (**BLOWING TO**), with a user-configurable runway heading (`000°–359°`) computing exact headwind/tailwind and crosswind components.
+- **24-Hour Sustained vs. Gust SVG Chart & Telemetry**: Pure inline SVG wind/gust envelope chart highlighting the **Best Flying Window**, paired with swipeable hourly cards and a sticky-header telemetry log.
+- **Multi-Unit & Sunlight Support**: Switch seamlessly between `mph`, `kt`, and `km/h`, and toggle **Daylight Boost** for direct outdoor sunlight contrast.
+- **Offline-Resilient PWA**: Caches the app shell via Service Worker under `/RC_Wind_Weather/` and persists last-good telemetry per location in `localStorage` with staleness indicators.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the Oxlint configuration
+- **React 19** + **Vite 8** (Plain ES Modules, zero external state or chart bloat)
+- **Tailwind CSS 4** (`@tailwindcss/vite` with `@theme` design tokens)
+- **Lucide React** icons
+- **Open-Meteo Forecast API** (`America/New_York` timezone, `unixtime` epoch precision, no API key required)
+- **Oxlint** static analysis
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Local Development
+
+```bash
+npm ci
+npm run dev       # Start dev server
+npm run lint      # Run Oxlint checks
+npm run build     # Build production bundle to dist/
+npm run preview   # Preview production build at /RC_Wind_Weather/
+```

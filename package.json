@@ -1,8 +1,14 @@
 {
-  "name": "rc-wind-conditions",
+  "name": "rc-wind-weather",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Avionics-style RC airplane wind, gust, crosswind, and weather dashboard for Alpharetta, Roswell, and Woodstock, GA.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gmascagni/RC_Wind_Weather.git"
+  },
+  "homepage": "https://gmascagni.github.io/RC_Wind_Weather/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

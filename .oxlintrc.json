@@ -2,7 +2,12 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "oxc"],
   "rules": {
+    "no-unused-vars": "error",
+    "no-var": "error",
+    "eqeqeq": "error",
     "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/jsx-key": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
   }
 }

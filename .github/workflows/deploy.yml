@@ -27,8 +27,11 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies cleanly
+        run: npm ci
+
+      - name: Run Oxlint
+        run: npm run lint
 
       - name: Build production bundle
         run: npm run build
