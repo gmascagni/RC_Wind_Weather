@@ -145,6 +145,14 @@ body.daylight-boost {
 }
 
 /* Compositor-safe motion with nested reduced-motion overrides */
+.compass-dial-rotate {
+  transform: rotate(var(--dial-deg, 0deg));
+  transition: transform 0.09s linear;
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 .wind-vector-rotate {
   transform: rotate(var(--wind-deg, 0deg));
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
