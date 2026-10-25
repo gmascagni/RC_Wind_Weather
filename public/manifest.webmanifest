@@ -1,8 +1,8 @@
 {
   "id": "/RC_Wind_Weather/",
-  "name": "RC Wind Weather — North GA Flight Deck",
+  "name": "RC Wind Weather — Flight Telemetry Deck",
   "short_name": "RC Wind",
-  "description": "Avionics-style wind, gust, crosswind, and flyability dashboard for RC airplane pilots in Alpharetta, Roswell, and Woodstock, GA.",
+  "description": "Avionics-style wind, gust, live compass, crosswind, and flyability dashboard for RC airplane pilots — search any city, locate by GPS, and save favorite fields.",
   "start_url": "/RC_Wind_Weather/",
   "scope": "/RC_Wind_Weather/",
   "display": "standalone",

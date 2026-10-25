@@ -1,4 +1,4 @@
-import { WifiOff, RefreshCw } from 'lucide-react';
+import { WifiOff, RefreshCw, LocateFixed, Search } from 'lucide-react';
 
 export function SkeletonDeck() {
   return (
@@ -22,6 +22,44 @@ export function SkeletonDeck() {
         <div className="skeleton-shimmer h-64 rounded-card border border-line" />
       </div>
     </div>
+  );
+}
+
+export function WelcomeFieldPrompt({ onLocateGps, isLocatingGps }) {
+  return (
+    <section className="avionics-panel rounded-card border border-line bg-panel p-6 sm:p-10 text-center space-y-5 shadow-panel">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-card border border-good-line bg-panel-inset">
+        <svg width="46" height="46" aria-hidden="true" className="block">
+          <use href="#rc-airplane-symbol" />
+        </svg>
+      </div>
+      <div className="space-y-2">
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">
+          Select Your RC Flying Field
+        </h2>
+        <p className="mx-auto max-w-lg text-sm text-ink-soft">
+          Search any city or ZIP code in the bar above, or tap <strong>Locate by GPS</strong> right at the flight line to pull live 10m wind, gust shear, and runway crosswind telemetry. Star your club fields to save them as Favorites.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={onLocateGps}
+          disabled={isLocatingGps}
+          className="touch-target inline-flex items-center gap-2 rounded-control bg-avionics px-5 font-instrument text-xs font-bold text-slate-950"
+        >
+          <LocateFixed strokeWidth={2} className={`h-4 w-4 ${isLocatingGps ? 'spin-refresh' : ''}`} aria-hidden="true" />
+          {isLocatingGps ? 'ACQUIRING GPS…' : 'LOCATE MY FIELD BY GPS'}
+        </button>
+        <label
+          htmlFor="city-search-input"
+          className="touch-target inline-flex cursor-pointer items-center gap-2 rounded-control border border-line-strong bg-panel-raised px-5 font-instrument text-xs font-bold text-ink-soft hover:text-ink"
+        >
+          <Search strokeWidth={2} className="h-4 w-4 text-avionics" aria-hidden="true" />
+          SEARCH BY CITY / ZIP
+        </label>
+      </div>
+    </section>
   );
 }
 

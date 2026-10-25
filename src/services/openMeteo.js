@@ -1,32 +1,32 @@
 import { degreesToCardinal, normalizeDegrees } from '../utils/aerodynamics';
 
-const TARGET_TZ = 'America/New_York';
+const FALLBACK_TZ = 'America/New_York';
 const REQUEST_TIMEOUT_MS = 8500;
 const MAX_RETRIES = 2;
 
-const timeFormatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: TARGET_TZ,
-  hour: 'numeric',
-  minute: '2-digit',
-});
+const formatterCache = new Map();
 
-const shortHourFormatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: TARGET_TZ,
-  hour: 'numeric',
-});
+function getFormattersForTz(tzInput) {
+  const tz = tzInput && tzInput !== 'auto' ? tzInput : FALLBACK_TZ;
+  if (formatterCache.has(tz)) return formatterCache.get(tz);
 
-const hour24Formatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: TARGET_TZ,
-  hour: '2-digit',
-  hourCycle: 'h23',
-});
+  let validTz = tz;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz });
+  } catch {
+    validTz = FALLBACK_TZ;
+  }
 
-const dateKeyFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: TARGET_TZ,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
+  const bundle = {
+    tz: validTz,
+    time: new Intl.DateTimeFormat('en-US', { timeZone: validTz, hour: 'numeric', minute: '2-digit' }),
+    shortHour: new Intl.DateTimeFormat('en-US', { timeZone: validTz, hour: 'numeric' }),
+    hour24: new Intl.DateTimeFormat('en-US', { timeZone: validTz, hour: '2-digit', hourCycle: 'h23' }),
+    dateKey: new Intl.DateTimeFormat('en-CA', { timeZone: validTz, year: 'numeric', month: '2-digit', day: '2-digit' }),
+  };
+  formatterCache.set(tz, bundle);
+  return bundle;
+}
 
 function safeNum(val, fallback = 0) {
   const n = Number(val);
@@ -76,6 +76,7 @@ async function fetchWithTimeoutAndRetry(url, externalSignal) {
 }
 
 export async function fetchOpenMeteoForLocation(location, signal) {
+  const requestedTz = location.timezone && location.timezone !== 'auto' ? location.timezone : 'auto';
   const params = new URLSearchParams({
     latitude: String(location.lat),
     longitude: String(location.lon),
@@ -104,7 +105,7 @@ export async function fetchOpenMeteoForLocation(location, signal) {
     wind_speed_unit: 'mph',
     precipitation_unit: 'inch',
     timeformat: 'unixtime',
-    timezone: TARGET_TZ,
+    timezone: requestedTz,
     forecast_days: '2',
   });
 
@@ -113,6 +114,11 @@ export async function fetchOpenMeteoForLocation(location, signal) {
     signal
   );
 
+  const fmt = getFormattersForTz(data?.timezone || location.timezone || FALLBACK_TZ);
+  const apiElevFt = Number.isFinite(Number(data?.elevation))
+    ? Math.round(Number(data.elevation) * 3.28084)
+    : null;
+
   const cur = data?.current || {};
   const currentWind = Math.round(safeNum(cur.wind_speed_10m, 0) * 10) / 10;
   const currentGusts = Math.max(currentWind, Math.round(safeNum(cur.wind_gusts_10m, currentWind) * 10) / 10);
@@ -120,10 +126,9 @@ export async function fetchOpenMeteoForLocation(location, signal) {
   const currentTemp = Math.round(safeNum(cur.temperature_2m, 68));
   const currentVisMi = Math.round((safeNum(cur.visibility, 16093) / 1609.344) * 10) / 10;
 
-  // Determine exact current hour start in unix seconds (no browser-timezone drift, DST-exact)
   const nowEpochSec = safeNum(cur.time, Math.floor(Date.now() / 1000));
   const currentHourFloorSec = Math.floor(nowEpochSec / 3600) * 3600;
-  const todayKey = dateKeyFormatter.format(new Date(nowEpochSec * 1000));
+  const todayKey = fmt.dateKey.format(new Date(nowEpochSec * 1000));
 
   const hTimes = Array.isArray(data?.hourly?.time) ? data.hourly.time : [];
   let startIdx = hTimes.findIndex((epochSec) => safeNum(epochSec) >= currentHourFloorSec);
@@ -146,10 +151,10 @@ export async function fetchOpenMeteoForLocation(location, signal) {
     hourly.push({
       epochSec,
       isoTime: dateObj.toISOString(),
-      timeLabel: isNow ? 'NOW' : timeFormatter.format(dateObj),
-      hourShort: isNow ? 'NOW' : shortHourFormatter.format(dateObj),
-      hour24: Number(hour24Formatter.format(dateObj)) || 0,
-      dayLabel: dateKeyFormatter.format(dateObj) === todayKey ? 'Today' : 'Tomorrow',
+      timeLabel: isNow ? 'NOW' : fmt.time.format(dateObj),
+      hourShort: isNow ? 'NOW' : fmt.shortHour.format(dateObj),
+      hour24: Number(fmt.hour24.format(dateObj)) || 0,
+      dayLabel: fmt.dateKey.format(dateObj) === todayKey ? 'Today' : 'Tomorrow',
       temperature: isNow ? currentTemp : Math.round(safeNum(data.hourly.temperature_2m?.[i], currentTemp)),
       windSpeed: wSpeed,
       windGusts: wGust,
@@ -167,6 +172,8 @@ export async function fetchOpenMeteoForLocation(location, signal) {
 
   return {
     fetchedAtMs: Date.now(),
+    timezone: fmt.tz,
+    elevationFt: apiElevFt,
     current: {
       temperature: currentTemp,
       apparentTemperature: Math.round(safeNum(cur.apparent_temperature, currentTemp)),

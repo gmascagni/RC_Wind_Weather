@@ -1,44 +1,44 @@
-export const FLYING_LOCATIONS = [
-  {
-    id: 'alpharetta',
-    name: 'Alpharetta, GA',
-    shortName: 'Alpharetta',
-    sectorCode: 'KALP-RC',
-    lat: 34.0754,
-    lon: -84.2941,
-    coordsDisplay: '34.0754° N, 84.2941° W',
-    elevationFt: 1135,
-    defaultRunwayDeg: 290,
-    fieldType: 'North Fulton Turf & Park Sector',
-    notes: 'Tall pine tree-line creates mechanical rotor curl when NW winds exceed 10 mph.',
-  },
-  {
-    id: 'roswell',
-    name: 'Roswell, GA',
-    shortName: 'Roswell',
-    sectorCode: 'KROS-RC',
-    lat: 34.0232,
-    lon: -84.3616,
-    coordsDisplay: '34.0232° N, 84.3616° W',
-    elevationFt: 1056,
-    defaultRunwayDeg: 270,
-    fieldType: 'Chattahoochee Basin Flyer Zone',
-    notes: 'Afternoon thermal lift over river basin; calmest air typically sunrise to 10:30 AM.',
-  },
-  {
-    id: 'woodstock',
-    name: 'Woodstock, GA',
-    shortName: 'Woodstock',
-    sectorCode: 'KWDS-RC',
-    lat: 34.1014,
-    lon: -84.5194,
-    coordsDisplay: '34.1014° N, 84.5194° W',
-    elevationFt: 988,
-    defaultRunwayDeg: 280,
-    fieldType: 'Cherokee Open Airfield Sector',
-    notes: 'Wide approaches; westerly gust fronts arrive 15–20 min earlier than Alpharetta.',
-  },
-];
+function formatCoordPair(lat, lon) {
+  const ns = lat >= 0 ? 'N' : 'S';
+  const ew = lon >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(4)}° ${ns}, ${Math.abs(lon).toFixed(4)}° ${ew}`;
+}
+
+export function createLocationRecord({
+  id,
+  name,
+  shortName,
+  region = '',
+  countryCode = '',
+  lat,
+  lon,
+  elevationFt = null,
+  timezone = 'auto',
+  defaultRunwayDeg = 270,
+  isGps = false,
+}) {
+  const cleanLat = Math.round(Number(lat) * 10000) / 10000;
+  const cleanLon = Math.round(Number(lon) * 10000) / 10000;
+  const stableId = id || `loc_${cleanLat.toFixed(3)}_${cleanLon.toFixed(3)}`;
+
+  return {
+    id: stableId,
+    name: name || shortName || 'Flying Field',
+    shortName: shortName || name || 'Field',
+    region,
+    countryCode,
+    lat: cleanLat,
+    lon: cleanLon,
+    coordsDisplay: formatCoordPair(cleanLat, cleanLon),
+    elevationFt,
+    timezone,
+    defaultRunwayDeg,
+    isGps: Boolean(isGps),
+    notes: isGps
+      ? 'Live GPS coordinates — align runway strip heading below or tap Live Compass to snap.'
+      : '10m AGL wind & gust forecast — set your field runway alignment below for crosswind math.',
+  };
+}
 
 // Sensible defaults for 60-Class Electric Warbirds (1.4m–1.6m / 60–70" 6S w/ retracts & flaps)
 export const DEFAULT_THRESHOLDS = {
@@ -152,8 +152,8 @@ export function getUnitLabel(unitId = 'mph') {
   return WIND_UNITS[unitId]?.label ?? 'mph';
 }
 
-export const STALE_AFTER_MS = 15 * 60 * 1000; // 15 minutes
-export const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+export const STALE_AFTER_MS = 15 * 60 * 1000;
+export const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
 export const STATUS_THEME = {
   good: {

@@ -1,8 +1,8 @@
-# RC Wind Weather — North Georgia Flight Deck
+# RC Wind Weather — Flight Telemetry Deck
 
 Live site: **[https://gmascagni.github.io/RC_Wind_Weather/](https://gmascagni.github.io/RC_Wind_Weather/)**
 
-An avionics-grade mobile weather and wind dashboard built for RC airplane pilots flying in **Alpharetta, GA**, **Roswell, GA**, and **Woodstock, GA**. Designed for bright outdoor smartphone viewing at the flying field and installable as a standalone home-screen PWA.
+An avionics-grade mobile weather and wind dashboard built for RC airplane pilots. Search any city or ZIP code worldwide, locate your flying field automatically via **GPS**, and star your favorite club airfields for one-tap switching. Designed for bright outdoor smartphone viewing and installable as a standalone home-screen PWA.
 
 ## Key Capabilities
 

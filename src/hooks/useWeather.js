@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { AUTO_REFRESH_MS, STALE_AFTER_MS } from '../config/flightConfig';
 import { fetchOpenMeteoForLocation } from '../services/openMeteo';
 
-const CACHE_KEY = 'rc_wind_weather_cache_v2';
+const CACHE_KEY = 'rc_wind_weather_cache_v3';
 
 function loadCachedTelemetry() {
   if (typeof window === 'undefined') return {};
@@ -36,66 +36,84 @@ export function formatRelativeAge(fetchedAtMs, nowMs) {
 export function useWeather(locations) {
   const [cacheById, setCacheById] = useState(loadCachedTelemetry);
   const [errorsById, setErrorsById] = useState({});
-  const [isInitialLoading, setIsInitialLoading] = useState(() => Object.keys(loadCachedTelemetry()).length === 0);
+  const [fetchingIds, setFetchingIds] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
 
   const abortRef = useRef(null);
-  const inFlightRef = useRef(false);
+  const locationsRef = useRef(locations);
 
-  const refreshAll = useCallback(
-    async (manual = false) => {
-      if (inFlightRef.current && !manual) return;
-      if (abortRef.current) {
-        abortRef.current.abort();
-      }
-
-      const controller = new AbortController();
-      abortRef.current = controller;
-      inFlightRef.current = true;
-      setIsRefreshing(true);
-
-      const results = await Promise.allSettled(
-        locations.map(async (loc) => {
-          const payload = await fetchOpenMeteoForLocation(loc, controller.signal);
-          return { id: loc.id, payload };
-        })
-      );
-
-      if (controller.signal.aborted) return;
-
-      setCacheById((prev) => {
-        const next = { ...prev };
-        for (const res of results) {
-          if (res.status === 'fulfilled') {
-            next[res.value.id] = res.value.payload;
-          }
-        }
-        saveCachedTelemetry(next);
-        return next;
-      });
-
-      setErrorsById(() => {
-        const nextErrs = {};
-        results.forEach((res, idx) => {
-          if (res.status === 'rejected' && res.reason?.name !== 'AbortError') {
-            const locId = locations[idx].id;
-            nextErrs[locId] = res.reason?.message || 'Unable to reach Open-Meteo weather feed';
-          }
-        });
-        return nextErrs;
-      });
-
-      setNowMs(Date.now());
-      setIsInitialLoading(false);
-      setIsRefreshing(false);
-      inFlightRef.current = false;
-    },
-    [locations]
-  );
-
-  // Initial fetch, auto-refresh interval, and relative-time ticker — paused when tab is hidden
   useEffect(() => {
+    locationsRef.current = locations;
+  }, [locations]);
+
+  const locationKey = locations.map((l) => l.id).join('|');
+
+  const refreshAll = useCallback(async (forceAll = false) => {
+    const currentLocations = locationsRef.current;
+    if (!currentLocations || currentLocations.length === 0) {
+      setIsRefreshing(false);
+      return;
+    }
+
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setIsRefreshing(true);
+    setFetchingIds((prev) => {
+      const next = { ...prev };
+      for (const loc of currentLocations) next[loc.id] = true;
+      return next;
+    });
+
+    const targets = forceAll
+      ? currentLocations
+      : currentLocations;
+
+    const results = await Promise.allSettled(
+      targets.map(async (loc) => {
+        const payload = await fetchOpenMeteoForLocation(loc, controller.signal);
+        return { id: loc.id, payload };
+      })
+    );
+
+    if (controller.signal.aborted) return;
+
+    setCacheById((prev) => {
+      const next = { ...prev };
+      for (const res of results) {
+        if (res.status === 'fulfilled') {
+          next[res.value.id] = res.value.payload;
+        }
+      }
+      saveCachedTelemetry(next);
+      return next;
+    });
+
+    setErrorsById((prev) => {
+      const nextErrs = { ...prev };
+      results.forEach((res, idx) => {
+        const locId = targets[idx].id;
+        if (res.status === 'fulfilled') {
+          delete nextErrs[locId];
+        } else if (res.reason?.name !== 'AbortError') {
+          nextErrs[locId] = res.reason?.message || 'Unable to reach Open-Meteo weather feed';
+        }
+      });
+      return nextErrs;
+    });
+
+    setFetchingIds({});
+    setNowMs(Date.now());
+    setIsRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    if (!locationKey) return undefined;
+
     let refreshTimer = null;
     let ageTicker = null;
 
@@ -115,14 +133,12 @@ export function useWeather(locations) {
         clearInterval(refreshTimer);
         clearInterval(ageTicker);
       } else {
-        const currentNow = Date.now();
-        setNowMs(currentNow);
+        setNowMs(Date.now());
         startTimers();
         refreshAll(false);
       }
     };
 
-    // Defer async invocation onto microtask to avoid synchronous setState-in-effect warning and abort cleanly in StrictMode
     const initTimeout = setTimeout(() => {
       refreshAll(false);
     }, 0);
@@ -135,30 +151,32 @@ export function useWeather(locations) {
       clearInterval(refreshTimer);
       clearInterval(ageTicker);
       document.removeEventListener('visibilitychange', handleVisibility);
-      if (abortRef.current) {
-        abortRef.current.abort();
-      }
-      inFlightRef.current = false;
+      if (abortRef.current) abortRef.current.abort();
     };
-  }, [refreshAll]);
+  }, [locationKey, refreshAll]);
 
   const getLocationState = useCallback(
     (locId) => {
+      if (!locId) {
+        return { data: null, error: null, fetchedAtMs: null, ageLabel: 'Never updated', isStale: false, loading: false };
+      }
       const entry = cacheById[locId] || null;
       const error = errorsById[locId] || null;
       const fetchedAtMs = entry?.fetchedAtMs || null;
       const ageMs = fetchedAtMs ? Math.max(0, nowMs - fetchedAtMs) : Infinity;
       const isStale = Boolean(entry && ageMs > STALE_AFTER_MS);
+      const isTracked = locations.some((l) => l.id === locId);
+      const loading = !entry && !error && (isTracked || Boolean(fetchingIds[locId]) || isRefreshing);
       return {
         data: entry,
         error,
         fetchedAtMs,
         ageLabel: formatRelativeAge(fetchedAtMs, nowMs),
         isStale,
-        loading: isInitialLoading && !entry,
+        loading,
       };
     },
-    [cacheById, errorsById, nowMs, isInitialLoading]
+    [cacheById, errorsById, fetchingIds, isRefreshing, locations, nowMs]
   );
 
   return {

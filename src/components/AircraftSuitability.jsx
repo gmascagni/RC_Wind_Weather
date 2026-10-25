@@ -111,10 +111,10 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
             <Wind strokeWidth={2} className="mt-0.5 h-5 w-5 text-good shrink-0" aria-hidden="true" />
             <div>
               <strong className="block font-instrument text-xs uppercase text-good-ink">
-                North GA Pine Rotor Zone
+                Tree-Line Mechanical Rotor
               </strong>
               <p className="mt-1 text-xs text-ink-soft">
-                Tall Georgia pines generate downwind mechanical curl extending 7× tree height. Carry 15% extra power through base-to-final turns.
+                Tall airfield tree-lines generate downwind mechanical curl extending 7× tree height. Carry 15% extra power through base-to-final turns.
               </p>
             </div>
           </div>

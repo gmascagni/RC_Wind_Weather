@@ -1,10 +1,12 @@
-import { MapPin, AlertCircle, Clock, SlidersHorizontal } from 'lucide-react';
+import { MapPin, AlertCircle, Clock, SlidersHorizontal, Star } from 'lucide-react';
 import { AIRCRAFT_PRESETS, STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
 import { StatusIcon } from './StatusVisuals';
 import CockpitMetricsGrid from './CockpitMetricsGrid';
 
 export default function HeroStatusBanner({
   location,
+  isFavorite,
+  onToggleFavorite,
   locState,
   status,
   runwayInfo,
@@ -15,6 +17,7 @@ export default function HeroStatusBanner({
   const current = locState.data.current;
   const theme = STATUS_THEME[status.level];
   const unit = getUnitLabel(windUnit);
+  const elevFt = locState.data.elevationFt ?? location.elevationFt;
   const presetName =
     AIRCRAFT_PRESETS.find((p) => p.id === thresholds.presetId)?.label || 'Custom Aircraft Limits';
 
@@ -40,24 +43,46 @@ export default function HeroStatusBanner({
       )}
 
       <div className="flex flex-col gap-4 border-b border-line pb-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-1.5 min-w-0">
+        <div className="space-y-2 min-w-0">
           <div className="flex flex-wrap items-center gap-2 font-instrument text-2xs text-ink-soft">
             <span className="inline-flex items-center gap-1 rounded-md border border-line-strong bg-panel-inset px-2 py-0.5 text-avionics">
               <MapPin strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               {location.coordsDisplay}
             </span>
-            <span className="rounded-md border border-line bg-panel-inset px-2 py-0.5">
-              ELEV {location.elevationFt} FT
-            </span>
+            {elevFt !== null && elevFt !== undefined && (
+              <span className="rounded-md border border-line bg-panel-inset px-2 py-0.5">
+                ELEV {elevFt} FT
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 rounded-md border border-line bg-panel-inset px-2 py-0.5 text-ink-dim">
               <Clock strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               Updated {locState.ageLabel}
             </span>
           </div>
 
-          <h2 id="hero-location-heading" className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-            {location.name}
-          </h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+              {location.name}
+            </h2>
+            <button
+              type="button"
+              onClick={() => onToggleFavorite(location)}
+              aria-pressed={isFavorite}
+              className={`touch-target inline-flex items-center gap-1.5 rounded-control border px-3 font-instrument text-2xs font-bold transition ${
+                isFavorite
+                  ? 'border-caution-line bg-caution-surface text-caution-ink'
+                  : 'border-line bg-panel-inset text-ink-soft hover:border-line-strong hover:text-ink'
+              }`}
+            >
+              <Star
+                strokeWidth={2}
+                className="h-4 w-4 text-caution shrink-0"
+                fill={isFavorite ? 'currentColor' : 'none'}
+                aria-hidden="true"
+              />
+              {isFavorite ? 'FAVORITED' : 'ADD FAVORITE'}
+            </button>
+          </div>
           <p className="text-xs sm:text-sm text-ink-soft">{location.notes}</p>
         </div>
 

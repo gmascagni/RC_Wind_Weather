@@ -2,7 +2,7 @@
   "name": "rc-wind-weather",
   "private": true,
   "version": "1.0.0",
-  "description": "Avionics-style RC airplane wind, gust, crosswind, and weather dashboard for Alpharetta, Roswell, and Woodstock, GA.",
+  "description": "Avionics-style RC airplane wind, gust, crosswind, and weather dashboard with city search, GPS field location, and saved favorites.",
   "type": "module",
   "repository": {
     "type": "git",
