@@ -1,60 +1,117 @@
 @import "tailwindcss";
 
+@theme {
+  /* Surface Layers */
+  --color-deck-bg: #070b12;
+  --color-panel: #0c1322;
+  --color-panel-raised: #111b2f;
+  --color-panel-inset: #080e1a;
+  --color-line: #1e2d47;
+  --color-line-strong: #354b6e;
+
+  /* High-Contrast Daylight Text Hierarchy (WCAG AA/AAA on #0c1322) */
+  --color-ink: #f8fafc;
+  --color-ink-soft: #cbd5e1;
+  --color-ink-dim: #94a3b8;
+
+  /* Avionics Accent & Semantic Status Tokens */
+  --color-avionics: #38bdf8;
+  --color-avionics-soft: rgba(56, 189, 248, 0.14);
+
+  --color-good: #34d399;
+  --color-good-ink: #a7f3d0;
+  --color-good-surface: rgba(16, 185, 129, 0.14);
+  --color-good-line: rgba(52, 211, 153, 0.55);
+
+  --color-caution: #fbbf24;
+  --color-caution-ink: #fde68a;
+  --color-caution-surface: rgba(245, 158, 11, 0.15);
+  --color-caution-line: rgba(251, 191, 36, 0.55);
+
+  --color-stop: #fb7185;
+  --color-stop-ink: #fecdd3;
+  --color-stop-surface: rgba(244, 63, 94, 0.16);
+  --color-stop-line: rgba(251, 113, 133, 0.6);
+
+  /* Typography Families & rem-only Type Scale */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  --text-2xs: 0.75rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* Radii & Shadows */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --radius-pill: 9999px;
+
+  --shadow-panel: 0 12px 28px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(30, 45, 71, 0.5);
+  --shadow-glow-good: 0 0 24px -4px rgba(16, 185, 129, 0.28);
+  --shadow-glow-caution: 0 0 24px -4px rgba(245, 158, 11, 0.26);
+  --shadow-glow-stop: 0 0 24px -4px rgba(244, 63, 94, 0.3);
+}
+
 :root {
   color-scheme: dark;
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background-color: #070b12;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 55%),
-    linear-gradient(to right, rgba(30, 41, 59, 0.22) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.22) 1px, transparent 1px);
-  background-size: 100% 100%, 32px 32px, 32px 32px;
-  color: #f8fafc;
+  line-height: 1.5;
+  text-align: start;
+  background-color: var(--color-deck-bg);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.07) 0%, transparent 55%),
+    linear-gradient(to right, rgba(30, 45, 71, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 45, 71, 0.2) 1px, transparent 1px);
+  background-size: 100% 100%, 2rem 2rem, 2rem 2rem;
+  color: var(--color-ink);
   min-block-size: 100dvh;
   padding-inline-start: env(safe-area-inset-left, 0px);
   padding-inline-end: env(safe-area-inset-right, 0px);
 }
 
-/* Outdoor Daylight High-Contrast Boost Mode for bright sun at the flying field */
+/* Direct Sunlight High-Contrast Boost Mode */
 body.daylight-boost {
-  background-color: #000000;
+  --color-deck-bg: #000000;
+  --color-panel: #040812;
+  --color-panel-raised: #0a1222;
+  --color-panel-inset: #000000;
+  --color-line: #64748b;
+  --color-line-strong: #94a3b8;
+  --color-ink-soft: #f1f5f9;
+  --color-ink-dim: #cbd5e1;
   background-image: none;
-  color: #ffffff;
 }
 
-body.daylight-boost .tactical-card {
-  background-color: #030712 !important;
-  border-color: #64748b !important;
-  border-width: 1.5px;
-}
-
-body.daylight-boost .text-slate-400 {
-  color: #cbd5e1 !important;
-}
-
-.font-display {
-  font-family: var(--font-display);
-}
-
-.font-mono-tech {
+.font-instrument {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Safe area top/bottom helpers for installed iOS/Android Home Screen web app */
-.safe-top-header {
+.hero-verdict-size {
+  font-size: clamp(1.65rem, 1.15rem + 2.6vw, 2.65rem);
+  line-height: 1.1;
+}
+
+/* Safe-area helpers for standalone PWA */
+.safe-top-bar {
   padding-block-start: max(0.5rem, env(safe-area-inset-top, 0px));
 }
 
@@ -62,15 +119,13 @@ body.daylight-boost .text-slate-400 {
   padding-block-end: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
 
-/* Balanced wrapping and safe alignment from css-layout guidance */
-.pill-wrap-balance {
-  display: flex;
-  flex-wrap: wrap;
-  flex-wrap: balance;
-  align-items: safe center;
+/* Accessible >=44x44px touch targets */
+.touch-target {
+  min-block-size: 2.75rem;
+  min-inline-size: 2.75rem;
 }
 
-/* Visually hidden utility that reveals on focus for Skip Link */
+/* Visually hidden utility that becomes visible on focus (Skip Link) */
 .visually-hidden:where(:not(:focus-within, :active)) {
   position: absolute !important;
   clip-path: inset(50%) !important;
@@ -83,84 +138,116 @@ body.daylight-boost .text-slate-400 {
   white-space: nowrap !important;
 }
 
-/* High-contrast visible focus indicators with outline-offset */
-:where(a:any-link, button, summary):focus-visible {
-  outline: 3px solid #38bdf8;
-  outline-offset: 3px;
+/* High-contrast focus ring */
+:where(a:any-link, button, summary, input, select):focus-visible {
+  outline: 3px solid var(--color-avionics);
+  outline-offset: 2px;
 }
 
-/* Enforce generous touch targets on mobile/coarse pointer devices */
-@media (pointer: coarse) {
-  .touch-target {
-    min-block-size: 44px;
-    min-inline-size: 44px;
+/* Compositor-safe motion with nested reduced-motion overrides */
+.wind-vector-rotate {
+  transform: rotate(var(--wind-deg, 0deg));
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }
 
-/* Horizontal forecast strip: snap cards cleanly and contain horizontal overscroll while preserving vertical page scroll */
+.meter-scale-bar {
+  transform: scaleX(var(--meter-scale, 0));
+  transform-origin: left center;
+  transition: transform 0.35s ease-out;
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.spin-refresh {
+  animation: spin 0.9s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+.pulse-live {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--color-panel) 25%, var(--color-panel-raised) 50%, var(--color-panel) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: var(--color-panel-raised);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Native <details> & <summary> disclosure with explicit directional cue */
+details.avionics-disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+details.avionics-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.avionics-disclosure > summary::after {
+  content: "▸ EXPAND";
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-avionics);
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: var(--color-avionics-soft);
+  white-space: nowrap;
+}
+
+details.avionics-disclosure[open] > summary::after {
+  content: "▾ COLLAPSE";
+  color: var(--color-good);
+  border-color: var(--color-good-line);
+  background: var(--color-good-surface);
+}
+
+/* Horizontal Forecast Scroller */
 .forecast-strip-scroller {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   touch-action: pan-x pan-y;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
-  -webkit-overflow-scrolling: touch;
+  scrollbar-color: var(--color-line-strong) var(--color-panel-inset);
 }
 
 .forecast-strip-card {
   scroll-snap-align: start;
 }
 
-/* Dynamic CSS custom property rotation for wind vectors and compass needle */
-.wind-arrow-dynamic {
-  transform: rotate(var(--wind-deg, 0deg));
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Native <details> & <summary> disclosure styling with explicit directional cue */
-details.tactical-details > summary {
-  list-style: none;
-  cursor: pointer;
-  user-select: none;
-}
-
-details.tactical-details > summary::-webkit-details-marker {
-  display: none;
-}
-
-details.tactical-details > summary::after {
-  content: "▸ EXPAND";
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #38bdf8;
-  padding: 0.35rem 0.7rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  background: rgba(14, 116, 144, 0.22);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-details.tactical-details[open] > summary::after {
-  content: "▾ COLLAPSE";
-  color: #34d399;
-  border-color: rgba(52, 211, 153, 0.45);
-  background: rgba(6, 95, 70, 0.28);
-}
-
-/* Responsive Table with Sticky Headers, Scrollbar Stability, and Container Query Stacked Cards */
+/* Responsive Telemetry Table with Sticky Headers & Container Query Mobile Cards */
 .table-wrapper {
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   max-inline-size: 100%;
-  max-block-size: min(600px, 72dvh);
+  max-block-size: min(36rem, 70dvh);
   container-type: inline-size;
   scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
+  scrollbar-color: var(--color-line-strong) var(--color-panel-inset);
 }
 
 .tactical-table {
@@ -168,10 +255,10 @@ details.tactical-details[open] > summary::after {
   border-collapse: separate;
   border-spacing: 0;
   --label-2: "Temp";
-  --label-3: "Sustained Wind";
-  --label-4: "Wind Gusts";
-  --label-5: "Vector / Dir";
-  --label-6: "Flight Condition";
+  --label-3: "Sustained";
+  --label-4: "Gusts";
+  --label-5: "Wind From";
+  --label-6: "Status";
 }
 
 .tactical-table thead {
@@ -184,10 +271,10 @@ details.tactical-details[open] > summary::after {
   position: sticky;
   inset-inline-start: 0;
   z-index: 10;
-  background-color: #0b111e;
+  background-color: var(--color-panel);
 }
 
-@container (width < 600px) {
+@container (width < 580px) {
   .tactical-table,
   .tactical-table thead,
   .tactical-table tbody,
@@ -204,9 +291,9 @@ details.tactical-details[open] > summary::after {
 
   .tactical-table tbody tr {
     margin-block-end: 0.75rem;
-    border: 1px solid rgba(51, 65, 85, 0.9);
-    border-radius: 0.75rem;
-    background-color: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+    background-color: var(--color-panel-raised);
     overflow: clip;
   }
 
@@ -214,8 +301,8 @@ details.tactical-details[open] > summary::after {
     position: sticky;
     inset-block-start: 0;
     z-index: 2;
-    background-color: #111a2e;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+    background-color: var(--color-panel);
+    border-bottom: 1px solid var(--color-line);
     padding: 0.625rem 0.875rem;
   }
 
@@ -223,60 +310,31 @@ details.tactical-details[open] > summary::after {
     display: flex;
     align-items: safe center;
     justify-content: space-between;
+    gap: 0.5rem;
     padding: 0.5rem 0.875rem;
-    border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+    border-bottom: 1px solid var(--color-line);
   }
 
   .tactical-table tbody td:last-child {
     border-bottom: none;
   }
 
-  .tactical-table td:nth-child(2)::before {
-    content: var(--label-2) ": ";
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-  }
-  .tactical-table td:nth-child(3)::before {
-    content: var(--label-3) ": ";
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-  }
-  .tactical-table td:nth-child(4)::before {
-    content: var(--label-4) ": ";
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-  }
-  .tactical-table td:nth-child(5)::before {
-    content: var(--label-5) ": ";
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-  }
-  .tactical-table td:nth-child(6)::before {
-    content: var(--label-6) ": ";
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-  }
+  .tactical-table td:nth-child(2)::before { content: var(--label-2) ": "; color: var(--color-ink-dim); font-size: var(--text-2xs); }
+  .tactical-table td:nth-child(3)::before { content: var(--label-3) ": "; color: var(--color-ink-dim); font-size: var(--text-2xs); }
+  .tactical-table td:nth-child(4)::before { content: var(--label-4) ": "; color: var(--color-ink-dim); font-size: var(--text-2xs); }
+  .tactical-table td:nth-child(5)::before { content: var(--label-5) ": "; color: var(--color-ink-dim); font-size: var(--text-2xs); }
+  .tactical-table td:nth-child(6)::before { content: var(--label-6) ": "; color: var(--color-ink-dim); font-size: var(--text-2xs); }
 }
 
-/* Forced colors mode support for outdoor/high-contrast assistive modes */
+/* Native Dialog Backdrop */
+dialog.avionics-dialog::backdrop {
+  background: rgba(3, 7, 18, 0.78);
+  backdrop-filter: blur(4px);
+}
+
 @media (forced-colors: active) {
-  .status-pill,
-  .tactical-card {
+  .avionics-panel,
+  .status-badge {
     border: 2px solid CanvasText;
   }
 }
