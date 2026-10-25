@@ -136,3 +136,33 @@ export function getUnitLabel(unitId = 'mph') {
 
 export const STALE_AFTER_MS = 15 * 60 * 1000; // 15 minutes
 export const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+
+export const STATUS_THEME = {
+  good: {
+    text: 'text-good',
+    ink: 'text-good-ink',
+    bg: 'bg-good-surface',
+    border: 'border-good-line',
+    bar: 'bg-good',
+    glow: 'shadow-glow-good',
+    hex: '#34d399',
+  },
+  marginal: {
+    text: 'text-caution',
+    ink: 'text-caution-ink',
+    bg: 'bg-caution-surface',
+    border: 'border-caution-line',
+    bar: 'bg-caution',
+    glow: 'shadow-glow-caution',
+    hex: '#fbbf24',
+  },
+  stop: {
+    text: 'text-stop',
+    ink: 'text-stop-ink',
+    bg: 'bg-stop-surface',
+    border: 'border-stop-line',
+    bar: 'bg-stop',
+    glow: 'shadow-glow-stop',
+    hex: '#fb7185',
+  },
+};
