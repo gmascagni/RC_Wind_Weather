@@ -3,33 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>RC Wind Weather // North GA RC Flight Deck</title>
+    <meta name="color-scheme" content="dark" />
+    <title>RC Wind Weather — North GA Flight Deck</title>
     <meta
       name="description"
-      content="RC Airplane Pilot Weather & Wind Dashboard for Alpharetta, Roswell, and Woodstock, GA."
+      content="Real-time wind, gust shear, runway crosswind, and flyability dashboard for RC airplane pilots at Alpharetta, Roswell, and Woodstock, GA."
     />
     <meta name="theme-color" content="#070b12" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="RC Wind" />
 
-    <!-- App Icons for Browser Tab, iOS Add to Home Screen, and Android PWA -->
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
-      rel="stylesheet"
+    <!-- Open Graph / Social Sharing Metadata -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="RC Wind Weather — North GA Flight Deck" />
+    <meta
+      property="og:description"
+      content="Live 10m wind, gust envelope, runway crosswind calculator, and RC aircraft suitability for Alpharetta, Roswell, and Woodstock, GA."
     />
-    <script type="module" crossorigin src="./assets/index-DWWNh5yz.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-u3UOPkKx.css">
+    <meta property="og:url" content="https://gmascagni.github.io/RC_Wind_Weather/" />
+    <meta property="og:image" content="https://gmascagni.github.io/RC_Wind_Weather/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- App Icons & Manifest (resolved under Vite BASE_URL /RC_Wind_Weather/) -->
+    <link rel="icon" type="image/svg+xml" href="/RC_Wind_Weather/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/RC_Wind_Weather/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/RC_Wind_Weather/apple-touch-icon.png" />
+    <link rel="manifest" href="/RC_Wind_Weather/manifest.webmanifest" />
+    <script type="module" crossorigin src="/RC_Wind_Weather/assets/index-BXzRGlk0.js"></script>
+    <link rel="stylesheet" crossorigin href="/RC_Wind_Weather/assets/index-Ch-7Rlnt.css">
   </head>
-  <body class="bg-[#070b12] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+  <body>
     <div id="root"></div>
   </body>
 </html>

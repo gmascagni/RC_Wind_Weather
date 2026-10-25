@@ -1,28 +1,42 @@
 {
+  "id": "/RC_Wind_Weather/",
   "name": "RC Wind Weather — North GA Flight Deck",
   "short_name": "RC Wind",
-  "description": "RC Airplane Pilot Wind & Telemetry Dashboard for Alpharetta, Roswell, and Woodstock, GA.",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Avionics-style wind, gust, crosswind, and flyability dashboard for RC airplane pilots in Alpharetta, Roswell, and Woodstock, GA.",
+  "start_url": "/RC_Wind_Weather/",
+  "scope": "/RC_Wind_Weather/",
   "display": "standalone",
   "background_color": "#070b12",
   "theme_color": "#070b12",
   "orientation": "portrait-primary",
+  "categories": ["weather", "sports", "utilities"],
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "/RC_Wind_Weather/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "./icon-512.png",
+      "src": "/RC_Wind_Weather/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "./favicon.svg",
+      "src": "/RC_Wind_Weather/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/RC_Wind_Weather/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/RC_Wind_Weather/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
