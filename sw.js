@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'rc-wind-shell-v3';
-const API_CACHE = 'rc-wind-api-v3';
+const SHELL_CACHE = 'rc-wind-shell-v4';
+const API_CACHE = 'rc-wind-api-v4';
 const API_MAX_AGE_MS = 3 * 60 * 1000; // 3 minutes max for weather API responses
 
 function getScopeUrl(path = '') {
