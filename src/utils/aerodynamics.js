@@ -76,7 +76,13 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   if (visMi < 1.5) stopReasons.push(`Low visibility (${visMi.toFixed(1)} mi)`);
   else if (visMi < t.minVisibilityMi) cautionReasons.push(`Reduced visibility (${visMi.toFixed(1)} mi)`);
 
-  if (speed > t.maxSustainedWindMph) {
+  if (speed >= 30) {
+    stopReasons.unshift(`30+ MPH gale (${speed} mph) — JUST STAY HOME AND SPANK!`);
+  } else if (speed >= 25) {
+    stopReasons.unshift(`25+ MPH winds (${speed} mph) — BRING YOUR CREDIT CARD`);
+  } else if (speed >= 20) {
+    stopReasons.unshift(`20+ MPH winds (${speed} mph) — CA Glue Required`);
+  } else if (speed > t.maxSustainedWindMph) {
     stopReasons.push(`Sustained wind (${speed} mph) exceeds ${t.maxSustainedWindMph} mph limit`);
   } else if (speed > t.cautionWindMph) {
     cautionReasons.push(`Sustained wind ${speed} mph (above ${t.cautionWindMph} mph calm threshold)`);
@@ -107,6 +113,15 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   }
 
   if (stopReasons.length > 0) {
+    if (speed >= 30) {
+      return { level: 'stop', verdict: 'JUST STAY HOME AND SPANK!', shortTag: '30+ SPANK', gustSpread: spread, reasons: stopReasons };
+    }
+    if (speed >= 25) {
+      return { level: 'stop', verdict: 'BRING YOUR CREDIT CARD', shortTag: 'CREDIT CARD', gustSpread: spread, reasons: stopReasons };
+    }
+    if (speed >= 20) {
+      return { level: 'stop', verdict: 'CA GLUE REQUIRED', shortTag: 'CA GLUE', gustSpread: spread, reasons: stopReasons };
+    }
     return { level: 'stop', verdict: 'DONT BE A RETARD!', shortTag: 'NO-GO', gustSpread: spread, reasons: stopReasons };
   }
   if (cautionReasons.length > 0) {

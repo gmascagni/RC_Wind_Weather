@@ -2,6 +2,7 @@ import { Gauge, Compass, Wind } from 'lucide-react';
 import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
 import { getAircraftRecommendations } from '../utils/aircraftRecommendations';
 import { StatusIcon } from './StatusVisuals';
+import WindConditionScale from './WindConditionScale';
 
 export default function AircraftSuitability({ currentObs, crosswindMph = 0, windUnit = 'mph' }) {
   const unit = getUnitLabel(windUnit);
@@ -13,6 +14,8 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
 
   return (
     <section className="space-y-4">
+      <WindConditionScale windSpeedMph={currentObs?.windSpeed} windUnit={windUnit} />
+
       <div className="avionics-panel rounded-card border border-line bg-panel p-4 sm:p-6 shadow-panel space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3.5">
           <div className="flex items-center gap-2.5">
