@@ -27,16 +27,23 @@ export default function WindCompassCard({
   const blowsToDeg = (fromDeg + 180) % 360;
   const rwyDeg = normalizeDegrees(runwayHeadingDeg);
   const unit = getUnitLabel(windUnit);
-  const accentHex = STATUS_THEME[statusLevel]?.hex || '#38bdf8';
+  const accentHex = STATUS_THEME[statusLevel]?.hex || '#e3edf7';
   const snappedPhoneDeg = deviceHeading !== null ? normalizeDegrees(Math.round(deviceHeading / 5) * 5) : 0;
 
   return (
-    <section className="avionics-panel rounded-card border border-line bg-panel p-4 sm:p-5 shadow-panel flex flex-col justify-between gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
-        <div className="flex items-center gap-2">
-          <Compass strokeWidth={2} className="h-5 w-5 text-avionics shrink-0" aria-hidden="true" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">
-            Wind Vector &amp; Runway Crosswind
+    <section className="metal-panel avionics-panel relative overflow-hidden flex flex-col justify-between">
+      <span className="rivet top-left" aria-hidden="true" />
+      <span className="rivet top-right" aria-hidden="true" />
+      <span className="rivet bottom-left" aria-hidden="true" />
+      <span className="rivet bottom-right" aria-hidden="true" />
+
+      {/* WWII Cockpit Header */}
+      <div className="panel-header flex-wrap justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="panel-badge" aria-hidden="true">02</span>
+          <Compass strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
+          <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
+            Wind Vector &amp; Crosswind
           </h2>
         </div>
 
@@ -44,7 +51,7 @@ export default function WindCompassCard({
           {liveEnabled && deviceHeading !== null && (
             <span
               aria-live="off"
-              className="rounded-pill border border-avionics bg-avionics-soft px-2.5 py-0.5 font-instrument text-2xs font-bold text-avionics"
+              className="rounded border border-avionics bg-avionics-soft px-2 py-0.5 font-instrument text-2xs font-bold text-avionics"
             >
               {isAbsolute ? 'HDG' : 'GYRO'} {String(deviceHeading).padStart(3, '0')}° {degreesToCardinal(deviceHeading)}
             </span>
@@ -54,126 +61,128 @@ export default function WindCompassCard({
             type="button"
             onClick={toggleCompass}
             aria-pressed={liveEnabled || isActivating}
-            className={`touch-target inline-flex items-center gap-1.5 rounded-control border px-3 font-instrument text-2xs font-bold transition ${
+            className={`btn-retro text-2xs ${
               liveEnabled || isActivating
-                ? 'border-avionics bg-avionics-soft text-avionics'
-                : 'border-line bg-panel-inset text-ink-soft hover:border-line-strong hover:text-ink'
+                ? 'border-avionics text-avionics bg-panel-inset'
+                : 'text-ink-soft'
             }`}
           >
-            <Navigation strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <Navigation strokeWidth={2} className="h-3 w-3 shrink-0" aria-hidden="true" />
             {isActivating ? 'SENSING…' : liveEnabled ? 'LIVE COMPASS ON' : 'LIVE COMPASS'}
           </button>
         </div>
       </div>
 
-      {(compassError || (liveEnabled && (!isAbsolute || needsCalibration))) && (
-        <div
-          role="status"
-          className="flex items-start gap-2 rounded-control border border-caution-line bg-caution-surface px-3 py-2 text-xs text-caution-ink"
-        >
-          <AlertCircle strokeWidth={2} className="mt-0.5 h-4 w-4 text-caution shrink-0" aria-hidden="true" />
-          <span>
-            {compassError
-              ? compassError
-              : !isAbsolute
-                ? 'Relative gyro mode (no hardware magnetometer detected) — face North when enabling for true alignment.'
-                : 'Magnetic interference detected — move away from LiPos/motors and wave phone in a figure-8.'}
-          </span>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
-        <div className="flex flex-col items-center">
-          <CompassDialSvg
-            fromDeg={fromDeg}
-            blowsToDeg={blowsToDeg}
-            activeRunwayDeg={runwayInfo.activeHeadingDeg}
-            accentHex={accentHex}
-            liveEnabled={liveEnabled}
-            deviceHeading={deviceHeading}
-            unwrappedHeading={unwrappedHeading}
-          />
-          <p className="mt-1 text-center font-instrument text-2xs text-ink-dim">
-            Rim dot = Wind <strong>FROM {String(fromDeg).padStart(3, '0')}°</strong> • Arrow = Airflow <strong>TO {String(blowsToDeg).padStart(3, '0')}°</strong>
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between font-instrument text-2xs text-ink-soft">
-            <span>INTO-WIND RUNWAY</span>
-            <span className="rounded-pill border border-line-strong bg-panel-inset px-2.5 py-0.5 font-semibold text-avionics">
-              ACTIVE {runwayInfo.rwyLabel} ({String(runwayInfo.activeHeadingDeg).padStart(3, '0')}°)
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+        {(compassError || (liveEnabled && (!isAbsolute || needsCalibration))) && (
+          <div
+            role="status"
+            className="flex items-start gap-2 rounded-control border border-caution-line bg-caution-surface px-3 py-2 text-xs text-caution-ink"
+          >
+            <AlertCircle strokeWidth={2} className="mt-0.5 h-4 w-4 text-caution shrink-0" aria-hidden="true" />
+            <span>
+              {compassError
+                ? compassError
+                : !isAbsolute
+                  ? 'Relative gyro mode (no hardware magnetometer detected) — face North when enabling for true alignment.'
+                  : 'Magnetic interference detected — move away from LiPos/motors and wave phone in a figure-8.'}
             </span>
           </div>
+        )}
 
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-control border border-line bg-panel-raised p-3">
-              <div className="font-instrument text-2xs text-ink-dim">HEADWIND</div>
-              <div className="mt-0.5 font-instrument text-xl font-bold text-good">
-                {convertWind(runwayInfo.headwindMph, windUnit)} <span className="text-xs text-ink-soft">{unit}</span>
-              </div>
-              <div className="font-instrument text-2xs text-ink-soft">Off nose: {runwayInfo.angleOffNoseDeg}°</div>
-            </div>
-
-            <div className="rounded-control border border-line bg-panel-raised p-3">
-              <div className="font-instrument text-2xs text-ink-dim">CROSSWIND</div>
-              <div className={`mt-0.5 font-instrument text-xl font-bold ${runwayInfo.crosswindMph > 9 ? 'text-caution' : 'text-ink'}`}>
-                {convertWind(runwayInfo.crosswindMph, windUnit)} <span className="text-xs text-ink-soft">{unit}</span>
-              </div>
-              <div className="font-instrument text-2xs text-ink-soft">
-                Gust X-Wind: {convertWind(runwayInfo.gustCrosswindMph, windUnit)} ({runwayInfo.crosswindSide})
-              </div>
-            </div>
+        <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
+          <div className="flex flex-col items-center">
+            <CompassDialSvg
+              fromDeg={fromDeg}
+              blowsToDeg={blowsToDeg}
+              activeRunwayDeg={runwayInfo.activeHeadingDeg}
+              accentHex={accentHex}
+              liveEnabled={liveEnabled}
+              deviceHeading={deviceHeading}
+              unwrappedHeading={unwrappedHeading}
+            />
+            <p className="mt-1 text-center font-instrument text-2xs text-ink-dim">
+              Rim dot = Wind <strong>FROM {String(fromDeg).padStart(3, '0')}°</strong> • Arrow = Airflow <strong>TO {String(blowsToDeg).padStart(3, '0')}°</strong>
+            </p>
           </div>
 
-          <div className="rounded-control border border-line bg-panel-inset p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <label htmlFor="runway-heading-range" className="flex items-center gap-1.5 font-instrument text-2xs font-semibold text-ink-soft">
-                <PlaneTakeoff strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
-                FIELD STRIP ALIGNMENT
-              </label>
-              <span className="font-instrument text-xs font-bold text-avionics">
-                {String(rwyDeg).padStart(3, '0')}° / {String((rwyDeg + 180) % 360).padStart(3, '0')}°
+          <div className="space-y-3">
+            <div className="flex items-center justify-between font-instrument text-2xs text-ink-soft">
+              <span className="font-bold">INTO-WIND RUNWAY</span>
+              <span className="rounded border border-line-strong bg-panel-inset px-2.5 py-0.5 font-bold text-avionics">
+                ACTIVE {runwayInfo.rwyLabel} ({String(runwayInfo.activeHeadingDeg).padStart(3, '0')}°)
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => onChangeRunway(normalizeDegrees(rwyDeg - 10))}
-                className="touch-target rounded-lg border border-line bg-panel px-2.5 font-instrument text-xs font-bold text-ink-soft hover:text-ink"
-              >
-                -10°
-              </button>
-              <input
-                id="runway-heading-range"
-                type="range"
-                min="0"
-                max="355"
-                step="5"
-                value={rwyDeg}
-                onChange={(e) => onChangeRunway(Number(e.target.value))}
-                className="w-full accent-sky-400 cursor-pointer"
-              />
-              <button
-                type="button"
-                onClick={() => onChangeRunway(normalizeDegrees(rwyDeg + 10))}
-                className="touch-target rounded-lg border border-line bg-panel px-2.5 font-instrument text-xs font-bold text-ink-soft hover:text-ink"
-              >
-                +10°
-              </button>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="rounded-control border border-line-strong bg-panel-inset p-3 shadow-inset">
+                <div className="font-instrument text-2xs text-ink-dim font-bold">HEADWIND</div>
+                <div className="mt-0.5 font-instrument text-xl font-bold text-good">
+                  {convertWind(runwayInfo.headwindMph, windUnit)} <span className="text-xs text-ink-soft">{unit}</span>
+                </div>
+                <div className="font-instrument text-2xs text-ink-soft">Off nose: {runwayInfo.angleOffNoseDeg}°</div>
+              </div>
+
+              <div className="rounded-control border border-line-strong bg-panel-inset p-3 shadow-inset">
+                <div className="font-instrument text-2xs text-ink-dim font-bold">CROSSWIND</div>
+                <div className={`mt-0.5 font-instrument text-xl font-bold ${runwayInfo.crosswindMph > 9 ? 'text-caution' : 'text-ink'}`}>
+                  {convertWind(runwayInfo.crosswindMph, windUnit)} <span className="text-xs text-ink-soft">{unit}</span>
+                </div>
+                <div className="font-instrument text-2xs text-ink-soft">
+                  Gust: {convertWind(runwayInfo.gustCrosswindMph, windUnit)} ({runwayInfo.crosswindSide})
+                </div>
+              </div>
             </div>
 
-            {liveEnabled && deviceHeading !== null && (
-              <button
-                type="button"
-                onClick={() => onChangeRunway(snappedPhoneDeg)}
-                className="touch-target w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-avionics bg-avionics-soft px-3 font-instrument text-2xs font-bold text-avionics hover:text-ink"
-              >
-                <Crosshair strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                SNAP STRIP TO PHONE ({String(snappedPhoneDeg).padStart(3, '0')}°)
-              </button>
-            )}
+            <div className="rounded-control border border-line-strong bg-panel-inset p-3 space-y-2 shadow-inset">
+              <div className="flex items-center justify-between">
+                <label htmlFor="runway-heading-range" className="flex items-center gap-1.5 font-instrument text-2xs font-bold text-ink-soft">
+                  <PlaneTakeoff strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
+                  FIELD STRIP ALIGNMENT
+                </label>
+                <span className="font-instrument text-xs font-bold text-avionics">
+                  {String(rwyDeg).padStart(3, '0')}° / {String((rwyDeg + 180) % 360).padStart(3, '0')}°
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onChangeRunway(normalizeDegrees(rwyDeg - 10))}
+                  className="btn-retro text-xs py-1 px-2.5"
+                >
+                  -10°
+                </button>
+                <input
+                  id="runway-heading-range"
+                  type="range"
+                  min="0"
+                  max="355"
+                  step="5"
+                  value={rwyDeg}
+                  onChange={(e) => onChangeRunway(Number(e.target.value))}
+                  className="w-full accent-sky-400 cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={() => onChangeRunway(normalizeDegrees(rwyDeg + 10))}
+                  className="btn-retro text-xs py-1 px-2.5"
+                >
+                  +10°
+                </button>
+              </div>
+
+              {liveEnabled && deviceHeading !== null && (
+                <button
+                  type="button"
+                  onClick={() => onChangeRunway(snappedPhoneDeg)}
+                  className="btn-retro w-full justify-center text-avionics mt-1 text-2xs"
+                >
+                  <Crosshair strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  SNAP STRIP TO PHONE ({String(snappedPhoneDeg).padStart(3, '0')}°)
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -57,12 +57,19 @@ export default function ThresholdSettingsModal({
       }}
       {...{ closedby: 'any' }}
       aria-labelledby="limits-dialog-title"
-      className="avionics-dialog m-auto w-[calc(100%-1.5rem)] max-w-lg rounded-card border border-line-strong bg-panel p-0 text-ink shadow-panel"
+      className="avionics-dialog metal-panel relative overflow-hidden m-auto w-[calc(100%-1.5rem)] max-w-lg p-0 text-ink shadow-panel border border-line-strong"
     >
-      <div className="flex items-center justify-between border-b border-line px-4 py-3.5 sm:px-5">
+      <span className="rivet top-left" aria-hidden="true" />
+      <span className="rivet top-right" aria-hidden="true" />
+      <span className="rivet bottom-left" aria-hidden="true" />
+      <span className="rivet bottom-right" aria-hidden="true" />
+
+      {/* WWII Cockpit Panel Header */}
+      <div className="panel-header justify-between">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal strokeWidth={2} className="h-5 w-5 text-avionics" aria-hidden="true" />
-          <h2 id="limits-dialog-title" className="font-display text-base sm:text-lg font-bold">
+          <span className="panel-badge" aria-hidden="true">CFG</span>
+          <SlidersHorizontal strokeWidth={2} className="h-4 w-4 text-avionics" aria-hidden="true" />
+          <h2 id="limits-dialog-title" className="font-display text-base font-bold uppercase tracking-wider text-ink">
             Aircraft Go / No-Go Limits
           </h2>
         </div>
@@ -70,7 +77,7 @@ export default function ThresholdSettingsModal({
           type="button"
           onClick={onClose}
           aria-label="Close limits dialog"
-          className="touch-target inline-flex items-center justify-center rounded-control border border-line bg-panel-inset text-ink-soft hover:text-ink"
+          className="btn-retro p-1.5 text-ink-soft hover:text-ink"
         >
           <X strokeWidth={2} className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -78,7 +85,7 @@ export default function ThresholdSettingsModal({
 
       <div className="max-h-[72dvh] overflow-y-auto p-4 sm:p-5 space-y-4">
         <div className="space-y-2">
-          <span className="block font-instrument text-2xs font-semibold uppercase text-ink-soft">
+          <span className="block font-instrument text-2xs font-bold uppercase text-ink-soft">
             Quick Airframe Presets
           </span>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -90,8 +97,8 @@ export default function ThresholdSettingsModal({
                   type="button"
                   onClick={() => onChangeThresholds(preset.thresholds)}
                   aria-pressed={active}
-                  className={`touch-target rounded-control border px-3 py-2 text-left font-instrument text-xs font-semibold transition ${
-                    active ? 'border-avionics bg-avionics-soft text-ink' : 'border-line bg-panel-inset text-ink-soft hover:text-ink'
+                  className={`btn-retro text-left justify-start text-xs ${
+                    active ? 'border-avionics text-avionics bg-panel-raised' : 'text-ink-soft'
                   }`}
                 >
                   {preset.label}
@@ -105,7 +112,7 @@ export default function ThresholdSettingsModal({
           {WIND_FIELDS.map((item) => (
             <div key={item.key} className="space-y-1">
               <div className="flex justify-between font-instrument text-xs">
-                <label htmlFor={`slider-${item.key}`} className="text-ink-soft">{item.label}</label>
+                <label htmlFor={`slider-${item.key}`} className="text-ink-soft font-semibold">{item.label}</label>
                 <span className="font-bold text-avionics">{convertWind(thresholds[item.key], windUnit)} {unit}</span>
               </div>
               <input
@@ -124,7 +131,7 @@ export default function ThresholdSettingsModal({
           {ENV_FIELDS.map((item) => (
             <div key={item.key} className="space-y-1">
               <div className="flex justify-between font-instrument text-xs">
-                <label htmlFor={`slider-${item.key}`} className="text-ink-soft">{item.label}</label>
+                <label htmlFor={`slider-${item.key}`} className="text-ink-soft font-semibold">{item.label}</label>
                 <span className="font-bold text-avionics">{thresholds[item.key]}{item.suffix}</span>
               </div>
               <input
@@ -146,15 +153,15 @@ export default function ThresholdSettingsModal({
         <button
           type="button"
           onClick={() => onChangeThresholds(DEFAULT_THRESHOLDS)}
-          className="touch-target inline-flex items-center gap-1.5 rounded-control border border-line bg-panel px-3 font-instrument text-xs font-semibold text-ink-soft hover:text-ink"
+          className="btn-retro text-xs"
         >
           <RotateCcw strokeWidth={2} className="h-3.5 w-3.5" aria-hidden="true" />
-          Reset 60-Class Defaults
+          Reset Defaults
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="touch-target rounded-control bg-avionics px-4 font-instrument text-xs font-bold text-slate-950"
+          className="btn-red-launcher text-xs py-2 px-4 uppercase"
         >
           Save &amp; Apply
         </button>

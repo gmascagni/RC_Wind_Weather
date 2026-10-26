@@ -1,7 +1,7 @@
 import { RefreshCw, SlidersHorizontal, Star, Sun, X } from 'lucide-react';
 import { STATUS_THEME, WIND_UNITS, convertWind, getUnitLabel } from '../config/flightConfig';
 import { evaluateFlightStatus } from '../utils/aerodynamics';
-import { StatusIcon } from './StatusVisuals';
+import { StatusIcon, UsaacWingedCrest } from './StatusVisuals';
 import LocationSearchBar from './LocationSearchBar';
 
 export default function TopBar({
@@ -25,32 +25,79 @@ export default function TopBar({
   onRefresh,
 }) {
   const unitLabel = getUnitLabel(windUnit);
+  const baseUrl = import.meta.env.BASE_URL || '/RC_Wind_Weather/';
+  const p40Src = `${baseUrl}p40-warhawk.jpg`.replace(/\/{2,}/g, '/');
 
   return (
-    <header className="safe-top-bar sticky top-0 z-30 border-b border-line bg-deck-bg/95 backdrop-blur-md">
+    <header className="safe-top-bar sticky top-0 z-30 metal-panel rounded-none border-t-0 border-x-0 border-b-2 border-line-strong bg-panel/95 backdrop-blur-md">
+      {/* Decorative Cockpit Screws & Top-Right Dog-Ear Badge (Matching rc-power-bench) */}
+      <span className="screw top-2 left-2" aria-hidden="true" />
+      <span className="screw bottom-2 left-2" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute top-0 right-0 z-20 h-0 w-0 border-solid border-t-0 border-r-[38px] border-b-[38px] border-l-0 border-r-stop border-transparent"
+        aria-hidden="true"
+      >
+        <span className="absolute top-[3px] right-[-32px] block w-[35px] text-center font-instrument text-[7.5px] font-bold text-white rotate-45">
+          v3.0.0
+        </span>
+      </div>
+
       <div className="mx-auto max-w-6xl space-y-2.5 px-3 py-2.5 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-control border border-good-line bg-panel">
-              <svg width="38" height="38" aria-hidden="true" className="block">
-                <use href="#rc-airplane-symbol" />
-              </svg>
-            </div>
+        {/* Top Header Row with Winged USAAC Crest, Center Title, and Aviator Banner */}
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <UsaacWingedCrest className="h-10 sm:h-12 w-auto" />
             <div className="min-w-0">
-              <div className="font-instrument text-2xs font-semibold uppercase tracking-wider text-avionics truncate">
-                RC FLIGHT TELEMETRY DECK
+              <div className="flex items-center gap-2">
+                <span className="status-lamp green" aria-hidden="true" />
+                <h1 className="font-display text-lg sm:text-2xl font-bold tracking-wider uppercase text-ink truncate">
+                  ★ RC WIND WEATHER PRO ★
+                </h1>
               </div>
-              <h1 className="font-display text-base sm:text-lg font-bold tracking-tight text-ink truncate">
-                RC Wind Weather
-              </h1>
+              <div className="flex flex-wrap items-center gap-2 font-instrument text-2xs">
+                <span className="font-bold text-avionics tracking-wider">
+                  .60 CLASS WARBIRD FLIGHT DECK
+                </span>
+                <span className="text-line-strong hidden sm:inline">|</span>
+                <span className="font-script text-base text-amber-200 hidden sm:inline">
+                  Check the Wind. Keep &apos;Em Flying!
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          {/* Right Aviator Banner + Cockpit Controls (Matching rc-power-bench) */}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {/* Desktop Aviator Thumbnail Banner */}
+            <div className="hidden xl:flex items-center gap-2.5 pl-2">
+              <div className="relative h-[50px] w-[130px] overflow-hidden rounded-xs border border-line-strong bg-panel-inset shadow-panel">
+                <img
+                  src={p40Src}
+                  alt="P-40 Warhawk"
+                  width={130}
+                  height={50}
+                  className="h-full w-full object-cover object-center block"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1b1712]/90 via-transparent to-transparent" />
+                <span className="absolute top-0.5 right-1.5 font-script text-sm text-red-400 drop-shadow">
+                  Flying Tigers
+                </span>
+                <span className="absolute bottom-0 right-1.5 font-script text-[11px] text-amber-200 drop-shadow">
+                  No Gusts Too High
+                </span>
+              </div>
+              <div className="relative h-11 w-11 overflow-hidden rounded-pill border-2 border-line-strong bg-panel-inset shadow-panel flex items-center justify-center p-0.5">
+                <svg width="34" height="34" aria-hidden="true" className="block">
+                  <use href="#usaac-star-symbol" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Units Toggle Segmented Group */}
             <div
               role="group"
               aria-label="Wind speed units"
-              className="inline-flex rounded-control border border-line bg-panel-inset p-0.5"
+              className="inline-flex rounded-xs border border-line bg-panel-inset p-0.5"
             >
               {Object.values(WIND_UNITS).map((u) => {
                 const active = windUnit === u.id;
@@ -60,10 +107,8 @@ export default function TopBar({
                     type="button"
                     onClick={() => onChangeUnit(u.id)}
                     aria-pressed={active}
-                    className={`touch-target rounded-lg px-2.5 font-instrument text-2xs font-bold transition ${
-                      active
-                        ? 'bg-panel-raised text-avionics border border-line-strong'
-                        : 'text-ink-dim hover:text-ink'
+                    className={`touch-target rounded-xs px-2.5 font-instrument text-2xs font-bold transition ${
+                      active ? 'btn-retro active' : 'text-ink-dim hover:text-ink'
                     }`}
                   >
                     {u.label}
@@ -76,9 +121,9 @@ export default function TopBar({
               type="button"
               onClick={onOpenSettings}
               aria-label="Configure aircraft wind limits"
-              className="touch-target inline-flex items-center gap-1.5 rounded-control border border-line bg-panel px-2.5 font-instrument text-2xs font-semibold text-ink-soft hover:border-line-strong hover:text-ink"
+              className="btn-retro touch-target inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-bold"
             >
-              <SlidersHorizontal strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
+              <SlidersHorizontal strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
               <span className="hidden sm:inline">LIMITS</span>
             </button>
 
@@ -87,13 +132,11 @@ export default function TopBar({
               onClick={onToggleDaylight}
               aria-pressed={daylightBoost}
               aria-label="Toggle outdoor sunlight contrast boost"
-              className={`touch-target inline-flex items-center gap-1 rounded-control border px-2.5 font-instrument text-2xs font-semibold transition ${
-                daylightBoost
-                  ? 'border-caution-line bg-caution-surface text-caution-ink'
-                  : 'border-line bg-panel text-ink-soft hover:text-ink'
+              className={`btn-retro touch-target inline-flex items-center gap-1 px-3 py-1.5 text-2xs font-bold ${
+                daylightBoost ? 'active border-caution text-caution-ink' : ''
               }`}
             >
-              <Sun strokeWidth={2} className="h-4 w-4 text-caution shrink-0" aria-hidden="true" />
+              <Sun strokeWidth={2} className="h-3.5 w-3.5 text-caution" aria-hidden="true" />
               <span className="hidden sm:inline">SUN</span>
             </button>
 
@@ -103,11 +146,11 @@ export default function TopBar({
                 onClick={onRefresh}
                 disabled={isRefreshing}
                 aria-label="Refresh weather data"
-                className="touch-target inline-flex items-center gap-1.5 rounded-control border border-line bg-panel px-2.5 font-instrument text-2xs font-semibold text-ink-soft hover:border-line-strong hover:text-ink"
+                className="btn-retro touch-target inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-bold"
               >
                 <RefreshCw
                   strokeWidth={2}
-                  className={`h-4 w-4 text-avionics shrink-0 ${isRefreshing ? 'spin-refresh' : ''}`}
+                  className={`h-3.5 w-3.5 text-avionics ${isRefreshing ? 'spin-refresh' : ''}`}
                   aria-hidden="true"
                 />
                 <span className="hidden sm:inline">SYNC</span>
@@ -130,7 +173,7 @@ export default function TopBar({
           <nav aria-label="Favorite flying locations" className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
             <span className="inline-flex shrink-0 items-center gap-1 font-instrument text-2xs font-semibold uppercase text-caution">
               <Star strokeWidth={2} className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true" />
-              FAVS:
+              FAVORITES:
             </span>
             {favorites.map((fav) => {
               const isSelected = activeLocation?.id === fav.id;
@@ -141,9 +184,9 @@ export default function TopBar({
               return (
                 <div
                   key={fav.id}
-                  className={`inline-flex shrink-0 items-center rounded-control border transition ${
+                  className={`inline-flex shrink-0 items-center rounded-xs border transition ${
                     isSelected
-                      ? 'border-line-strong bg-panel-raised text-ink'
+                      ? 'border-avionics bg-panel-raised text-ink'
                       : 'border-line bg-panel-inset text-ink-soft hover:text-ink'
                   }`}
                 >
@@ -151,7 +194,7 @@ export default function TopBar({
                     type="button"
                     onClick={() => onSelectLocation(fav)}
                     aria-pressed={isSelected}
-                    className="touch-target inline-flex items-center gap-1.5 px-3 font-display text-xs font-bold"
+                    className="touch-target inline-flex items-center gap-1.5 px-3 font-display text-xs font-bold uppercase tracking-wider"
                   >
                     {evalStatus && <StatusIcon level={evalStatus.level} className="h-3.5 w-3.5" />}
                     <span>{fav.shortName}</span>

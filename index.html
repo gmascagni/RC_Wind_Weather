@@ -4,36 +4,82 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <title>RC Wind Weather — Flight Telemetry Deck</title>
+    <title>RC Wind Weather Pro — WWII Warbird Flight Telemetry Deck</title>
     <meta
       name="description"
-      content="Real-time 10m wind, gust shear, live HSI compass, runway crosswind, and flyability dashboard for RC airplane pilots — search any city, locate by GPS, and save favorite fields."
+      content="Interactive WWII warbird flight deck and wind telemetry cockpit for RC airplane pilots. Real-time 10m wind, gust shear, live HSI compass, runway crosswind, and go/no-go safety checks."
     />
-    <meta name="theme-color" content="#070b12" />
+    <meta name="theme-color" content="#121519" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="RC Wind" />
 
-    <!-- Open Graph / Social Sharing Metadata -->
+    <!-- Open Graph / Social Media Preview Tags -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="RC Wind Weather — Flight Telemetry Deck" />
+    <meta property="og:title" content="RC Wind Weather Pro — WWII Warbird Flight Telemetry Deck" />
     <meta
       property="og:description"
-      content="Live 10m wind, gust envelope, runway crosswind calculator, GPS field locator, and RC aircraft suitability for any flying field."
+      content="Live 10m wind, gust envelope, runway crosswind calculator, GPS field locator, and RC aircraft suitability in a vintage dieselpunk cockpit."
     />
     <meta property="og:url" content="https://gmascagni.github.io/RC_Wind_Weather/" />
     <meta property="og:image" content="https://gmascagni.github.io/RC_Wind_Weather/icon-512.png" />
     <meta name="twitter:card" content="summary" />
 
-    <!-- App Icons & Manifest (resolved under Vite BASE_URL /RC_Wind_Weather/) -->
+    <!-- Classic USAAC Star Roundel Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <link rel="icon" type="image/png" sizes="192x192" href="%BASE_URL%icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="%BASE_URL%apple-touch-icon.png" />
     <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+
+    <!-- Preload LCP P-40 Warhawk Illustration -->
+    <link rel="preload" as="image" href="%BASE_URL%p40-warhawk.jpg" fetchpriority="high" />
+
+    <!-- Authentic WWII Warbird Cockpit Fonts (matching rc-power-bench) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&family=Special+Elite&display=swap"
+    />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- CRT Vignette Shadow -->
+    <div class="crt-vignette" aria-hidden="true"></div>
+
+    <div id="root">
+      <!-- Instant Boot Splash: P-40 Warhawk with Flying Tigers Shark's Teeth -->
+      <div style="min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background-color: #121519; color: #e3edf7; font-family: 'Share Tech Mono', monospace; text-align: center;">
+        <div style="max-width: 520px; width: 100%; background: #20262d; border: 2px solid #5a6778; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px rgba(255,255,255,0.4), 0 12px 28px rgba(0,0,0,0.9); position: relative;">
+          <div style="background: linear-gradient(#323a45 0%, #20262e 100%); border-bottom: 2px solid #5a6778; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ffb347; box-shadow: 0 0 8px #ffb347;"></span>
+              <strong style="font-family: 'Oswald', sans-serif; letter-spacing: 1.5px; font-size: 14px; text-transform: uppercase; color: #e3edf7;">★ RC WIND WEATHER PRO ★</strong>
+            </div>
+            <span style="font-size: 11px; color: #8fa0b5; font-weight: bold;">SCRAMBLING RECON…</span>
+          </div>
+          <div style="position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0c0f12;">
+            <img
+              src="%BASE_URL%p40-warhawk.jpg"
+              alt="Curtiss P-40 Warhawk with Flying Tigers shark teeth flying through sunlit clouds"
+              fetchpriority="high"
+              width="520"
+              height="292"
+              style="width: 100%; height: 100%; object-fit: cover; display: block;"
+            />
+            <div style="position: absolute; bottom: 0; inset-x: 0; background: linear-gradient(to top, rgba(18,21,25,0.95) 0%, transparent 100%); padding: 10px 14px; display: flex; align-items: flex-end; justify-content: space-between;">
+              <span style="font-family: 'Alex Brush', cursive; font-size: 20px; color: #ffc97a; text-shadow: 0 2px 4px #000;">Check the Wind. Keep 'Em Flying!</span>
+              <span style="font-size: 10px; color: #ffb347; font-weight: bold; letter-spacing: 1px;">.60 CLASS AIR CORPS</span>
+            </div>
+          </div>
+          <div style="padding: 12px 16px; font-size: 11px; color: #8fa0b5; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #485463;">
+            <span>INITIALIZING AVIONICS SENSORS</span>
+            <span style="color: #4caf50; font-weight: bold;">STAND BY…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

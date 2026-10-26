@@ -8,7 +8,7 @@ import {
 import { locateUserViaGps } from './services/geocoding';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { useWeather } from './hooks/useWeather';
-import { RcAirplaneSymbolDef } from './components/StatusVisuals';
+import { UsaacStarSymbolDef } from './components/StatusVisuals';
 import TopBar from './components/TopBar';
 import HeroStatusBanner from './components/HeroStatusBanner';
 import WindCompassCard from './components/WindCompassCard';
@@ -113,7 +113,7 @@ export default function App() {
         Skip to flight telemetry
       </a>
 
-      <RcAirplaneSymbolDef />
+      <UsaacStarSymbolDef />
 
       <TopBar
         activeLocation={activeLocation}

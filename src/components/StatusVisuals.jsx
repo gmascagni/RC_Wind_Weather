@@ -1,33 +1,66 @@
 import { CheckCircle2, AlertTriangle, OctagonAlert } from 'lucide-react';
 
-export function StatusIcon({ level, className = 'h-4 w-4' }) {
+export function StatusIcon({ level, className = 'w-5 h-5' }) {
   if (level === 'good') {
-    return <CheckCircle2 strokeWidth={2} className={`${className} text-good shrink-0`} aria-hidden="true" />;
+    return <CheckCircle2 strokeWidth={2.2} className={`${className} text-good shrink-0`} aria-hidden="true" />;
   }
   if (level === 'marginal') {
-    return <AlertTriangle strokeWidth={2} className={`${className} text-caution shrink-0`} aria-hidden="true" />;
+    return <AlertTriangle strokeWidth={2.2} className={`${className} text-caution shrink-0`} aria-hidden="true" />;
   }
-  return <OctagonAlert strokeWidth={2} className={`${className} text-stop shrink-0`} aria-hidden="true" />;
+  return <OctagonAlert strokeWidth={2.2} className={`${className} text-stop shrink-0`} aria-hidden="true" />;
 }
 
-export function RcAirplaneSymbolDef() {
+export function StatusLamp({ level = 'good' }) {
+  const lampClass = level === 'good' ? 'green' : level === 'marginal' ? 'amber' : 'red';
+  return <span className={`status-lamp ${lampClass}`} aria-hidden="true" />;
+}
+
+export function UsaacStarSymbolDef() {
   return (
-    <svg aria-hidden="true" className="hidden" width="0" height="0">
-      <symbol id="rc-airplane-symbol" viewBox="0 0 512 512">
-        <rect width="512" height="512" rx="112" fill="#0b1324" />
-        <circle cx="256" cy="256" r="196" fill="none" stroke="#0ea5e9" strokeOpacity="0.3" strokeWidth="8" strokeDasharray="16 12" />
-        <path d="M98 146 A 70 70 0 0 1 146 98" fill="none" stroke="#38bdf8" strokeWidth="14" strokeLinecap="round" />
-        <path d="M70 174 A 110 110 0 0 1 174 70" fill="none" stroke="#38bdf8" strokeOpacity="0.7" strokeWidth="11" strokeLinecap="round" />
-        <g transform="translate(256 262) rotate(-45) translate(-256 -256)">
-          <ellipse cx="256" cy="68" rx="62" ry="12" fill="#38bdf8" fillOpacity="0.45" stroke="#7dd3fc" strokeWidth="4" />
-          <path d="M64 218 L226 178 L286 178 L448 218 L436 254 L284 240 L228 240 L76 254 Z" fill="#10b981" stroke="#ecfdf5" strokeWidth="8" strokeLinejoin="round" />
-          <path d="M168 386 L236 364 L276 364 L344 386 L336 410 L274 402 L238 402 L176 410 Z" fill="#0ea5e9" stroke="#e0f2fe" strokeWidth="7" strokeLinejoin="round" />
-          <path d="M256 82 C276 82 288 128 286 210 L274 416 C272 432 264 440 256 440 C248 440 240 432 238 416 L226 210 C224 128 236 82 256 82 Z" fill="#f8fafc" stroke="#0f172a" strokeWidth="8" />
-          <ellipse cx="256" cy="176" rx="18" ry="38" fill="#0284c7" stroke="#e0f2fe" strokeWidth="4" />
-          <path d="M236 92 C242 60 270 60 276 92 Z" fill="#f43f5e" stroke="#ffe4e6" strokeWidth="4" />
-          <path d="M256 352 L256 428" stroke="#f43f5e" strokeWidth="12" strokeLinecap="round" />
-        </g>
-      </symbol>
+    <svg width="0" height="0" className="absolute pointer-events-none" aria-hidden="true">
+      <defs>
+        {/* Classic US Army Air Corps (USAAC) Star Roundel */}
+        <symbol id="usaac-star-symbol" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#1b365d" stroke="#d8e2ec" strokeWidth="3" />
+          <polygon
+            points="50,10 59.5,36.9 88,37.6 65.3,55 73.5,82.4 50,66 26.5,82.4 34.7,55 12,37.6 40.5,36.9"
+            fill="#ffffff"
+          />
+          <circle cx="50" cy="50" r="12.5" fill="#d13535" />
+        </symbol>
+      </defs>
+    </svg>
+  );
+}
+
+export function UsaacWingedCrest({ className = 'h-12 w-auto' }) {
+  return (
+    <svg viewBox="0 0 180 52" className={`${className} block shrink-0`} aria-hidden="true">
+      {/* Left & Right Crimson Warbird Wings */}
+      <path
+        d="M46,24 C24,12 12,15 3,20 C14,26 28,26 43,25 C32,29 20,31 9,31 C22,36 35,34 46,31 Z"
+        fill="#731b1b"
+        stroke="#7e8d9f"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M134,24 C156,12 168,15 177,20 C166,26 152,26 137,25 C148,29 160,31 171,31 C158,36 145,34 134,31 Z"
+        fill="#731b1b"
+        stroke="#7e8d9f"
+        strokeWidth="1.2"
+      />
+      {/* Central USAAC Star Roundel */}
+      <circle cx="90" cy="24" r="19" fill="#1b365d" stroke="#d8e2ec" strokeWidth="2" />
+      <polygon
+        points="90,8.5 93.8,19 105,19.3 96.1,26.1 99.3,36.8 90,30.3 80.7,36.8 83.9,26.1 75,19.3 86.2,19"
+        fill="#ffffff"
+      />
+      <circle cx="90" cy="24" r="5" fill="#d13535" />
+      {/* Bottom Plate */}
+      <rect x="70" y="40" width="40" height="10" rx="2" fill="#20262d" stroke="#7e8d9f" strokeWidth="1" />
+      <text x="90" y="47.5" fill="#ffb347" fontSize="7" fontWeight="700" textAnchor="middle" fontFamily="monospace">
+        AIR CORPS
+      </text>
     </svg>
   );
 }

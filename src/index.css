@@ -1,42 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surface Layers */
-  --color-deck-bg: #070b12;
-  --color-panel: #0c1322;
-  --color-panel-raised: #111b2f;
-  --color-panel-inset: #080e1a;
-  --color-line: #1e2d47;
-  --color-line-strong: #354b6e;
+  /* Surface Layers (Matching rc-power-bench gunmetal steel cockpit) */
+  --color-deck-bg: #121519;
+  --color-panel: #20262d;
+  --color-panel-raised: #2b323c;
+  --color-panel-inset: #13171b;
+  --color-line: #485463;
+  --color-line-strong: #5a6778;
 
-  /* High-Contrast Daylight Text Hierarchy (WCAG AA/AAA on #0c1322) */
-  --color-ink: #f8fafc;
+  /* Text Hierarchy (e3edf7 ice-white/steel readout & 8fa0b5 dim text) */
+  --color-ink: #e3edf7;
   --color-ink-soft: #cbd5e1;
-  --color-ink-dim: #94a3b8;
+  --color-ink-dim: #8fa0b5;
 
-  /* Avionics Accent & Semantic Status Tokens */
-  --color-avionics: #38bdf8;
-  --color-avionics-soft: rgba(56, 189, 248, 0.14);
+  /* Avionics Amber & WWII Warbird Status Colors */
+  --color-avionics: #ffb347;
+  --color-avionics-soft: rgba(255, 179, 71, 0.15);
 
-  --color-good: #34d399;
-  --color-good-ink: #a7f3d0;
-  --color-good-surface: rgba(16, 185, 129, 0.14);
-  --color-good-line: rgba(52, 211, 153, 0.55);
+  --color-good: #4caf50;
+  --color-good-ink: #a5d6a7;
+  --color-good-surface: rgba(76, 175, 80, 0.15);
+  --color-good-line: rgba(76, 175, 80, 0.65);
 
-  --color-caution: #fbbf24;
-  --color-caution-ink: #fde68a;
-  --color-caution-surface: rgba(245, 158, 11, 0.15);
-  --color-caution-line: rgba(251, 191, 36, 0.55);
+  --color-caution: #ffb347;
+  --color-caution-ink: #ffe082;
+  --color-caution-surface: rgba(255, 179, 71, 0.15);
+  --color-caution-line: rgba(255, 179, 71, 0.65);
 
-  --color-stop: #fb7185;
-  --color-stop-ink: #fecdd3;
-  --color-stop-surface: rgba(244, 63, 94, 0.16);
-  --color-stop-line: rgba(251, 113, 133, 0.6);
+  --color-stop: #d13535;
+  --color-stop-ink: #ff9e9e;
+  --color-stop-surface: rgba(209, 53, 53, 0.18);
+  --color-stop-line: rgba(209, 53, 53, 0.65);
 
-  /* Typography Families & rem-only Type Scale */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  /* Typography Families (Share Tech Mono + Oswald + Alex Brush) */
+  --font-sans: 'Share Tech Mono', Consolas, 'Courier New', monospace;
+  --font-display: 'Oswald', 'Special Elite', Georgia, serif;
+  --font-mono: 'Share Tech Mono', Consolas, 'Courier New', monospace;
+  --font-script: 'Alex Brush', Georgia, cursive;
 
   --text-2xs: 0.75rem;
   --text-xs: 0.8125rem;
@@ -47,15 +48,15 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
 
-  /* Radii & Shadows */
-  --radius-card: 1rem;
-  --radius-control: 0.75rem;
+  /* WWII Warbird Machined Edges */
+  --radius-card: 4px;
+  --radius-control: 4px;
   --radius-pill: 9999px;
 
-  --shadow-panel: 0 12px 28px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(30, 45, 71, 0.5);
-  --shadow-glow-good: 0 0 24px -4px rgba(16, 185, 129, 0.28);
-  --shadow-glow-caution: 0 0 24px -4px rgba(245, 158, 11, 0.26);
-  --shadow-glow-stop: 0 0 24px -4px rgba(244, 63, 94, 0.3);
+  --shadow-panel: inset 0 1px rgba(255, 255, 255, 0.45), inset 0 -1px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(0, 0, 0, 0.75), 0 10px 25px rgba(0, 0, 0, 0.85);
+  --shadow-glow-good: 0 0 18px -2px rgba(76, 175, 80, 0.45);
+  --shadow-glow-caution: 0 0 18px -2px rgba(255, 179, 71, 0.45);
+  --shadow-glow-stop: 0 0 18px -2px rgba(209, 53, 53, 0.55);
 }
 
 :root {
@@ -77,27 +78,224 @@ body {
   text-align: start;
   background-color: var(--color-deck-bg);
   background-image:
-    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.07) 0%, transparent 55%),
-    linear-gradient(to right, rgba(30, 45, 71, 0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 45, 71, 0.2) 1px, transparent 1px);
-  background-size: 100% 100%, 2rem 2rem, 2rem 2rem;
+    radial-gradient(circle at 50% 30%, #1e242b 0%, #0d1013 100%),
+    linear-gradient(#ffffff05 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff05 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
   color: var(--color-ink);
   min-block-size: 100dvh;
+  position: relative;
+  overflow-x: hidden;
   padding-inline-start: env(safe-area-inset-left, 0px);
   padding-inline-end: env(safe-area-inset-right, 0px);
+}
+
+/* CRT Vignette Inset Shadow */
+.crt-vignette {
+  pointer-events: none;
+  z-index: 9998;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
 }
 
 /* Direct Sunlight High-Contrast Boost Mode */
 body.daylight-boost {
   --color-deck-bg: #000000;
-  --color-panel: #040812;
-  --color-panel-raised: #0a1222;
+  --color-panel: #06090e;
+  --color-panel-raised: #121820;
   --color-panel-inset: #000000;
-  --color-line: #64748b;
-  --color-line-strong: #94a3b8;
+  --color-line: #7e8d9f;
+  --color-line-strong: #a4b3c4;
+  --color-ink: #ffffff;
   --color-ink-soft: #f1f5f9;
   --color-ink-dim: #cbd5e1;
   background-image: none;
+}
+
+/* Metal Panel with 3D Rivets and Specular Edge (Matching rc-power-bench) */
+.metal-panel {
+  background-color: #20262d;
+  background-image:
+    radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.14) 0%, transparent 65%),
+    linear-gradient(145deg, #2c333c 0%, #1e232a 50%, #171b20 100%);
+  border: 2px solid #5a6778;
+  border-radius: 4px;
+  position: relative;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.45),
+    inset 0 -1px rgba(0, 0, 0, 0.6),
+    inset 0 0 16px rgba(0, 0, 0, 0.75),
+    0 10px 25px rgba(0, 0, 0, 0.85);
+}
+
+.panel-header {
+  font-family: var(--font-mono);
+  letter-spacing: 0.8px;
+  color: #e3edf7;
+  background: linear-gradient(#323a45 0%, #20262e 100%);
+  border-bottom: 2px solid #5a6778;
+  align-items: center;
+  padding: 8px 14px;
+  display: flex;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.panel-badge {
+  color: #fff;
+  background: linear-gradient(145deg, #434d5c, #22272f);
+  border: 1px solid #7e8d9f;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* 3D Machined Rivet */
+.rivet {
+  z-index: 10;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #d8e2ec 20%, #7e8f9e 60%, #3e4854 85%, #1d2228 100%);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), inset 0 1px 1px #fff, inset -1px -1px 1px rgba(0, 0, 0, 0.7);
+}
+
+.rivet:after {
+  content: "";
+  background: radial-gradient(circle, #2b323b 0%, #15191d 100%);
+  border-radius: 50%;
+  width: 3px;
+  height: 3px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0.5px 0.5px 1px rgba(0, 0, 0, 0.9), 0.5px 0.5px 0.5px rgba(255, 255, 255, 0.4);
+}
+
+.rivet.top-left { top: 6px; left: 6px; }
+.rivet.top-right { top: 6px; right: 6px; }
+.rivet.bottom-left { bottom: 6px; left: 6px; }
+.rivet.bottom-right { bottom: 6px; right: 6px; }
+
+/* Machined Flathead Screw */
+.screw {
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #cfd9e5 20%, #6e7d8e 65%, #2a313a 100%);
+  border-radius: 50%;
+  width: 11px;
+  height: 11px;
+  position: absolute;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.85), inset 0 1px 1.5px rgba(255, 255, 255, 0.7), inset -1px -1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.screw:after {
+  content: "";
+  background-color: #12161a;
+  width: 8px;
+  height: 2px;
+  position: absolute;
+  top: 4.5px;
+  left: 1.5px;
+  transform: rotate(45deg);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+/* Glowing Status Lamps */
+.status-lamp {
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+}
+
+.status-lamp.green {
+  background-color: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.status-lamp.amber {
+  background-color: #ffb347;
+  box-shadow: 0 0 8px rgba(255, 179, 71, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.status-lamp.red {
+  background-color: #d13535;
+  box-shadow: 0 0 8px rgba(209, 53, 53, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Retro Tactile Cockpit Buttons */
+.btn-retro {
+  color: #dce6f0;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  text-transform: uppercase;
+  background: linear-gradient(#424c58 0%, #222830 100%);
+  border: 1.5px solid #637182;
+  border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), inset 0 -1px rgba(0, 0, 0, 0.4), 0 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.btn-retro:hover {
+  color: #fff;
+  background: linear-gradient(#515d6c 0%, #2c343f 100%);
+  border-color: #9bb0c7;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 0 10px rgba(155, 176, 199, 0.35);
+}
+
+.btn-retro:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.btn-retro.active {
+  color: #fff;
+  background: linear-gradient(#2b6cb0 0%, #1a497a 100%);
+  border-color: #63b3ed;
+  box-shadow: 0 0 10px rgba(99, 179, 237, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-red-launcher {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(#d13535, #731b1b);
+  border: 2px solid #ff6b6b;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 12px rgba(209, 53, 53, 0.45);
+}
+
+.btn-red-launcher:hover {
+  background: linear-gradient(#e24c4c, #8c2121);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(209, 53, 53, 0.7);
+}
+
+.btn-red-launcher:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.9);
 }
 
 .font-instrument {
@@ -106,8 +304,10 @@ body.daylight-boost {
 }
 
 .hero-verdict-size {
-  font-size: clamp(1.35rem, 1rem + 2.2vw, 2.35rem);
+  font-size: clamp(1.4rem, 1rem + 2.2vw, 2.35rem);
   line-height: 1.1;
+  font-family: var(--font-display);
+  letter-spacing: 1.5px;
 }
 
 /* Safe-area helpers for standalone PWA */
@@ -140,7 +340,7 @@ body.daylight-boost {
 
 /* High-contrast focus ring */
 :where(a:any-link, button, summary, input, select):focus-visible {
-  outline: 3px solid var(--color-avionics);
+  outline: 2px solid var(--color-avionics);
   outline-offset: 2px;
 }
 
@@ -186,12 +386,12 @@ body.daylight-boost {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, var(--color-panel) 25%, var(--color-panel-raised) 50%, var(--color-panel) 75%);
+  background: linear-gradient(90deg, #1b2027 25%, #2b333e 50%, #1b2027 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
-    background: var(--color-panel-raised);
+    background: #20262d;
   }
 }
 
@@ -200,7 +400,7 @@ body.daylight-boost {
   100% { background-position: -200% 0; }
 }
 
-/* Native <details> & <summary> disclosure with explicit directional cue */
+/* Native <details> & <summary> disclosure */
 details.avionics-disclosure > summary {
   list-style: none;
   cursor: pointer;
@@ -219,9 +419,9 @@ details.avionics-disclosure > summary::after {
   letter-spacing: 0.05em;
   color: var(--color-avionics);
   padding: 0.375rem 0.75rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  background: var(--color-avionics-soft);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-panel-inset);
   white-space: nowrap;
 }
 
@@ -293,7 +493,6 @@ details.avionics-disclosure[open] > summary::after {
   }
 
   .tactical-table thead {
-    /* MANDATORY: Hide column header from layout and screen readers. */
     display: none;
   }
 
@@ -336,12 +535,12 @@ details.avionics-disclosure[open] > summary::after {
 
 /* Native Dialog Backdrop */
 dialog.avionics-dialog::backdrop {
-  background: rgba(3, 7, 18, 0.78);
+  background: rgba(10, 14, 18, 0.88);
   backdrop-filter: blur(4px);
 }
 
 @media (forced-colors: active) {
-  .avionics-panel,
+  .metal-panel,
   .status-badge {
     border: 2px solid CanvasText;
   }
