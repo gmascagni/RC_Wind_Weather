@@ -1,7 +1,7 @@
 import { RefreshCw, SlidersHorizontal, Star, Sun, X } from 'lucide-react';
 import { STATUS_THEME, WIND_UNITS, convertWind, getUnitLabel } from '../config/flightConfig';
 import { evaluateFlightStatus } from '../utils/aerodynamics';
-import { StatusIcon, UsaacWingedCrest } from './StatusVisuals';
+import { StatusIcon, UsaacStarEmblem } from './StatusVisuals';
 import LocationSearchBar from './LocationSearchBar';
 
 export default function TopBar({
@@ -46,7 +46,7 @@ export default function TopBar({
         {/* Top Header Row with Winged USAAC Crest, Center Title, and Aviator Banner */}
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <UsaacWingedCrest className="h-10 sm:h-12 w-auto" />
+            <UsaacStarEmblem className="h-12 w-12 sm:h-14 sm:w-14" />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="status-lamp green" aria-hidden="true" />

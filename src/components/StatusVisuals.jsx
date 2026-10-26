@@ -21,46 +21,39 @@ export function UsaacStarSymbolDef() {
       <defs>
         {/* Classic US Army Air Corps (USAAC) Star Roundel */}
         <symbol id="usaac-star-symbol" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="46" fill="#1b365d" stroke="#d8e2ec" strokeWidth="3" />
+          <circle cx="50" cy="50" r="48" fill="#1b2028" stroke="#5a6778" strokeWidth="2" />
+          <circle cx="50" cy="50" r="44" fill="#1b365d" stroke="#d8e2ec" strokeWidth="2.5" />
           <polygon
-            points="50,10 59.5,36.9 88,37.6 65.3,55 73.5,82.4 50,66 26.5,82.4 34.7,55 12,37.6 40.5,36.9"
+            points="50,8 59.4,37 90,37 65.3,55 74.7,84 50,66 25.3,84 34.7,55 10,37 40.6,37"
             fill="#ffffff"
           />
-          <circle cx="50" cy="50" r="12.5" fill="#d13535" />
+          <circle cx="50" cy="50" r="13" fill="#d13535" />
         </symbol>
       </defs>
     </svg>
   );
 }
 
-export function UsaacWingedCrest({ className = 'h-12 w-auto' }) {
+// Backward-compatibility alias
+export const RcAirplaneSymbolDef = UsaacStarSymbolDef;
+
+export function UsaacStarEmblem({ className = 'h-11 w-11 sm:h-13 sm:w-13' }) {
   return (
-    <svg viewBox="0 0 180 52" className={`${className} block shrink-0`} aria-hidden="true">
-      {/* Left & Right Crimson Warbird Wings */}
-      <path
-        d="M46,24 C24,12 12,15 3,20 C14,26 28,26 43,25 C32,29 20,31 9,31 C22,36 35,34 46,31 Z"
-        fill="#731b1b"
-        stroke="#7e8d9f"
-        strokeWidth="1.2"
-      />
-      <path
-        d="M134,24 C156,12 168,15 177,20 C166,26 152,26 137,25 C148,29 160,31 171,31 C158,36 145,34 134,31 Z"
-        fill="#731b1b"
-        stroke="#7e8d9f"
-        strokeWidth="1.2"
-      />
-      {/* Central USAAC Star Roundel */}
-      <circle cx="90" cy="24" r="19" fill="#1b365d" stroke="#d8e2ec" strokeWidth="2" />
+    <svg viewBox="0 0 100 100" className={`${className} block shrink-0 drop-shadow-md`} aria-hidden="true">
+      {/* Outer Steel Beveled Rim */}
+      <circle cx="50" cy="50" r="48" fill="#1b2028" stroke="#5a6778" strokeWidth="2" />
+      {/* Classic US Army Air Corps Navy Roundel */}
+      <circle cx="50" cy="50" r="44" fill="#1b365d" stroke="#d8e2ec" strokeWidth="2.5" />
+      {/* Prominent White 5-Pointed Star */}
       <polygon
-        points="90,8.5 93.8,19 105,19.3 96.1,26.1 99.3,36.8 90,30.3 80.7,36.8 83.9,26.1 75,19.3 86.2,19"
+        points="50,8 59.4,37 90,37 65.3,55 74.7,84 50,66 25.3,84 34.7,55 10,37 40.6,37"
         fill="#ffffff"
       />
-      <circle cx="90" cy="24" r="5" fill="#d13535" />
-      {/* Bottom Plate */}
-      <rect x="70" y="40" width="40" height="10" rx="2" fill="#20262d" stroke="#7e8d9f" strokeWidth="1" />
-      <text x="90" y="47.5" fill="#ffb347" fontSize="7" fontWeight="700" textAnchor="middle" fontFamily="monospace">
-        AIR CORPS
-      </text>
+      {/* Central Red Dot */}
+      <circle cx="50" cy="50" r="13" fill="#d13535" />
     </svg>
   );
 }
+
+// Backward-compatibility alias pointing to clean emblem
+export const UsaacWingedCrest = UsaacStarEmblem;
