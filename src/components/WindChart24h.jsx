@@ -64,7 +64,7 @@ export default function WindChart24h({
       {/* WWII Cockpit Header */}
       <div className="panel-header flex-wrap justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="panel-badge" aria-hidden="true">03</span>
+          <span className="panel-badge" aria-hidden="true">04</span>
           <TrendingUp strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
             24h Sustained vs. Gust Envelope

@@ -43,7 +43,7 @@ const HourlyForecast = forwardRef(function HourlyForecast(
       {/* WWII Cockpit Header */}
       <div className="panel-header flex-wrap justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="panel-badge" aria-hidden="true">04</span>
+          <span className="panel-badge" aria-hidden="true">02</span>
           <Clock strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
             Hour-by-Hour Chrono Telemetry (Next 24h)

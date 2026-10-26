@@ -166,6 +166,14 @@ export default function App() {
               onOpenSettings={() => setSettingsOpen(true)}
             />
 
+            <HourlyForecast
+              ref={forecastRef}
+              hourly={locState.data.hourly}
+              locationName={activeLocation.name}
+              thresholds={thresholds}
+              windUnit={windUnit}
+            />
+
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <WindCompassCard
                 windDirection={locState.data.current.windDirection}
@@ -184,14 +192,6 @@ export default function App() {
                 onSelectHour={(iso) => forecastRef.current?.scrollToIso(iso)}
               />
             </div>
-
-            <HourlyForecast
-              ref={forecastRef}
-              hourly={locState.data.hourly}
-              locationName={activeLocation.name}
-              thresholds={thresholds}
-              windUnit={windUnit}
-            />
 
             <AircraftSuitability
               currentObs={locState.data.current}
