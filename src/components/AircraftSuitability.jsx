@@ -16,33 +16,31 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
     <section className="space-y-4">
       <WindConditionScale windSpeedMph={currentObs?.windSpeed} windUnit={windUnit} />
 
-      <div className="metal-panel avionics-panel relative overflow-hidden">
+      {/* Collapsible Recommended Aircraft Section */}
+      <details className="avionics-disclosure metal-panel avionics-panel relative overflow-hidden">
         <span className="rivet top-left" aria-hidden="true" />
         <span className="rivet top-right" aria-hidden="true" />
         <span className="rivet bottom-left" aria-hidden="true" />
         <span className="rivet bottom-right" aria-hidden="true" />
 
-        {/* WWII Cockpit Header */}
-        <div className="panel-header flex-wrap justify-between gap-2">
-          <div className="flex items-center gap-2.5 min-w-0">
+        <summary className="touch-target flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 cursor-pointer">
+          <div className="flex flex-wrap items-center gap-2.5 min-w-0">
             <span className="panel-badge" aria-hidden="true">05</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded border border-line-strong bg-panel-inset">
               <svg width="22" height="22" aria-hidden="true" className="block">
                 <use href="#usaac-star-symbol" />
               </svg>
             </div>
-            <div>
-              <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
-                Recommended RC Aircraft for Current Conditions
-              </h2>
-            </div>
+            <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink">
+              Recommended RC Aircraft for Current Conditions
+            </span>
+            <span className="hidden sm:inline font-instrument text-2xs text-ink-dim uppercase">
+              • Matched to wind, gusts &amp; crosswind
+            </span>
           </div>
-          <span className="font-instrument text-2xs text-ink-dim uppercase">
-            Matched against live sustained wind, gusts &amp; crosswind
-          </span>
-        </div>
+        </summary>
 
-        <div className="p-4 sm:p-5">
+        <div className="border-t border-line p-4 sm:p-5">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {recommendations.map((rec) => {
               const theme = STATUS_THEME[rec.status];
@@ -82,7 +80,7 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
             })}
           </div>
         </div>
-      </div>
+      </details>
 
       {/* Collapsible Field Manual: Aerodynamic Rules of Thumb */}
       <details className="avionics-disclosure metal-panel avionics-panel relative overflow-hidden">
