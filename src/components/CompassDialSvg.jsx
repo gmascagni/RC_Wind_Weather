@@ -1,10 +1,10 @@
 import { degreesToCardinal } from '../utils/aerodynamics';
 
 const CARDINAL_LABELS = [
-  { label: 'N', x: 100, y: 31, color: '#fb7185', weight: '700' },
-  { label: 'E', x: 169, y: 100, color: '#cbd5e1', weight: '600' },
-  { label: 'S', x: 100, y: 169, color: '#cbd5e1', weight: '600' },
-  { label: 'W', x: 31, y: 100, color: '#cbd5e1', weight: '600' },
+  { label: 'N', x: 100, y: 31, color: '#ff4d4d', weight: '700' },
+  { label: 'E', x: 169, y: 100, color: '#e3edf7', weight: '600' },
+  { label: 'S', x: 100, y: 169, color: '#e3edf7', weight: '600' },
+  { label: 'W', x: 31, y: 100, color: '#e3edf7', weight: '600' },
 ];
 
 export default function CompassDialSvg({
@@ -27,8 +27,35 @@ export default function CompassDialSvg({
         }`}
       </title>
 
-      <circle cx="100" cy="100" r="90" fill="#080e1a" stroke={liveEnabled ? '#38bdf8' : '#1e2d47'} strokeWidth="2" />
-      <circle cx="100" cy="100" r="68" fill="none" stroke="#1e2d47" strokeWidth="1" strokeDasharray="4 4" />
+      <defs>
+        {/* Machined Red Warbird Instrument Bezel Gradient */}
+        <linearGradient id="redBezelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ff5a5a" />
+          <stop offset="25%" stopColor="#d13535" />
+          <stop offset="65%" stopColor="#961b1b" />
+          <stop offset="100%" stopColor="#540a0a" />
+        </linearGradient>
+        <radialGradient id="compassFaceGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="65%" stopColor="#171b21" />
+          <stop offset="100%" stopColor="#0d1014" />
+        </radialGradient>
+      </defs>
+
+      {/* Outer Red Bezel Assembly */}
+      <circle cx="100" cy="100" r="97.5" fill="none" stroke="#480c0c" strokeWidth="1" />
+      <circle cx="100" cy="100" r="94.5" fill="none" stroke="url(#redBezelGrad)" strokeWidth="5" />
+      <circle cx="100" cy="100" r="91.5" fill="none" stroke="#220404" strokeWidth="1.2" />
+
+      {/* Compass Instrument Face */}
+      <circle
+        cx="100"
+        cy="100"
+        r="90"
+        fill="url(#compassFaceGrad)"
+        stroke={liveEnabled ? '#38bdf8' : '#3c4654'}
+        strokeWidth="1.5"
+      />
+      <circle cx="100" cy="100" r="68" fill="none" stroke="#28323f" strokeWidth="1" strokeDasharray="4 4" />
 
       {/* Rotating HSI Compass Card (North-Up when 0deg, Heading-Up when liveEnabled) */}
       <g
@@ -46,7 +73,7 @@ export default function CompassDialSvg({
               y1="10"
               x2="100"
               y2={major ? '21' : med ? '17' : '14'}
-              stroke={major ? '#cbd5e1' : med ? '#64748b' : '#334155'}
+              stroke={major ? '#e3edf7' : med ? '#7b8c9f' : '#3d4b5c'}
               strokeWidth={major ? '2.2' : '1.2'}
               transform={`rotate(${deg} 100 100)`}
             />
@@ -63,7 +90,7 @@ export default function CompassDialSvg({
             fill={c.color}
             fontSize="12.5"
             fontWeight={c.weight}
-            fontFamily="monospace"
+            fontFamily="Share Tech Mono, monospace"
             transform={`rotate(${uprightDeg} ${c.x} ${c.y})`}
           >
             {c.label}
@@ -72,8 +99,8 @@ export default function CompassDialSvg({
 
         {/* Field Runway Strip */}
         <g transform={`rotate(${activeRunwayDeg} 100 100)`}>
-          <rect x="91" y="42" width="18" height="116" rx="3" fill="#18243d" stroke="#475569" strokeWidth="1.5" />
-          <line x1="100" y1="50" x2="100" y2="150" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="6 5" />
+          <rect x="91" y="42" width="18" height="116" rx="3" fill="#18243d" stroke="#5a6778" strokeWidth="1.5" />
+          <line x1="100" y1="50" x2="100" y2="150" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="6 5" />
           <polygon points="100,45 95,55 105,55" fill="#38bdf8" />
         </g>
 
@@ -93,7 +120,9 @@ export default function CompassDialSvg({
         </g>
       )}
 
-      <circle cx="100" cy="100" r="4" fill="#f8fafc" stroke="#070b12" strokeWidth="1.5" />
+      {/* Central Instrument Hub */}
+      <circle cx="100" cy="100" r="5" fill="#d13535" stroke="#070b12" strokeWidth="1.5" />
+      <circle cx="100" cy="100" r="2" fill="#ffffff" />
     </svg>
   );
 }
