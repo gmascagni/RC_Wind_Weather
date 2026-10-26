@@ -80,7 +80,7 @@ const HourlyForecast = forwardRef(function HourlyForecast(
                 filterMode === 'flyable' ? 'border-caution-line text-caution-ink bg-caution-surface' : 'text-ink-dim border-transparent'
               }`}
             >
-              GO+MOD ({goodCount + marginalCount})
+              GO+CAUTION ({goodCount + marginalCount})
             </button>
           </div>
 

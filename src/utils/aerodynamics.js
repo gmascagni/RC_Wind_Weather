@@ -125,7 +125,7 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
     return { level: 'stop', verdict: 'DONT BE A RETARD!', shortTag: 'NO-GO', gustSpread: spread, reasons: stopReasons };
   }
   if (cautionReasons.length > 0) {
-    return { level: 'marginal', verdict: 'MARGINAL', shortTag: 'CAUTION', gustSpread: spread, reasons: cautionReasons };
+    return { level: 'marginal', verdict: 'YOU SURE?', shortTag: 'CAUTION', gustSpread: spread, reasons: cautionReasons };
   }
   return {
     level: 'good',
