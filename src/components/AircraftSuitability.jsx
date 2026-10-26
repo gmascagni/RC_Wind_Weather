@@ -89,7 +89,7 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
         <span className="rivet bottom-left" aria-hidden="true" />
         <span className="rivet bottom-right" aria-hidden="true" />
 
-        <summary className="touch-target flex items-center justify-between gap-3 p-4 sm:px-5 cursor-pointer">
+        <summary className="touch-target flex flex-col items-start gap-2.5 p-4 sm:px-5 cursor-pointer">
           <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wide text-ink">
             ★ Field Manual: RC Wind &amp; Crosswind Rules of Thumb
           </span>
