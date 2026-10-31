@@ -1,5 +1,5 @@
-const SHELL_CACHE = 'rc-wind-shell-v8';
-const API_CACHE = 'rc-wind-api-v8';
+const SHELL_CACHE = 'rc-wind-shell-v9';
+const API_CACHE = 'rc-wind-api-v9';
 const API_MAX_AGE_MS = 3 * 60 * 1000; // 3 minutes max for weather API responses
 
 function getScopeUrl(path = '') {
@@ -11,6 +11,8 @@ const PRECACHE_PATHS = [
   'index.html',
   'manifest.webmanifest',
   'favicon.svg',
+  'favicon-32x32.png',
+  'favicon-16x16.png',
   'p40-warhawk.jpg',
   'apple-touch-icon.png',
   'icon-192.png',
