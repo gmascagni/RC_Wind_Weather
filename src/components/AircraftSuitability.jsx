@@ -11,6 +11,8 @@ export default function AircraftSuitability({
   forecastDay = 'today',
   dayLabel = 'Current Conditions',
 }) {
+  const baseUrl = import.meta.env.BASE_URL || '/RC_Wind_Weather/';
+  const p40Src = `${baseUrl}p40-warhawk.jpg`.replace(/\/{2,}/g, '/');
   const unit = getUnitLabel(windUnit);
   const recommendations = getAircraftRecommendations(currentObs, crosswindMph);
   const gustSpread = Math.max(
@@ -32,10 +34,14 @@ export default function AircraftSuitability({
         <summary className="touch-target flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 cursor-pointer">
           <div className="flex flex-wrap items-center gap-2.5 min-w-0">
             <span className="panel-badge" aria-hidden="true">05</span>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded border border-line-strong bg-panel-inset">
-              <svg width="22" height="22" aria-hidden="true" className="block">
-                <use href="#usaac-star-symbol" />
-              </svg>
+            <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-stop/70 bg-panel-inset shadow-panel">
+              <img
+                src={p40Src}
+                alt="Curtiss P-40 Warhawk"
+                width={28}
+                height={28}
+                className="h-full w-full object-cover object-center block"
+              />
             </div>
             <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink">
               Recommended RC Aircraft for {forecastDay === 'tomorrow' ? `Tomorrow (${dayLabel})` : 'Current Conditions'}

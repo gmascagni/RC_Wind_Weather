@@ -86,10 +86,14 @@ export default function TopBar({
                   No Gusts Too High
                 </span>
               </div>
-              <div className="relative h-11 w-11 overflow-hidden rounded-pill border-2 border-line-strong bg-panel-inset shadow-panel flex items-center justify-center p-0.5">
-                <svg width="34" height="34" aria-hidden="true" className="block">
-                  <use href="#usaac-star-symbol" />
-                </svg>
+              <div className="relative h-11 w-11 overflow-hidden rounded-pill border-2 border-stop/80 bg-panel-inset shadow-panel flex items-center justify-center p-0.5">
+                <img
+                  src={p40Src}
+                  alt="Curtiss P-40 Warhawk Shark Mouth"
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-cover object-center rounded-pill block"
+                />
               </div>
             </div>
 

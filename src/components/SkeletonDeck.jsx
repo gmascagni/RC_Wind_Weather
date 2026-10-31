@@ -108,10 +108,14 @@ export function WelcomeFieldPrompt({ onLocateGps, isLocatingGps }) {
                   WWII Warbird Avionics Cockpit &amp; Real-Time Crosswind Calculator
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <svg width="34" height="34" aria-hidden="true" className="block drop-shadow">
-                  <use href="#usaac-star-symbol" />
-                </svg>
+              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-stop/70 bg-panel-inset shadow-panel">
+                <img
+                  src={p40Src}
+                  alt="Curtiss P-40 Warhawk"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover object-center block"
+                />
               </div>
             </div>
           </div>
