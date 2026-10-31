@@ -11,6 +11,7 @@ export default function WindCompassCard({
   runwayInfo,
   statusLevel = 'good',
   windUnit = 'mph',
+  forecastDay = 'today',
 }) {
   const {
     liveEnabled,
@@ -43,7 +44,7 @@ export default function WindCompassCard({
           <span className="panel-badge" aria-hidden="true">03</span>
           <Compass strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
-            Wind Vector &amp; Crosswind
+            {forecastDay === 'tomorrow' ? 'Wind Vector & Crosswind (Tomorrow)' : 'Wind Vector & Crosswind'}
           </h2>
         </div>
 

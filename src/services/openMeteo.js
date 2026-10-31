@@ -23,6 +23,8 @@ function getFormattersForTz(tzInput) {
     shortHour: new Intl.DateTimeFormat('en-US', { timeZone: validTz, hour: 'numeric' }),
     hour24: new Intl.DateTimeFormat('en-US', { timeZone: validTz, hour: '2-digit', hourCycle: 'h23' }),
     dateKey: new Intl.DateTimeFormat('en-CA', { timeZone: validTz, year: 'numeric', month: '2-digit', day: '2-digit' }),
+    fullDate: new Intl.DateTimeFormat('en-US', { timeZone: validTz, weekday: 'short', month: 'short', day: 'numeric' }),
+    weekday: new Intl.DateTimeFormat('en-US', { timeZone: validTz, weekday: 'short' }),
   };
   formatterCache.set(tz, bundle);
   return bundle;
@@ -106,7 +108,7 @@ export async function fetchOpenMeteoForLocation(location, signal) {
     precipitation_unit: 'inch',
     timeformat: 'unixtime',
     timezone: requestedTz,
-    forecast_days: '2',
+    forecast_days: '3',
   });
 
   const data = await fetchWithTimeoutAndRetry(
@@ -134,6 +136,22 @@ export async function fetchOpenMeteoForLocation(location, signal) {
   let startIdx = hTimes.findIndex((epochSec) => safeNum(epochSec) >= currentHourFloorSec);
   if (startIdx === -1) startIdx = 0;
 
+  // Identify tomorrow's calendar date in local timezone
+  let tomorrowKey = null;
+  let firstTomorrowDateObj = null;
+  for (const t of hTimes) {
+    const k = fmt.dateKey.format(new Date(t * 1000));
+    if (k > todayKey) {
+      tomorrowKey = k;
+      firstTomorrowDateObj = new Date(t * 1000);
+      break;
+    }
+  }
+
+  const tomorrowDateLabel = firstTomorrowDateObj ? fmt.fullDate.format(firstTomorrowDateObj) : 'Tomorrow';
+  const tomorrowWeekday = firstTomorrowDateObj ? fmt.weekday.format(firstTomorrowDateObj) : 'Tomorrow';
+
+  // Rolling 24h starting at current hour (Today / Live)
   const hourly = [];
   for (let offset = 0; offset < 24; offset++) {
     const i = startIdx + offset;
@@ -153,6 +171,7 @@ export async function fetchOpenMeteoForLocation(location, signal) {
       isoTime: dateObj.toISOString(),
       timeLabel: isNow ? 'NOW' : fmt.time.format(dateObj),
       hourShort: isNow ? 'NOW' : fmt.shortHour.format(dateObj),
+      displayTime: isNow ? 'NOW' : fmt.shortHour.format(dateObj),
       hour24: Number(fmt.hour24.format(dateObj)) || 0,
       dayLabel: fmt.dateKey.format(dateObj) === todayKey ? 'Today' : 'Tomorrow',
       temperature: isNow ? currentTemp : Math.round(safeNum(data.hourly.temperature_2m?.[i], currentTemp)),
@@ -170,10 +189,85 @@ export async function fetchOpenMeteoForLocation(location, signal) {
     });
   }
 
+  // Full 24 hours of Tomorrow (00:00 to 23:00)
+  const hourlyTomorrow = [];
+  if (tomorrowKey) {
+    for (let i = 0; i < hTimes.length; i++) {
+      const epochSec = safeNum(hTimes[i]);
+      const dateObj = new Date(epochSec * 1000);
+      if (fmt.dateKey.format(dateObj) === tomorrowKey) {
+        const wSpeed = Math.round(safeNum(data.hourly.wind_speed_10m?.[i], 0) * 10) / 10;
+        const wGust = Math.max(wSpeed, Math.round(safeNum(data.hourly.wind_gusts_10m?.[i], wSpeed) * 10) / 10);
+        const wDir = normalizeDegrees(data.hourly.wind_direction_10m?.[i]);
+
+        hourlyTomorrow.push({
+          epochSec,
+          isoTime: dateObj.toISOString(),
+          timeLabel: fmt.time.format(dateObj),
+          hourShort: fmt.shortHour.format(dateObj),
+          displayTime: fmt.shortHour.format(dateObj),
+          hour24: Number(fmt.hour24.format(dateObj)) || 0,
+          dayLabel: 'Tomorrow',
+          temperature: Math.round(safeNum(data.hourly.temperature_2m?.[i], currentTemp)),
+          windSpeed: wSpeed,
+          windGusts: wGust,
+          windDirection: wDir,
+          cardinal: degreesToCardinal(wDir),
+          precipProb: Math.round(safeNum(data.hourly.precipitation_probability?.[i], 0)),
+          precipIn: Math.round(safeNum(data.hourly.precipitation?.[i], 0) * 100) / 100,
+          visibilityMi: Math.round((safeNum(data.hourly.visibility?.[i], 16093) / 1609.344) * 10) / 10,
+          weatherCode: Math.round(safeNum(data.hourly.weather_code?.[i], 0)),
+          isCurrentHour: false,
+        });
+      }
+    }
+  }
+
+  // Daytime hours for RC flying (8 AM to 7 PM)
+  const sampleHours = hourlyTomorrow.filter((h) => h.hour24 >= 8 && h.hour24 <= 19);
+  const sample = sampleHours.length > 0 ? sampleHours : hourlyTomorrow;
+
+  let prevailingTomorrowDir = currentDir;
+  if (sample.length > 0) {
+    let sinSum = 0;
+    let cosSum = 0;
+    for (const h of sample) {
+      const rad = (h.windDirection * Math.PI) / 180;
+      sinSum += Math.sin(rad);
+      cosSum += Math.cos(rad);
+    }
+    prevailingTomorrowDir = normalizeDegrees(Math.round((Math.atan2(sinSum, cosSum) * 180) / Math.PI));
+  }
+
+  const peakTomorrowHour = sample.reduce(
+    (maxH, h) => (h.windGusts > (maxH?.windGusts ?? 0) ? h : maxH),
+    sample[0] || null
+  );
+
+  const tomorrowObs = sample.length > 0 ? {
+    temperature: Math.round(sample.reduce((sum, h) => sum + h.temperature, 0) / sample.length),
+    apparentTemperature: Math.round(sample.reduce((sum, h) => sum + h.temperature, 0) / sample.length),
+    humidity: 50,
+    precipIn: Math.round(sample.reduce((sum, h) => sum + h.precipIn, 0) * 100) / 100,
+    precipProb: Math.max(...sample.map((h) => h.precipProb)),
+    visibilityMi: Math.min(...sample.map((h) => h.visibilityMi)),
+    weatherCode: Math.max(...sample.map((h) => h.weatherCode)),
+    windSpeed: peakTomorrowHour ? peakTomorrowHour.windSpeed : 0,
+    windGusts: Math.max(...sample.map((h) => h.windGusts)),
+    windDirection: prevailingTomorrowDir,
+    cardinal: degreesToCardinal(prevailingTomorrowDir),
+    highTemp: Math.max(...hourlyTomorrow.map((h) => h.temperature)),
+    lowTemp: Math.min(...hourlyTomorrow.map((h) => h.temperature)),
+    peakHourLabel: peakTomorrowHour ? peakTomorrowHour.timeLabel : '',
+  } : null;
+
   return {
     fetchedAtMs: Date.now(),
     timezone: fmt.tz,
     elevationFt: apiElevFt,
+    todayLabel: 'Today',
+    tomorrowDateLabel,
+    tomorrowWeekday,
     current: {
       temperature: currentTemp,
       apparentTemperature: Math.round(safeNum(cur.apparent_temperature, currentTemp)),
@@ -188,5 +282,16 @@ export async function fetchOpenMeteoForLocation(location, signal) {
       cardinal: degreesToCardinal(currentDir),
     },
     hourly,
+    hourlyTomorrow,
+    tomorrow: {
+      obs: tomorrowObs,
+      hourly: hourlyTomorrow,
+      dateLabel: tomorrowDateLabel,
+      weekday: tomorrowWeekday,
+      highTemp: tomorrowObs ? tomorrowObs.highTemp : currentTemp,
+      lowTemp: tomorrowObs ? tomorrowObs.lowTemp : currentTemp,
+      maxGusts: tomorrowObs ? tomorrowObs.windGusts : currentGusts,
+      maxWind: tomorrowObs ? tomorrowObs.windSpeed : currentWind,
+    },
   };
 }

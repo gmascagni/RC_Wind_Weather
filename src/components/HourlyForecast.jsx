@@ -5,7 +5,16 @@ import HourlyCard from './HourlyCard';
 import HourlyTable from './HourlyTable';
 
 const HourlyForecast = forwardRef(function HourlyForecast(
-  { hourly = [], locationName = '', thresholds, windUnit = 'mph' },
+  {
+    hourly = [],
+    locationName = '',
+    thresholds,
+    windUnit = 'mph',
+    forecastDay = 'today',
+    onChangeForecastDay,
+    tomorrowDateLabel = '',
+    tomorrowWeekday = '',
+  },
   ref
 ) {
   const [filterMode, setFilterMode] = useState('all');
@@ -46,11 +55,35 @@ const HourlyForecast = forwardRef(function HourlyForecast(
           <span className="panel-badge" aria-hidden="true">02</span>
           <Clock strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
-            Hour-by-Hour Chrono Telemetry (Next 24h)
+            Chrono Telemetry • {forecastDay === 'tomorrow' ? `Tomorrow (${tomorrowDateLabel || 'Next Day'})` : 'Next 24h'}
           </h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Day Selector Buttons: Today vs Tomorrow */}
+          <div role="group" aria-label="Forecast day view" className="inline-flex rounded border border-line-strong bg-panel-inset p-0.5">
+            <button
+              type="button"
+              onClick={() => onChangeForecastDay?.('today')}
+              aria-pressed={forecastDay === 'today'}
+              className={`btn-retro text-2xs py-1 px-2.5 font-bold ${
+                forecastDay === 'today' ? 'border-avionics text-avionics bg-panel-raised ring-1 ring-avionics/40' : 'text-ink-dim border-transparent'
+              }`}
+            >
+              TODAY
+            </button>
+            <button
+              type="button"
+              onClick={() => onChangeForecastDay?.('tomorrow')}
+              aria-pressed={forecastDay === 'tomorrow'}
+              className={`btn-retro text-2xs py-1 px-2.5 font-bold ${
+                forecastDay === 'tomorrow' ? 'border-avionics text-avionics bg-panel-raised ring-1 ring-avionics/40' : 'text-ink-dim border-transparent'
+              }`}
+            >
+              TOMORROW {tomorrowWeekday ? `(${tomorrowWeekday.toUpperCase()})` : ''}
+            </button>
+          </div>
+
           <div role="group" aria-label="Filter hours by status" className="inline-flex flex-wrap rounded border border-line-strong bg-panel-inset p-0.5">
             <button
               type="button"

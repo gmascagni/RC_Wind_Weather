@@ -3,9 +3,10 @@ import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig'
 import { WIND_CONDITION_TIERS } from '../utils/aircraftRecommendations';
 import { StatusIcon } from './StatusVisuals';
 
-export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph' }) {
+export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph', forecastDay = 'today' }) {
   const speed = Number(windSpeedMph) || 0;
   const unit = getUnitLabel(windUnit).toUpperCase();
+  const dayTag = forecastDay === 'tomorrow' ? 'TOMORROW' : 'NOW';
 
   const formatTierRange = (tier) => {
     if (!Number.isFinite(tier.maxMph) || tier.minMph >= 20) {
@@ -39,7 +40,7 @@ export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph' 
           >
             <StatusIcon level={currentTier.level} className="h-3 w-3" />
             <span>
-              NOW: {convertWind(speed, windUnit)} {unit} ({formatTierRange(currentTier)} • {currentTier.title})
+              {dayTag}: {convertWind(speed, windUnit)} {unit} ({formatTierRange(currentTier)} • {currentTier.title})
             </span>
           </span>
         </div>

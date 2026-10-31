@@ -4,7 +4,13 @@ import { getAircraftRecommendations } from '../utils/aircraftRecommendations';
 import { StatusIcon } from './StatusVisuals';
 import WindConditionScale from './WindConditionScale';
 
-export default function AircraftSuitability({ currentObs, crosswindMph = 0, windUnit = 'mph' }) {
+export default function AircraftSuitability({
+  currentObs,
+  crosswindMph = 0,
+  windUnit = 'mph',
+  forecastDay = 'today',
+  dayLabel = 'Current Conditions',
+}) {
   const unit = getUnitLabel(windUnit);
   const recommendations = getAircraftRecommendations(currentObs, crosswindMph);
   const gustSpread = Math.max(
@@ -14,7 +20,7 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
 
   return (
     <section className="space-y-4">
-      <WindConditionScale windSpeedMph={currentObs?.windSpeed} windUnit={windUnit} />
+      <WindConditionScale windSpeedMph={currentObs?.windSpeed} windUnit={windUnit} forecastDay={forecastDay} />
 
       {/* Collapsible Recommended Aircraft Section */}
       <details className="avionics-disclosure metal-panel avionics-panel relative overflow-hidden">
@@ -32,7 +38,7 @@ export default function AircraftSuitability({ currentObs, crosswindMph = 0, wind
               </svg>
             </div>
             <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink">
-              Recommended RC Aircraft for Current Conditions
+              Recommended RC Aircraft for {forecastDay === 'tomorrow' ? `Tomorrow (${dayLabel})` : 'Current Conditions'}
             </span>
             <span className="hidden sm:inline font-instrument text-2xs text-ink-dim uppercase">
               • Matched to wind, gusts &amp; crosswind

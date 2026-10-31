@@ -1,4 +1,4 @@
-import { MapPin, AlertCircle, Clock, SlidersHorizontal, Star } from 'lucide-react';
+import { MapPin, AlertCircle, Clock, SlidersHorizontal, Star, Calendar } from 'lucide-react';
 import { AIRCRAFT_PRESETS, STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
 import { StatusIcon, StatusLamp } from './StatusVisuals';
 import CockpitMetricsGrid from './CockpitMetricsGrid';
@@ -13,8 +13,12 @@ export default function HeroStatusBanner({
   thresholds,
   windUnit,
   onOpenSettings,
+  forecastDay = 'today',
+  onChangeForecastDay,
 }) {
-  const current = locState.data.current;
+  const current = (forecastDay === 'tomorrow' && locState.data?.tomorrow?.obs)
+    ? locState.data.tomorrow.obs
+    : locState.data.current;
   const theme = STATUS_THEME[status.level];
   const unit = getUnitLabel(windUnit);
   const elevFt = locState.data.elevationFt ?? location.elevationFt;
@@ -36,18 +40,65 @@ export default function HeroStatusBanner({
           <span className="panel-badge" aria-hidden="true">01</span>
           <StatusLamp level={status.level} />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
-            Primary Flight Deck • Go / No-Go
+            {forecastDay === 'tomorrow' ? 'Flight Deck • Tomorrow Outlook' : 'Primary Flight Deck • Go / No-Go'}
           </h2>
         </div>
-        <div className="flex items-center gap-2 font-instrument text-2xs text-ink-soft">
-          <span className="inline-flex items-center gap-1 rounded border border-line bg-panel-inset px-2 py-0.5">
-            <Clock strokeWidth={2} className="h-3 w-3 shrink-0" aria-hidden="true" />
-            UPDATED {locState.ageLabel}
-          </span>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Day Toggle Buttons */}
+          <div role="group" aria-label="Forecast day selection" className="inline-flex rounded border border-line-strong bg-panel-inset p-0.5">
+            <button
+              type="button"
+              onClick={() => onChangeForecastDay?.('today')}
+              aria-pressed={forecastDay === 'today'}
+              className={`btn-retro text-2xs py-1 px-2.5 font-bold ${
+                forecastDay === 'today' ? 'border-avionics text-avionics bg-panel-raised ring-1 ring-avionics/40' : 'text-ink-dim border-transparent'
+              }`}
+            >
+              TODAY
+            </button>
+            <button
+              type="button"
+              onClick={() => onChangeForecastDay?.('tomorrow')}
+              aria-pressed={forecastDay === 'tomorrow'}
+              className={`btn-retro text-2xs py-1 px-2.5 font-bold ${
+                forecastDay === 'tomorrow' ? 'border-avionics text-avionics bg-panel-raised ring-1 ring-avionics/40' : 'text-ink-dim border-transparent'
+              }`}
+            >
+              TOMORROW
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 font-instrument text-2xs text-ink-soft">
+            <span className="inline-flex items-center gap-1 rounded border border-line bg-panel-inset px-2 py-0.5">
+              <Clock strokeWidth={2} className="h-3 w-3 shrink-0" aria-hidden="true" />
+              {forecastDay === 'tomorrow'
+                ? (locState.data?.tomorrowDateLabel?.toUpperCase() || 'TOMORROW')
+                : `UPDATED ${locState.ageLabel}`}
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="p-4 sm:p-5 sm:pt-4">
+        {forecastDay === 'tomorrow' && (
+          <div
+            role="status"
+            className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-control border border-avionics/50 bg-avionics-soft px-3.5 py-2.5 text-xs text-avionics"
+          >
+            <span className="flex items-center gap-2 font-bold font-instrument tracking-wide">
+              <Calendar strokeWidth={2} className="h-4 w-4 shrink-0 text-avionics" aria-hidden="true" />
+              CHECKING AHEAD: PREVIEWING TOMORROW&apos;S FORECAST ({locState.data?.tomorrowDateLabel || 'Next Day'})
+            </span>
+            <button
+              type="button"
+              onClick={() => onChangeForecastDay?.('today')}
+              className="btn-retro text-2xs py-0.5 px-2.5 text-ink hover:text-white"
+            >
+              ← RETURN TO LIVE TODAY
+            </button>
+          </div>
+        )}
         {(locState.error || locState.isStale) && (
           <div
             role="status"
@@ -129,11 +180,13 @@ export default function HeroStatusBanner({
 
         <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 rounded-control border border-line bg-panel-inset px-3.5 py-2.5 text-xs">
           <div className="text-ink-soft">
-            <strong className={`font-instrument uppercase ${theme.text}`}>{status.shortTag}: </strong>
+            <strong className={`font-instrument uppercase ${theme.text}`}>
+              {forecastDay === 'tomorrow' ? `TOMORROW ${status.shortTag}` : status.shortTag}:{' '}
+            </strong>
             {status.reasons.join(' • ')}
           </div>
           <div className="font-instrument text-2xs text-avionics font-bold">
-            {runwayInfo.rwyLabel} X-WIND: {convertWind(runwayInfo.crosswindMph, windUnit)} {unit}
+            {runwayInfo.rwyLabel} {forecastDay === 'tomorrow' ? 'PREVAILING X-WIND' : 'X-WIND'}: {convertWind(runwayInfo.crosswindMph, windUnit)} {unit}
           </div>
         </div>
 

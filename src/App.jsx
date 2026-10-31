@@ -26,6 +26,7 @@ export default function App() {
   const [thresholds, setThresholds] = useLocalStorageState('rc_wind_thresholds_v2', DEFAULT_THRESHOLDS);
   const [runwayByField, setRunwayByField] = useLocalStorageState('rc_wind_runways_v2', {});
   const [daylightBoost, setDaylightBoost] = useLocalStorageState('rc_wind_daylight_boost', false);
+  const [forecastDay, setForecastDay] = useState('today');
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isLocatingGps, setIsLocatingGps] = useState(false);
@@ -82,21 +83,30 @@ export default function App() {
     }
   };
 
+  const isTomorrow = forecastDay === 'tomorrow' && Boolean(locState.data?.tomorrow);
+  const activeObs = useMemo(() => {
+    if (isTomorrow) return locState.data.tomorrow.obs;
+    return locState.data?.current || null;
+  }, [isTomorrow, locState.data]);
+
+  const activeHourly = useMemo(() => {
+    if (isTomorrow) return locState.data.tomorrow.hourly || [];
+    return locState.data?.hourly || [];
+  }, [isTomorrow, locState.data]);
+
   const runwayInfo = useMemo(() => {
-    const cur = locState.data?.current;
-    if (!cur) return null;
-    return computeRunwayComponents(cur.windSpeed, cur.windGusts, cur.windDirection, runwayDeg);
-  }, [locState.data, runwayDeg]);
+    if (!activeObs) return null;
+    return computeRunwayComponents(activeObs.windSpeed, activeObs.windGusts, activeObs.windDirection, runwayDeg);
+  }, [activeObs, runwayDeg]);
 
   const status = useMemo(() => {
-    const cur = locState.data?.current;
-    if (!cur) return null;
-    return evaluateFlightStatus(cur, thresholds, runwayInfo?.crosswindMph ?? null);
-  }, [locState.data, thresholds, runwayInfo]);
+    if (!activeObs) return null;
+    return evaluateFlightStatus(activeObs, thresholds, runwayInfo?.crosswindMph ?? null);
+  }, [activeObs, thresholds, runwayInfo]);
 
   const bestWindow = useMemo(
-    () => findBestFlyingWindow(locState.data?.hourly || [], thresholds),
-    [locState.data, thresholds]
+    () => findBestFlyingWindow(activeHourly, thresholds),
+    [activeHourly, thresholds]
   );
 
   const handleRunwayChange = (deg) => {
@@ -164,39 +174,50 @@ export default function App() {
               thresholds={thresholds}
               windUnit={windUnit}
               onOpenSettings={() => setSettingsOpen(true)}
+              forecastDay={forecastDay}
+              onChangeForecastDay={setForecastDay}
             />
 
             <HourlyForecast
               ref={forecastRef}
-              hourly={locState.data.hourly}
+              hourly={activeHourly}
               locationName={activeLocation.name}
               thresholds={thresholds}
               windUnit={windUnit}
+              forecastDay={forecastDay}
+              onChangeForecastDay={setForecastDay}
+              tomorrowDateLabel={locState.data?.tomorrowDateLabel || 'Tomorrow'}
+              tomorrowWeekday={locState.data?.tomorrowWeekday || 'Tomorrow'}
             />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <WindCompassCard
-                windDirection={locState.data.current.windDirection}
+                windDirection={activeObs?.windDirection ?? 0}
                 runwayHeadingDeg={runwayDeg}
                 onChangeRunway={handleRunwayChange}
                 runwayInfo={runwayInfo}
                 statusLevel={status.level}
                 windUnit={windUnit}
+                forecastDay={forecastDay}
               />
 
               <WindChart24h
-                hourly={locState.data.hourly}
+                hourly={activeHourly}
                 thresholds={thresholds}
                 bestWindow={bestWindow}
                 windUnit={windUnit}
                 onSelectHour={(iso) => forecastRef.current?.scrollToIso(iso)}
+                forecastDay={forecastDay}
+                dayLabel={isTomorrow ? (locState.data?.tomorrowDateLabel || 'Tomorrow') : 'Next 24h'}
               />
             </div>
 
             <AircraftSuitability
-              currentObs={locState.data.current}
-              crosswindMph={runwayInfo.crosswindMph}
+              currentObs={activeObs}
+              crosswindMph={runwayInfo ? runwayInfo.crosswindMph : 0}
               windUnit={windUnit}
+              forecastDay={forecastDay}
+              dayLabel={isTomorrow ? (locState.data?.tomorrowDateLabel || 'Tomorrow') : 'Current Conditions'}
             />
           </>
         )}
