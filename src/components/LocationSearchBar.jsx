@@ -80,7 +80,7 @@ export default function LocationSearchBar({
               htmlFor="city-search-input"
               className="block font-instrument text-2xs font-semibold uppercase tracking-wider text-ink-soft"
             >
-              Find Flying Field by City or ZIP
+              Weather by City for the RC Flying Enthusiast
             </label>
             <div className="relative flex items-center">
               <Search strokeWidth={2} className="pointer-events-none absolute left-3 h-4 w-4 text-ink-dim" aria-hidden="true" />
