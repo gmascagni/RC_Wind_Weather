@@ -55,11 +55,7 @@ export default function TopBar({
                 </h1>
               </div>
               <div className="flex flex-wrap items-center gap-2 font-instrument text-2xs">
-                <span className="font-bold text-avionics tracking-wider">
-                  .60 CLASS WARBIRD FLIGHT DECK
-                </span>
-                <span className="text-line-strong hidden sm:inline">|</span>
-                <span className="font-script text-base text-amber-200 hidden sm:inline">
+                <span className="font-script text-base text-amber-200">
                   Check the Wind. Keep &apos;Em Flying!
                 </span>
               </div>
