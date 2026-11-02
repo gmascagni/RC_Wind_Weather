@@ -15,6 +15,8 @@ export default function HeroStatusBanner({
   onOpenSettings,
   forecastDay = 'today',
   onChangeForecastDay,
+  contentProfile = 'adult',
+  onToggleContentProfile,
 }) {
   const current = (forecastDay === 'tomorrow' && locState.data?.tomorrow?.obs)
     ? locState.data.tomorrow.obs
@@ -24,6 +26,8 @@ export default function HeroStatusBanner({
   const elevFt = locState.data.elevationFt ?? location.elevationFt;
   const presetName =
     AIRCRAFT_PRESETS.find((p) => p.id === thresholds.presetId)?.label || 'Custom Aircraft Limits';
+  const activeProfile = thresholds.contentProfile || contentProfile || 'adult';
+  const isKid = activeProfile === 'kid';
 
   return (
     <section
@@ -167,14 +171,30 @@ export default function HeroStatusBanner({
                 {status.verdict}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={onOpenSettings}
-              className="mt-1 inline-flex items-center gap-1.5 font-instrument text-2xs text-ink-soft hover:text-ink underline decoration-line-strong underline-offset-4"
-            >
-              <SlidersHorizontal strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
-              <span>Profile: {presetName}</span>
-            </button>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={onOpenSettings}
+                className="inline-flex items-center gap-1.5 font-instrument text-2xs text-ink-soft hover:text-ink underline decoration-line-strong underline-offset-4"
+                title="Change aircraft threshold limits"
+              >
+                <SlidersHorizontal strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
+                <span>Profile: {presetName}</span>
+              </button>
+              <button
+                type="button"
+                onClick={onToggleContentProfile}
+                className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 font-instrument text-3xs font-bold uppercase tracking-wider transition ${
+                  isKid
+                    ? 'border-good-line bg-good-surface text-good hover:border-good'
+                    : 'border-stop-line bg-stop-surface text-stop hover:border-stop'
+                }`}
+                title="Tap to switch between Kid-Friendly and Adult language profiles"
+                aria-label={`Current tone: ${isKid ? 'Kid-Friendly' : 'Adult Humor'}. Tap to toggle.`}
+              >
+                {isKid ? '🚸 Kid-Friendly' : '🔞 Adult Humor'}
+              </button>
+            </div>
           </div>
         </div>
 

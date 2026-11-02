@@ -10,11 +10,12 @@ export default function AircraftSuitability({
   windUnit = 'mph',
   forecastDay = 'today',
   dayLabel = 'Current Conditions',
+  contentProfile = 'adult',
 }) {
   const baseUrl = import.meta.env.BASE_URL || '/RC_Wind_Weather/';
   const p40Src = `${baseUrl}p40-warhawk.jpg`.replace(/\/{2,}/g, '/');
   const unit = getUnitLabel(windUnit);
-  const recommendations = getAircraftRecommendations(currentObs, crosswindMph);
+  const recommendations = getAircraftRecommendations(currentObs, crosswindMph, contentProfile);
   const gustSpread = Math.max(
     0,
     Math.round(((currentObs?.windGusts || 0) - (currentObs?.windSpeed || 0)) * 10) / 10
@@ -22,7 +23,12 @@ export default function AircraftSuitability({
 
   return (
     <section className="space-y-4">
-      <WindConditionScale windSpeedMph={currentObs?.windSpeed} windUnit={windUnit} forecastDay={forecastDay} />
+      <WindConditionScale
+        windSpeedMph={currentObs?.windSpeed}
+        windUnit={windUnit}
+        forecastDay={forecastDay}
+        contentProfile={contentProfile}
+      />
 
       {/* Collapsible Recommended Aircraft Section */}
       <details className="avionics-disclosure metal-panel avionics-panel relative overflow-hidden">

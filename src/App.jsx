@@ -24,6 +24,7 @@ export default function App() {
   const [activeLocation, setActiveLocation] = useLocalStorageState('rc_wind_active_location_v1', null);
   const [windUnit, setWindUnit] = useLocalStorageState('rc_wind_unit', 'mph');
   const [thresholds, setThresholds] = useLocalStorageState('rc_wind_thresholds_v2', DEFAULT_THRESHOLDS);
+  const [contentProfile, setContentProfile] = useLocalStorageState('rc_wind_content_profile', 'adult');
   const [runwayByField, setRunwayByField] = useLocalStorageState('rc_wind_runways_v2', {});
   const [daylightBoost, setDaylightBoost] = useLocalStorageState('rc_wind_daylight_boost', false);
   const [forecastDay, setForecastDay] = useState('today');
@@ -32,6 +33,22 @@ export default function App() {
   const [isLocatingGps, setIsLocatingGps] = useState(false);
   const [gpsError, setGpsError] = useState(null);
   const forecastRef = useRef(null);
+
+  const effectiveThresholds = useMemo(() => ({
+    ...thresholds,
+    contentProfile: thresholds.contentProfile || contentProfile,
+  }), [thresholds, contentProfile]);
+
+  const handleToggleContentProfile = () => {
+    const next = (thresholds.contentProfile || contentProfile) === 'adult' ? 'kid' : 'adult';
+    setContentProfile(next);
+    setThresholds((prev) => ({ ...prev, contentProfile: next }));
+  };
+
+  const handleSetContentProfile = (profileId) => {
+    setContentProfile(profileId);
+    setThresholds((prev) => ({ ...prev, contentProfile: profileId }));
+  };
 
   useEffect(() => {
     document.body.classList.toggle('daylight-boost', Boolean(daylightBoost));
@@ -101,12 +118,12 @@ export default function App() {
 
   const status = useMemo(() => {
     if (!activeObs) return null;
-    return evaluateFlightStatus(activeObs, thresholds, runwayInfo?.crosswindMph ?? null);
-  }, [activeObs, thresholds, runwayInfo]);
+    return evaluateFlightStatus(activeObs, effectiveThresholds, runwayInfo?.crosswindMph ?? null);
+  }, [activeObs, effectiveThresholds, runwayInfo]);
 
   const bestWindow = useMemo(
-    () => findBestFlyingWindow(activeHourly, thresholds),
-    [activeHourly, thresholds]
+    () => findBestFlyingWindow(activeHourly, effectiveThresholds),
+    [activeHourly, effectiveThresholds]
   );
 
   const handleRunwayChange = (deg) => {
@@ -136,7 +153,7 @@ export default function App() {
         gpsError={gpsError}
         onClearGpsError={() => setGpsError(null)}
         getLocationState={getLocationState}
-        thresholds={thresholds}
+        thresholds={effectiveThresholds}
         windUnit={windUnit}
         onChangeUnit={setWindUnit}
         daylightBoost={daylightBoost}
@@ -171,18 +188,20 @@ export default function App() {
               locState={locState}
               status={status}
               runwayInfo={runwayInfo}
-              thresholds={thresholds}
+              thresholds={effectiveThresholds}
               windUnit={windUnit}
               onOpenSettings={() => setSettingsOpen(true)}
               forecastDay={forecastDay}
               onChangeForecastDay={setForecastDay}
+              contentProfile={effectiveThresholds.contentProfile}
+              onToggleContentProfile={handleToggleContentProfile}
             />
 
             <HourlyForecast
               ref={forecastRef}
               hourly={activeHourly}
               locationName={activeLocation.name}
-              thresholds={thresholds}
+              thresholds={effectiveThresholds}
               windUnit={windUnit}
               forecastDay={forecastDay}
               onChangeForecastDay={setForecastDay}
@@ -203,7 +222,7 @@ export default function App() {
 
               <WindChart24h
                 hourly={activeHourly}
-                thresholds={thresholds}
+                thresholds={effectiveThresholds}
                 bestWindow={bestWindow}
                 windUnit={windUnit}
                 onSelectHour={(iso) => forecastRef.current?.scrollToIso(iso)}
@@ -218,6 +237,7 @@ export default function App() {
               windUnit={windUnit}
               forecastDay={forecastDay}
               dayLabel={isTomorrow ? (locState.data?.tomorrowDateLabel || 'Tomorrow') : 'Current Conditions'}
+              contentProfile={effectiveThresholds.contentProfile}
             />
           </>
         )}
@@ -228,7 +248,7 @@ export default function App() {
         selectedId={activeLocation?.id || ''}
         onSelectLocation={setActiveLocation}
         getLocationState={getLocationState}
-        thresholds={thresholds}
+        thresholds={effectiveThresholds}
         windUnit={windUnit}
         timezoneLabel={locState.data?.timezone || activeLocation?.timezone || ''}
         ageLabel={locState.ageLabel}
@@ -240,9 +260,11 @@ export default function App() {
       <ThresholdSettingsModal
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
-        thresholds={thresholds}
+        thresholds={effectiveThresholds}
         onChangeThresholds={setThresholds}
         windUnit={windUnit}
+        contentProfile={effectiveThresholds.contentProfile}
+        onChangeContentProfile={handleSetContentProfile}
       />
     </div>
   );

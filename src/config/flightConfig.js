@@ -41,8 +41,26 @@ export function createLocationRecord({
 }
 
 // Sensible defaults for 60-Class Electric Warbirds (1.4m–1.6m / 60–70" 6S w/ retracts & flaps)
+export const CONTENT_PROFILES = [
+  {
+    id: 'adult',
+    name: 'Adult / Pilot Humor',
+    shortLabel: 'Adult (18+)',
+    badge: '🔞 ADULT',
+    description: 'Comedic flight-line humor with questionable language',
+  },
+  {
+    id: 'kid',
+    name: 'Kid-Friendly / Cadet',
+    shortLabel: 'Cadet (All Ages)',
+    badge: '🚸 KID-FRIENDLY',
+    description: '100% clean flight-safety terminology for young pilots & clubs',
+  },
+];
+
 export const DEFAULT_THRESHOLDS = {
   presetId: 'warbird60',
+  contentProfile: 'adult',
   cautionWindMph: 10,
   maxSustainedWindMph: 16,
   cautionGustMph: 15,

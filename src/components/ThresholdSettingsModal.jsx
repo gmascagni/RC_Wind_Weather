@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import {
   AIRCRAFT_PRESETS,
+  CONTENT_PROFILES,
   DEFAULT_THRESHOLDS,
   convertWind,
   getUnitLabel,
@@ -28,9 +29,12 @@ export default function ThresholdSettingsModal({
   thresholds,
   onChangeThresholds,
   windUnit = 'mph',
+  contentProfile = 'adult',
+  onChangeContentProfile,
 }) {
   const dialogRef = useRef(null);
   const unit = getUnitLabel(windUnit);
+  const activeProfile = thresholds.contentProfile || contentProfile || 'adult';
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -45,6 +49,20 @@ export default function ThresholdSettingsModal({
       const next = { ...prev, presetId: 'custom', [key]: num };
       if (key === 'maxGustMph') next.cautionGustMph = Math.max(6, Math.round(num * 0.7));
       return next;
+    });
+  };
+
+  const handleSelectPreset = (presetThresholds) => {
+    onChangeThresholds({
+      ...presetThresholds,
+      contentProfile: activeProfile,
+    });
+  };
+
+  const handleResetDefaults = () => {
+    onChangeThresholds({
+      ...DEFAULT_THRESHOLDS,
+      contentProfile: activeProfile,
     });
   };
 
@@ -70,7 +88,7 @@ export default function ThresholdSettingsModal({
           <span className="panel-badge" aria-hidden="true">CFG</span>
           <SlidersHorizontal strokeWidth={2} className="h-4 w-4 text-avionics" aria-hidden="true" />
           <h2 id="limits-dialog-title" className="font-display text-base font-bold uppercase tracking-wider text-ink">
-            Aircraft Go / No-Go Limits
+            Flight Limits &amp; Content Profile
           </h2>
         </div>
         <button
@@ -84,6 +102,58 @@ export default function ThresholdSettingsModal({
       </div>
 
       <div className="max-h-[72dvh] overflow-y-auto p-4 sm:p-5 space-y-4">
+        {/* Content & Language Profile Section */}
+        <div className="space-y-2 rounded-card border border-line-strong bg-panel-inset p-3 shadow-inset">
+          <div className="flex items-center justify-between gap-2">
+            <span className="block font-instrument text-2xs font-bold uppercase tracking-wider text-avionics">
+              Audience &amp; Language Profile
+            </span>
+            <span className="font-instrument text-2xs text-ink-dim">
+              Controls Go / No-Go tone
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {CONTENT_PROFILES.map((prof) => {
+              const active = activeProfile === prof.id;
+              return (
+                <button
+                  key={prof.id}
+                  type="button"
+                  onClick={() => {
+                    onChangeContentProfile?.(prof.id);
+                    onChangeThresholds((prev) => ({ ...prev, contentProfile: prof.id }));
+                  }}
+                  aria-pressed={active}
+                  className={`btn-retro flex flex-col items-start gap-1 p-2.5 text-left transition ${
+                    active
+                      ? 'border-avionics text-ink bg-panel-raised ring-1 ring-avionics/40'
+                      : 'text-ink-soft hover:text-ink'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-display text-xs font-bold uppercase tracking-wide">
+                      {prof.name}
+                    </span>
+                    <span
+                      className={`rounded px-1.5 py-0.5 font-instrument text-3xs font-bold ${
+                        prof.id === 'adult'
+                          ? 'border border-stop-line bg-stop-surface text-stop'
+                          : 'border border-good-line bg-good-surface text-good'
+                      }`}
+                    >
+                      {prof.badge}
+                    </span>
+                  </div>
+                  <span className="text-2xs text-ink-dim leading-tight">
+                    {prof.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="space-y-2">
           <span className="block font-instrument text-2xs font-bold uppercase text-ink-soft">
             Quick Airframe Presets
@@ -95,7 +165,7 @@ export default function ThresholdSettingsModal({
                 <button
                   key={preset.id}
                   type="button"
-                  onClick={() => onChangeThresholds(preset.thresholds)}
+                  onClick={() => handleSelectPreset(preset.thresholds)}
                   aria-pressed={active}
                   className={`btn-retro text-left justify-start text-xs ${
                     active ? 'border-avionics text-avionics bg-panel-raised' : 'text-ink-soft'
@@ -152,7 +222,7 @@ export default function ThresholdSettingsModal({
       <div className="flex items-center justify-between gap-2 border-t border-line bg-panel-inset px-4 py-3 sm:px-5">
         <button
           type="button"
-          onClick={() => onChangeThresholds(DEFAULT_THRESHOLDS)}
+          onClick={handleResetDefaults}
           className="btn-retro text-xs"
         >
           <RotateCcw strokeWidth={2} className="h-3.5 w-3.5" aria-hidden="true" />

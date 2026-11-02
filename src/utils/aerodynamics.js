@@ -1,4 +1,4 @@
-import { DEFAULT_THRESHOLDS } from '../config/flightConfig';
+import { DEFAULT_THRESHOLDS } from '../config/flightConfig.js';
 
 const CARDINALS_16 = [
   'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
@@ -54,6 +54,7 @@ export function computeRunwayComponents(windMph, gustMph, windFromDeg, stripHead
 
 export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, crosswindMph = null) {
   const t = { ...DEFAULT_THRESHOLDS, ...userThresholds };
+  const isKid = (t.contentProfile || 'adult') === 'kid';
   const speed = Number(obs?.windSpeed) || 0;
   const gusts = Math.max(speed, Number(obs?.windGusts) || speed);
   const spread = Math.max(0, Math.round((gusts - speed) * 10) / 10);
@@ -77,11 +78,23 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   else if (visMi < t.minVisibilityMi) cautionReasons.push(`Reduced visibility (${visMi.toFixed(1)} mi)`);
 
   if (speed >= 30) {
-    stopReasons.unshift(`30+ MPH gale (${speed} mph) — JUST STAY HOME AND SPANK!`);
+    stopReasons.unshift(
+      isKid
+        ? `30+ MPH gale (${speed} mph) — Stay in the hangar! Severe wind hazard.`
+        : `30+ MPH gale (${speed} mph) — JUST STAY HOME AND SPANK!`
+    );
   } else if (speed >= 25) {
-    stopReasons.unshift(`25+ MPH winds (${speed} mph) — BRING YOUR CREDIT CARD`);
+    stopReasons.unshift(
+      isKid
+        ? `25+ MPH winds (${speed} mph) — Hazardous winds! High risk of damage.`
+        : `25+ MPH winds (${speed} mph) — BRING YOUR CREDIT CARD`
+    );
   } else if (speed >= 20) {
-    stopReasons.unshift(`20+ MPH winds (${speed} mph) — CA Glue Required`);
+    stopReasons.unshift(
+      isKid
+        ? `20+ MPH winds (${speed} mph) — Strong winds! Rough landings likely.`
+        : `20+ MPH winds (${speed} mph) — CA Glue Required`
+    );
   } else if (speed > t.maxSustainedWindMph) {
     stopReasons.push(`Sustained wind (${speed} mph) exceeds ${t.maxSustainedWindMph} mph limit`);
   } else if (speed > t.cautionWindMph) {
@@ -114,22 +127,52 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
 
   if (stopReasons.length > 0) {
     if (speed >= 30) {
-      return { level: 'stop', verdict: 'JUST STAY HOME AND SPANK!', shortTag: '30+ SPANK', gustSpread: spread, reasons: stopReasons };
+      return {
+        level: 'stop',
+        verdict: isKid ? 'STAY IN THE HANGAR!' : 'JUST STAY HOME AND SPANK!',
+        shortTag: isKid ? 'HANGAR BOUND' : '30+ SPANK',
+        gustSpread: spread,
+        reasons: stopReasons,
+      };
     }
     if (speed >= 25) {
-      return { level: 'stop', verdict: 'BRING YOUR CREDIT CARD', shortTag: 'CREDIT CARD', gustSpread: spread, reasons: stopReasons };
+      return {
+        level: 'stop',
+        verdict: isKid ? 'HAZARDOUS WINDS!' : 'BRING YOUR CREDIT CARD',
+        shortTag: isKid ? 'HIGH RISK' : 'CREDIT CARD',
+        gustSpread: spread,
+        reasons: stopReasons,
+      };
     }
     if (speed >= 20) {
-      return { level: 'stop', verdict: 'CA GLUE REQUIRED', shortTag: 'CA GLUE', gustSpread: spread, reasons: stopReasons };
+      return {
+        level: 'stop',
+        verdict: isKid ? 'TOO WINDY TO FLY!' : 'CA GLUE REQUIRED',
+        shortTag: isKid ? 'TOO WINDY' : 'CA GLUE',
+        gustSpread: spread,
+        reasons: stopReasons,
+      };
     }
-    return { level: 'stop', verdict: 'DONT BE A RETARD!', shortTag: 'NO-GO', gustSpread: spread, reasons: stopReasons };
+    return {
+      level: 'stop',
+      verdict: isKid ? 'GROUNDED / NO-GO' : 'DONT BE A RETARD!',
+      shortTag: 'NO-GO',
+      gustSpread: spread,
+      reasons: stopReasons,
+    };
   }
   if (cautionReasons.length > 0) {
-    return { level: 'marginal', verdict: 'YOU SURE?', shortTag: 'CAUTION', gustSpread: spread, reasons: cautionReasons };
+    return {
+      level: 'marginal',
+      verdict: isKid ? 'FLY WITH CAUTION' : 'YOU SURE?',
+      shortTag: 'CAUTION',
+      gustSpread: spread,
+      reasons: cautionReasons,
+    };
   }
   return {
     level: 'good',
-    verdict: 'GOOD TO FLY',
+    verdict: isKid ? 'ALL CLEAR TO FLY' : 'GOOD TO FLY',
     shortTag: 'GO',
     gustSpread: spread,
     reasons: ['Wind, gusts, visibility, and temperature all within flight envelope'],

@@ -64,7 +64,38 @@ export const WIND_CONDITION_TIERS = [
   },
 ];
 
-export function getAircraftRecommendations(obs, crosswindMph = 0) {
+export function getWindConditionTiers(contentProfile = 'adult') {
+  const isKid = contentProfile === 'kid';
+  if (!isKid) return WIND_CONDITION_TIERS;
+
+  return WIND_CONDITION_TIERS.map((tier) => {
+    if (tier.id === 'ca-glue') {
+      return {
+        ...tier,
+        title: 'Too Windy / High Risk',
+        detail: 'Strong turbulence — rough landings & high damage risk',
+      };
+    }
+    if (tier.id === 'credit-card') {
+      return {
+        ...tier,
+        title: 'Hazardous Winds / Severe',
+        detail: 'Hazardous conditions — grounded for all RC airframes',
+      };
+    }
+    if (tier.id === 'spank') {
+      return {
+        ...tier,
+        title: 'Stay In The Hangar!',
+        detail: 'Gale danger — zero flying, stay indoors',
+      };
+    }
+    return tier;
+  });
+}
+
+export function getAircraftRecommendations(obs, crosswindMph = 0, contentProfile = 'adult') {
+  const isKid = contentProfile === 'kid';
   const speed = Number(obs?.windSpeed) || 0;
   const gusts = Math.max(speed, Number(obs?.windGusts) || speed);
   const spread = Math.max(0, Math.round((gusts - speed) * 10) / 10);
@@ -140,16 +171,32 @@ export function getAircraftRecommendations(obs, crosswindMph = 0) {
       return { ...cls, status: 'stop', statusLabel: 'GROUNDED (PRECIP)' };
     }
     if (speed >= 30) {
-      return { ...cls, status: 'stop', statusLabel: 'STAY HOME & SPANK!' };
+      return {
+        ...cls,
+        status: 'stop',
+        statusLabel: isKid ? 'STAY IN HANGAR' : 'STAY HOME & SPANK!',
+      };
     }
     if (speed >= 25) {
-      return { ...cls, status: 'stop', statusLabel: 'BRING CREDIT CARD' };
+      return {
+        ...cls,
+        status: 'stop',
+        statusLabel: isKid ? 'HAZARDOUS WINDS' : 'BRING CREDIT CARD',
+      };
     }
     if (speed >= 20) {
-      return { ...cls, status: 'stop', statusLabel: 'CA GLUE REQUIRED' };
+      return {
+        ...cls,
+        status: 'stop',
+        statusLabel: isKid ? 'TOO WINDY TO FLY' : 'CA GLUE REQUIRED',
+      };
     }
     if (speed > cls.sustainedMax || gusts > cls.gustMax) {
-      return { ...cls, status: 'stop', statusLabel: 'DONT BE A RETARD!' };
+      return {
+        ...cls,
+        status: 'stop',
+        statusLabel: isKid ? 'EXCEEDS LIMITS' : 'DONT BE A RETARD!',
+      };
     }
     if (
       speed > cls.sustainedMax * 0.72 ||
@@ -157,8 +204,16 @@ export function getAircraftRecommendations(obs, crosswindMph = 0) {
       spread >= 8 ||
       crosswindMph > cls.crosswindMax
     ) {
-      return { ...cls, status: 'marginal', statusLabel: 'EXPERIENCED / CAUTION' };
+      return {
+        ...cls,
+        status: 'marginal',
+        statusLabel: isKid ? 'CADET CAUTION' : 'EXPERIENCED / CAUTION',
+      };
     }
-    return { ...cls, status: 'good', statusLabel: 'IDEAL MATCH' };
+    return {
+      ...cls,
+      status: 'good',
+      statusLabel: isKid ? 'READY FOR FLIGHT' : 'IDEAL MATCH',
+    };
   });
 }

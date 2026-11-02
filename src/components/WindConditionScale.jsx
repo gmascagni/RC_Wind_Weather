@@ -1,12 +1,18 @@
 import { Wind } from 'lucide-react';
 import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
-import { WIND_CONDITION_TIERS } from '../utils/aircraftRecommendations';
+import { getWindConditionTiers } from '../utils/aircraftRecommendations';
 import { StatusIcon } from './StatusVisuals';
 
-export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph', forecastDay = 'today' }) {
+export default function WindConditionScale({
+  windSpeedMph = 0,
+  windUnit = 'mph',
+  forecastDay = 'today',
+  contentProfile = 'adult',
+}) {
   const speed = Number(windSpeedMph) || 0;
   const unit = getUnitLabel(windUnit).toUpperCase();
   const dayTag = forecastDay === 'tomorrow' ? 'TOMORROW' : 'NOW';
+  const tiers = getWindConditionTiers(contentProfile);
 
   const formatTierRange = (tier) => {
     if (!Number.isFinite(tier.maxMph) || tier.minMph >= 20) {
@@ -18,8 +24,8 @@ export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph',
   };
 
   const currentTier =
-    WIND_CONDITION_TIERS.find((tier) => speed >= tier.minMph && speed <= tier.maxMph) ||
-    WIND_CONDITION_TIERS[0];
+    tiers.find((tier) => speed >= tier.minMph && speed <= tier.maxMph) ||
+    tiers[0];
   const currentTheme = STATUS_THEME[currentTier.level];
 
   return (
@@ -49,7 +55,7 @@ export default function WindConditionScale({ windSpeedMph = 0, windUnit = 'mph',
       <div className="border-t border-line p-4 sm:p-5">
         {/* role="list" restores Safari list semantics when CSS Grid is applied */}
         <ul role="list" className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-          {WIND_CONDITION_TIERS.map((tier) => {
+          {tiers.map((tier) => {
             const isCurrent = speed >= tier.minMph && speed <= tier.maxMph;
             const theme = STATUS_THEME[tier.level];
 
