@@ -1,0 +1,8 @@
+{
+  "appId": "com.rcwindweather.pro",
+  "appName": "RC Wind Weather Pro",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

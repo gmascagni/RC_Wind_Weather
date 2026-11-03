@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RC Wind Weather Pro</string>
+    <string name="title_activity_main">RC Wind Weather Pro</string>
+    <string name="package_name">com.rcwindweather.pro</string>
+    <string name="custom_url_scheme">com.rcwindweather.pro</string>
+</resources>
