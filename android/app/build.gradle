@@ -8,7 +8,11 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         def buildNum = System.getenv("BUILD_NUMBER")
-        versionCode (buildNum != null && buildNum.isInteger()) ? buildNum.toInteger() : 1
+        def vCode = 1
+        if (buildNum != null && buildNum.isInteger()) {
+            vCode = buildNum.toInteger()
+        }
+        versionCode vCode
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
