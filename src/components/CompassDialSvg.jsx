@@ -9,9 +9,9 @@ const CARDINAL_LABELS = [
 
 export default function CompassDialSvg({
   fromDeg,
-  blowsToDeg,
+  _blowsToDeg,
   activeRunwayDeg,
-  accentHex,
+  _accentHex,
   liveEnabled,
   deviceHeading,
   unwrappedHeading,
@@ -22,7 +22,7 @@ export default function CompassDialSvg({
   return (
     <svg viewBox="0 0 200 200" className="h-48 w-48 sm:h-52 sm:w-52 block" role="img">
       <title>
-        {`Wind coming from ${fromDeg} degrees (${degreesToCardinal(fromDeg)}) and blowing toward ${blowsToDeg} degrees. Active runway heading ${activeRunwayDeg} degrees.${
+        {`Wind coming from ${fromDeg} degrees (${degreesToCardinal(fromDeg)}). Red arrow points against/into the wind. Active runway heading ${activeRunwayDeg} degrees.${
           liveEnabled && deviceHeading !== null ? ` Phone heading ${deviceHeading} degrees.` : ''
         }`}
       </title>
@@ -104,11 +104,28 @@ export default function CompassDialSvg({
           <polygon points="100,45 95,55 105,55" fill="#38bdf8" />
         </g>
 
-        {/* Meteorological Wind Vector: Rim dot = FROM, Arrowhead = Downwind TO */}
+        {/* Aeronautical Wind Vector: Bold Red Arrow pointing directly AGAINST / INTO the wind (FROM heading) */}
         <g className="wind-vector-rotate" style={{ '--wind-deg': `${fromDeg}deg`, transformOrigin: '100px 100px' }}>
-          <circle cx="100" cy="14" r="6" fill={accentHex} stroke="#070b12" strokeWidth="2" />
-          <line x1="100" y1="22" x2="100" y2="148" stroke={accentHex} strokeWidth="3" strokeLinecap="round" />
-          <polygon points="100,160 92,144 108,144" fill={accentHex} />
+          {/* Arrow Tail & Shaft */}
+          <line x1="100" y1="32" x2="100" y2="136" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1="100" y1="34" x2="100" y2="134" stroke="#fca5a5" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+          {/* Tail fletching / counterweight */}
+          <line x1="93" y1="130" x2="107" y2="130" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="95" y1="136" x2="105" y2="136" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+          {/* Prominent Red Arrowhead pointing against/into the wind */}
+          <polygon
+            points="100,16 88,38 97,33 100,34 103,33 112,38"
+            fill="#ef4444"
+            stroke="#7f1d1d"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
+          {/* Inner needle highlight */}
+          <polygon
+            points="100,20 92,36 99,32 100,33"
+            fill="#fca5a5"
+            opacity="0.75"
+          />
         </g>
       </g>
 

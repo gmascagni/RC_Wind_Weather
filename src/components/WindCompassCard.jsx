@@ -103,7 +103,7 @@ export default function WindCompassCard({
               unwrappedHeading={unwrappedHeading}
             />
             <p className="mt-1 text-center font-instrument text-2xs text-ink-dim">
-              Rim dot = Wind <strong>FROM {String(fromDeg).padStart(3, '0')}°</strong> • Arrow = Airflow <strong>TO {String(blowsToDeg).padStart(3, '0')}°</strong>
+              <span className="text-red-400 font-bold">▲ Red Arrow</span> = Facing against wind (<strong>FROM {String(fromDeg).padStart(3, '0')}° {degreesToCardinal(fromDeg)}</strong>)
             </p>
           </div>
 

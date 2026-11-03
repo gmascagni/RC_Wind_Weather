@@ -8,11 +8,13 @@ export default function WindConditionScale({
   windUnit = 'mph',
   forecastDay = 'today',
   contentProfile = 'adult',
+  pilotProfile = 'intermediate',
+  calcBasis = 'gust',
 }) {
   const speed = Number(windSpeedMph) || 0;
   const unit = getUnitLabel(windUnit).toUpperCase();
   const dayTag = forecastDay === 'tomorrow' ? 'TOMORROW' : 'NOW';
-  const tiers = getWindConditionTiers(contentProfile);
+  const tiers = getWindConditionTiers(contentProfile, pilotProfile, calcBasis);
 
   const formatTierRange = (tier) => {
     if (!Number.isFinite(tier.maxMph) || tier.minMph >= 20) {

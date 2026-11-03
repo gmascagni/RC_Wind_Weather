@@ -3,6 +3,8 @@ import { SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import {
   AIRCRAFT_PRESETS,
   CONTENT_PROFILES,
+  PILOT_PROFILES,
+  CALCULATION_BASES,
   DEFAULT_THRESHOLDS,
   convertWind,
   getUnitLabel,
@@ -31,10 +33,16 @@ export default function ThresholdSettingsModal({
   windUnit = 'mph',
   contentProfile = 'adult',
   onChangeContentProfile,
+  pilotProfile = 'intermediate',
+  onChangePilotProfile,
+  calcBasis = 'gust',
+  onChangeCalcBasis,
 }) {
   const dialogRef = useRef(null);
   const unit = getUnitLabel(windUnit);
   const activeProfile = thresholds.contentProfile || contentProfile || 'adult';
+  const activePilot = thresholds.pilotProfile || pilotProfile || 'intermediate';
+  const activeCalcBasis = thresholds.calcBasis || calcBasis || 'gust';
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -56,13 +64,27 @@ export default function ThresholdSettingsModal({
     onChangeThresholds({
       ...presetThresholds,
       contentProfile: activeProfile,
+      pilotProfile: activePilot,
+      calcBasis: activeCalcBasis,
     });
+  };
+
+  const handleSelectPilotProfile = (id) => {
+    onChangePilotProfile?.(id);
+    onChangeThresholds((prev) => ({ ...prev, pilotProfile: id }));
+  };
+
+  const handleSelectCalcBasis = (id) => {
+    onChangeCalcBasis?.(id);
+    onChangeThresholds((prev) => ({ ...prev, calcBasis: id }));
   };
 
   const handleResetDefaults = () => {
     onChangeThresholds({
       ...DEFAULT_THRESHOLDS,
       contentProfile: activeProfile,
+      pilotProfile: activePilot,
+      calcBasis: activeCalcBasis,
     });
   };
 
@@ -88,7 +110,7 @@ export default function ThresholdSettingsModal({
           <span className="panel-badge" aria-hidden="true">CFG</span>
           <SlidersHorizontal strokeWidth={2} className="h-4 w-4 text-avionics" aria-hidden="true" />
           <h2 id="limits-dialog-title" className="font-display text-base font-bold uppercase tracking-wider text-ink">
-            Flight Limits &amp; Content Profile
+            Pilot Profiles &amp; Flight Limits
           </h2>
         </div>
         <button
@@ -102,6 +124,102 @@ export default function ThresholdSettingsModal({
       </div>
 
       <div className="max-h-[72dvh] overflow-y-auto p-4 sm:p-5 space-y-4">
+        {/* Pilot Experience Profile Section */}
+        <div className="space-y-2 rounded-card border border-line-strong bg-panel-inset p-3 shadow-inset">
+          <div className="flex items-center justify-between gap-2">
+            <span className="block font-instrument text-2xs font-bold uppercase tracking-wider text-avionics">
+              Pilot Skill Level
+            </span>
+            <span className="font-instrument text-2xs text-ink-dim">
+              Scales wind tolerance
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {PILOT_PROFILES.map((pilot) => {
+              const active = activePilot === pilot.id;
+              return (
+                <button
+                  key={pilot.id}
+                  type="button"
+                  onClick={() => handleSelectPilotProfile(pilot.id)}
+                  aria-pressed={active}
+                  className={`btn-retro flex flex-col items-start gap-1 p-2.5 text-left transition ${
+                    active
+                      ? 'border-avionics text-ink bg-panel-raised ring-1 ring-avionics/40'
+                      : 'text-ink-soft hover:text-ink'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-display text-xs font-bold uppercase tracking-wide">
+                      {pilot.icon} {pilot.name}
+                    </span>
+                    <span
+                      className={`rounded px-1.5 py-0.5 font-instrument text-3xs font-bold ${
+                        pilot.id === 'extreme'
+                          ? 'border border-stop-line bg-stop-surface text-stop'
+                          : pilot.id === 'advanced'
+                            ? 'border border-caution-line bg-caution-surface text-caution-ink'
+                            : pilot.id === 'beginner'
+                              ? 'border border-sky-500/40 bg-sky-500/10 text-sky-400'
+                              : 'border border-good-line bg-good-surface text-good'
+                      }`}
+                    >
+                      {pilot.badge}
+                    </span>
+                  </div>
+                  <span className="text-2xs text-ink-dim leading-tight">
+                    {pilot.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Calculation Basis: Sustained vs Peak Gusts */}
+        <div className="space-y-2 rounded-card border border-line-strong bg-panel-inset p-3 shadow-inset">
+          <div className="flex items-center justify-between gap-2">
+            <span className="block font-instrument text-2xs font-bold uppercase tracking-wider text-avionics">
+              Wind Calculation Basis
+            </span>
+            <span className="font-instrument text-2xs text-ink-dim">
+              Gusts vs Sustained Speed
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {CALCULATION_BASES.map((basis) => {
+              const active = activeCalcBasis === basis.id;
+              return (
+                <button
+                  key={basis.id}
+                  type="button"
+                  onClick={() => handleSelectCalcBasis(basis.id)}
+                  aria-pressed={active}
+                  className={`btn-retro flex flex-col items-start gap-1 p-2.5 text-left transition ${
+                    active
+                      ? 'border-avionics text-ink bg-panel-raised ring-1 ring-avionics/40'
+                      : 'text-ink-soft hover:text-ink'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-display text-xs font-bold uppercase tracking-wide">
+                      {basis.icon} {basis.shortLabel}
+                    </span>
+                    <span className="rounded border border-line px-1.5 py-0.5 font-instrument text-3xs font-bold text-ink-soft">
+                      {basis.badge}
+                    </span>
+                  </div>
+                  <span className="text-2xs text-ink-dim leading-tight">
+                    {basis.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Content & Language Profile Section */}
         <div className="space-y-2 rounded-card border border-line-strong bg-panel-inset p-3 shadow-inset">
           <div className="flex items-center justify-between gap-2">

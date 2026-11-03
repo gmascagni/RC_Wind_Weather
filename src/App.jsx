@@ -25,6 +25,8 @@ export default function App() {
   const [windUnit, setWindUnit] = useLocalStorageState('rc_wind_unit', 'mph');
   const [thresholds, setThresholds] = useLocalStorageState('rc_wind_thresholds_v2', DEFAULT_THRESHOLDS);
   const [contentProfile, setContentProfile] = useLocalStorageState('rc_wind_content_profile', 'adult');
+  const [pilotProfile, setPilotProfile] = useLocalStorageState('rc_wind_pilot_profile', 'intermediate');
+  const [calcBasis, setCalcBasis] = useLocalStorageState('rc_wind_calc_basis', 'gust');
   const [runwayByField, setRunwayByField] = useLocalStorageState('rc_wind_runways_v2', {});
   const [daylightBoost, setDaylightBoost] = useLocalStorageState('rc_wind_daylight_boost', false);
   const [forecastDay, setForecastDay] = useState('today');
@@ -37,7 +39,9 @@ export default function App() {
   const effectiveThresholds = useMemo(() => ({
     ...thresholds,
     contentProfile: thresholds.contentProfile || contentProfile,
-  }), [thresholds, contentProfile]);
+    pilotProfile: thresholds.pilotProfile || pilotProfile,
+    calcBasis: thresholds.calcBasis || calcBasis,
+  }), [thresholds, contentProfile, pilotProfile, calcBasis]);
 
   const handleToggleContentProfile = () => {
     const next = (thresholds.contentProfile || contentProfile) === 'adult' ? 'kid' : 'adult';
@@ -48,6 +52,32 @@ export default function App() {
   const handleSetContentProfile = (profileId) => {
     setContentProfile(profileId);
     setThresholds((prev) => ({ ...prev, contentProfile: profileId }));
+  };
+
+  const PILOT_ORDER = ['beginner', 'intermediate', 'advanced', 'extreme'];
+  const handleCyclePilotProfile = () => {
+    const curr = effectiveThresholds.pilotProfile || 'intermediate';
+    const nextIdx = (PILOT_ORDER.indexOf(curr) + 1) % PILOT_ORDER.length;
+    const next = PILOT_ORDER[nextIdx];
+    setPilotProfile(next);
+    setThresholds((prev) => ({ ...prev, pilotProfile: next }));
+  };
+
+  const handleSetPilotProfile = (id) => {
+    setPilotProfile(id);
+    setThresholds((prev) => ({ ...prev, pilotProfile: id }));
+  };
+
+  const handleToggleCalcBasis = () => {
+    const curr = effectiveThresholds.calcBasis || 'gust';
+    const next = curr === 'gust' ? 'sustained' : 'gust';
+    setCalcBasis(next);
+    setThresholds((prev) => ({ ...prev, calcBasis: next }));
+  };
+
+  const handleSetCalcBasis = (id) => {
+    setCalcBasis(id);
+    setThresholds((prev) => ({ ...prev, calcBasis: id }));
   };
 
   useEffect(() => {
@@ -195,6 +225,10 @@ export default function App() {
               onChangeForecastDay={setForecastDay}
               contentProfile={effectiveThresholds.contentProfile}
               onToggleContentProfile={handleToggleContentProfile}
+              pilotProfile={effectiveThresholds.pilotProfile}
+              onCyclePilotProfile={handleCyclePilotProfile}
+              calcBasis={effectiveThresholds.calcBasis}
+              onToggleCalcBasis={handleToggleCalcBasis}
             />
 
             <HourlyForecast
@@ -238,6 +272,8 @@ export default function App() {
               forecastDay={forecastDay}
               dayLabel={isTomorrow ? (locState.data?.tomorrowDateLabel || 'Tomorrow') : 'Current Conditions'}
               contentProfile={effectiveThresholds.contentProfile}
+              pilotProfile={effectiveThresholds.pilotProfile}
+              calcBasis={effectiveThresholds.calcBasis}
             />
           </>
         )}
@@ -265,6 +301,10 @@ export default function App() {
         windUnit={windUnit}
         contentProfile={effectiveThresholds.contentProfile}
         onChangeContentProfile={handleSetContentProfile}
+        pilotProfile={effectiveThresholds.pilotProfile}
+        onChangePilotProfile={handleSetPilotProfile}
+        calcBasis={effectiveThresholds.calcBasis}
+        onChangeCalcBasis={handleSetCalcBasis}
       />
     </div>
   );

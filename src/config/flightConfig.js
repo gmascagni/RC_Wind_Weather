@@ -58,9 +58,71 @@ export const CONTENT_PROFILES = [
   },
 ];
 
+export const PILOT_PROFILES = [
+  {
+    id: 'beginner',
+    name: 'Beginner',
+    label: 'Beginner / Cadet',
+    icon: '🔰',
+    badge: 'BEGINNER',
+    factor: 0.70,
+    description: 'Calm winds & low crosswinds (<10 mph). Strict safety margins.',
+  },
+  {
+    id: 'intermediate',
+    name: 'Intermediate',
+    label: 'Intermediate / Sport',
+    icon: '✈️',
+    badge: 'INTERMEDIATE',
+    factor: 1.0,
+    description: 'Everyday sport & park flying. Handles standard club breezes (14–16 mph).',
+  },
+  {
+    id: 'advanced',
+    name: 'Advanced',
+    label: 'Advanced / Warbird',
+    icon: '🎖️',
+    badge: 'ADVANCED',
+    factor: 1.30,
+    description: 'Fast warbirds, scale EDFs & crab landings. Flies strong winds (18–22 mph).',
+  },
+  {
+    id: 'extreme',
+    name: 'Extreme',
+    label: 'Extreme / 3D Master',
+    icon: '⚡',
+    badge: 'EXTREME',
+    factor: 1.65,
+    description: 'Heavy 3D balsa, giant scale 50cc+ & high rudder authority. Flies in 25–30+ mph!',
+  },
+];
+
+export const CALCULATION_BASES = [
+  {
+    id: 'gust',
+    name: 'Peak Gusts',
+    label: 'Peak Gusts (Safe / Conservative)',
+    shortLabel: 'Peak Gusts',
+    icon: '💨',
+    badge: 'GUST-BASED',
+    description: 'Evaluates limits and recommendations against maximum peak gusts.',
+  },
+  {
+    id: 'sustained',
+    name: 'Sustained Wind',
+    label: 'Sustained Wind (Steady Airflow)',
+    shortLabel: 'Sustained',
+    icon: '🌬️',
+    badge: 'SUSTAINED',
+    description: 'Evaluates primarily against steady sustained wind speed. Gusts treated as advisory.',
+  },
+];
+
 export const DEFAULT_THRESHOLDS = {
   presetId: 'warbird60',
   contentProfile: 'adult',
+  pilotProfile: 'intermediate',
+  calcBasis: 'gust',
   cautionWindMph: 10,
   maxSustainedWindMph: 16,
   cautionGustMph: 15,

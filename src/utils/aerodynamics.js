@@ -55,6 +55,9 @@ export function computeRunwayComponents(windMph, gustMph, windFromDeg, stripHead
 export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, crosswindMph = null) {
   const t = { ...DEFAULT_THRESHOLDS, ...userThresholds };
   const isKid = (t.contentProfile || 'adult') === 'kid';
+  const pilot = t.pilotProfile || 'intermediate';
+  const calcBasis = t.calcBasis || 'gust';
+
   const speed = Number(obs?.windSpeed) || 0;
   const gusts = Math.max(speed, Number(obs?.windGusts) || speed);
   const spread = Math.max(0, Math.round((gusts - speed) * 10) / 10);
@@ -63,6 +66,34 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   const visMi = Number.isFinite(Number(obs?.visibilityMi)) ? Number(obs.visibilityMi) : 10;
   const tempF = Number.isFinite(Number(obs?.temperature)) ? Number(obs.temperature) : 70;
   const wmo = Number(obs?.weatherCode) || 0;
+
+  // Pilot skill multiplier:
+  // Beginner (0.70), Intermediate (1.00), Advanced (1.30), Extreme (1.65)
+  const pilotFactors = {
+    beginner: 0.70,
+    intermediate: 1.0,
+    advanced: 1.30,
+    extreme: 1.65,
+  };
+  const pFactor = pilotFactors[pilot] ?? 1.0;
+
+  const effMaxSustained = Math.round(t.maxSustainedWindMph * pFactor);
+  const effCautionWind = Math.round(t.cautionWindMph * pFactor);
+  const effMaxGust = Math.round(t.maxGustMph * (calcBasis === 'sustained' ? pFactor * 1.15 : pFactor));
+  const effCautionGust = Math.round(t.cautionGustMph * pFactor);
+  const effMaxCrosswind = Math.round(t.maxCrosswindMph * pFactor * 10) / 10;
+
+  // Calculation basis: sustained wind vs peak gusts
+  const primaryWind = calcBasis === 'sustained' ? speed : Math.max(speed, Math.round(gusts * 0.9));
+
+  // Pilot-scaled speed tiers for the verdicts:
+  const pilotTierLimits = {
+    beginner: { tier1: 10, tier2: 13, tier3: 16 },
+    intermediate: { tier1: 20, tier2: 25, tier3: 30 },
+    advanced: { tier1: 25, tier2: 30, tier3: 35 },
+    extreme: { tier1: 30, tier2: 35, tier3: 40 },
+  };
+  const tiers = pilotTierLimits[pilot] || pilotTierLimits.intermediate;
 
   const stopReasons = [];
   const cautionReasons = [];
@@ -77,44 +108,54 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   if (visMi < 1.5) stopReasons.push(`Low visibility (${visMi.toFixed(1)} mi)`);
   else if (visMi < t.minVisibilityMi) cautionReasons.push(`Reduced visibility (${visMi.toFixed(1)} mi)`);
 
-  if (speed >= 30) {
+  if (primaryWind >= tiers.tier3) {
     stopReasons.unshift(
       isKid
-        ? `30+ MPH gale (${speed} mph) — Stay in the hangar! Severe wind hazard.`
-        : `30+ MPH gale (${speed} mph) — JUST STAY HOME AND SPANK!`
+        ? `${tiers.tier3}+ MPH gale (${primaryWind} mph) — Stay in the hangar! Severe wind hazard.`
+        : `${tiers.tier3}+ MPH gale (${primaryWind} mph) — JUST STAY HOME AND SPANK!`
     );
-  } else if (speed >= 25) {
+  } else if (primaryWind >= tiers.tier2) {
     stopReasons.unshift(
       isKid
-        ? `25+ MPH winds (${speed} mph) — Hazardous winds! High risk of damage.`
-        : `25+ MPH winds (${speed} mph) — BRING YOUR CREDIT CARD`
+        ? `${tiers.tier2}+ MPH winds (${primaryWind} mph) — Hazardous winds! High risk of damage.`
+        : `${tiers.tier2}+ MPH winds (${primaryWind} mph) — BRING YOUR CREDIT CARD`
     );
-  } else if (speed >= 20) {
+  } else if (primaryWind >= tiers.tier1) {
     stopReasons.unshift(
       isKid
-        ? `20+ MPH winds (${speed} mph) — Strong winds! Rough landings likely.`
-        : `20+ MPH winds (${speed} mph) — CA Glue Required`
+        ? `${tiers.tier1}+ MPH winds (${primaryWind} mph) — Strong winds! Rough landings likely.`
+        : `${tiers.tier1}+ MPH winds (${primaryWind} mph) — CA Glue Required`
     );
-  } else if (speed > t.maxSustainedWindMph) {
-    stopReasons.push(`Sustained wind (${speed} mph) exceeds ${t.maxSustainedWindMph} mph limit`);
-  } else if (speed > t.cautionWindMph) {
-    cautionReasons.push(`Sustained wind ${speed} mph (above ${t.cautionWindMph} mph calm threshold)`);
+  } else if (speed > effMaxSustained) {
+    stopReasons.push(`Sustained wind (${speed} mph) exceeds ${effMaxSustained} mph limit (${pilot.toUpperCase()} PILOT)`);
+  } else if (speed > effCautionWind) {
+    cautionReasons.push(`Sustained wind ${speed} mph (above ${effCautionWind} mph calm ceiling for ${pilot.toUpperCase()})`);
   }
 
-  if (gusts > t.maxGustMph) {
-    stopReasons.push(`Peak gusts (${gusts} mph) exceed ${t.maxGustMph} mph limit`);
-  } else if (gusts > t.cautionGustMph) {
-    cautionReasons.push(`Gusts to ${gusts} mph`);
+  if (calcBasis === 'sustained') {
+    if (spread > 12) {
+      stopReasons.push(`Dangerous gust shear (Δ +${spread} mph — sudden stalls likely)`);
+    } else if (gusts > effMaxGust) {
+      cautionReasons.push(`Peak gusts to ${gusts} mph (Sustained mode active — fly with caution)`);
+    } else if (gusts > effCautionGust) {
+      cautionReasons.push(`Gusts to ${gusts} mph`);
+    }
+  } else {
+    if (gusts > effMaxGust) {
+      stopReasons.push(`Peak gusts (${gusts} mph) exceed ${effMaxGust} mph limit (${pilot.toUpperCase()})`);
+    } else if (gusts > effCautionGust) {
+      cautionReasons.push(`Gusts to ${gusts} mph`);
+    }
+
+    if (spread > t.maxGustSpreadMph + 4) {
+      stopReasons.push(`Severe gust shear (Δ +${spread} mph)`);
+    } else if (spread > t.maxGustSpreadMph) {
+      cautionReasons.push(`Gust spread Δ +${spread} mph`);
+    }
   }
 
-  if (spread > t.maxGustSpreadMph + 4) {
-    stopReasons.push(`Severe gust shear (Δ +${spread} mph)`);
-  } else if (spread > t.maxGustSpreadMph) {
-    cautionReasons.push(`Gust spread Δ +${spread} mph`);
-  }
-
-  if (crosswindMph !== null && crosswindMph > t.maxCrosswindMph) {
-    cautionReasons.push(`Runway crosswind ${crosswindMph} mph (> ${t.maxCrosswindMph} mph)`);
+  if (crosswindMph !== null && crosswindMph > effMaxCrosswind) {
+    cautionReasons.push(`Runway crosswind ${crosswindMph} mph (> ${effMaxCrosswind} mph limit for ${pilot})`);
   }
 
   if (tempF < 30 || tempF > 103) {
@@ -126,31 +167,37 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   }
 
   if (stopReasons.length > 0) {
-    if (speed >= 30) {
+    if (primaryWind >= tiers.tier3) {
       return {
         level: 'stop',
         verdict: isKid ? 'STAY IN THE HANGAR!' : 'JUST STAY HOME AND SPANK!',
-        shortTag: isKid ? 'HANGAR BOUND' : '30+ SPANK',
+        shortTag: isKid ? 'HANGAR BOUND' : `${tiers.tier3}+ SPANK`,
         gustSpread: spread,
         reasons: stopReasons,
+        pilot,
+        calcBasis,
       };
     }
-    if (speed >= 25) {
+    if (primaryWind >= tiers.tier2) {
       return {
         level: 'stop',
         verdict: isKid ? 'HAZARDOUS WINDS!' : 'BRING YOUR CREDIT CARD',
         shortTag: isKid ? 'HIGH RISK' : 'CREDIT CARD',
         gustSpread: spread,
         reasons: stopReasons,
+        pilot,
+        calcBasis,
       };
     }
-    if (speed >= 20) {
+    if (primaryWind >= tiers.tier1) {
       return {
         level: 'stop',
         verdict: isKid ? 'TOO WINDY TO FLY!' : 'CA GLUE REQUIRED',
         shortTag: isKid ? 'TOO WINDY' : 'CA GLUE',
         gustSpread: spread,
         reasons: stopReasons,
+        pilot,
+        calcBasis,
       };
     }
     return {
@@ -159,6 +206,8 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
       shortTag: 'NO-GO',
       gustSpread: spread,
       reasons: stopReasons,
+      pilot,
+      calcBasis,
     };
   }
   if (cautionReasons.length > 0) {
@@ -168,6 +217,8 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
       shortTag: 'CAUTION',
       gustSpread: spread,
       reasons: cautionReasons,
+      pilot,
+      calcBasis,
     };
   }
   return {
@@ -175,7 +226,13 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
     verdict: isKid ? 'ALL CLEAR TO FLY' : 'GOOD TO FLY',
     shortTag: 'GO',
     gustSpread: spread,
-    reasons: ['Wind, gusts, visibility, and temperature all within flight envelope'],
+    reasons: [
+      calcBasis === 'sustained'
+        ? `Sustained wind (${speed} mph), visibility and temp all within ${pilot.toUpperCase()} pilot envelope`
+        : `Wind, gusts, visibility, and temp all within ${pilot.toUpperCase()} pilot envelope`,
+    ],
+    pilot,
+    calcBasis,
   };
 }
 

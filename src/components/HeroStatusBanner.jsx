@@ -17,6 +17,10 @@ export default function HeroStatusBanner({
   onChangeForecastDay,
   contentProfile = 'adult',
   onToggleContentProfile,
+  pilotProfile = 'intermediate',
+  onCyclePilotProfile,
+  calcBasis = 'gust',
+  onToggleCalcBasis,
 }) {
   const current = (forecastDay === 'tomorrow' && locState.data?.tomorrow?.obs)
     ? locState.data.tomorrow.obs
@@ -28,6 +32,8 @@ export default function HeroStatusBanner({
     AIRCRAFT_PRESETS.find((p) => p.id === thresholds.presetId)?.label || 'Custom Aircraft Limits';
   const activeProfile = thresholds.contentProfile || contentProfile || 'adult';
   const isKid = activeProfile === 'kid';
+  const activePilot = thresholds.pilotProfile || pilotProfile || 'intermediate';
+  const activeCalcBasis = thresholds.calcBasis || calcBasis || 'gust';
 
   return (
     <section
@@ -171,7 +177,7 @@ export default function HeroStatusBanner({
                 {status.verdict}
               </span>
             </div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -179,8 +185,37 @@ export default function HeroStatusBanner({
                 title="Change aircraft threshold limits"
               >
                 <SlidersHorizontal strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
-                <span>Profile: {presetName}</span>
+                <span>{presetName}</span>
               </button>
+
+              <button
+                type="button"
+                onClick={onCyclePilotProfile}
+                className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 font-instrument text-3xs font-bold uppercase tracking-wider transition ${
+                  activePilot === 'extreme'
+                    ? 'border-stop-line bg-stop-surface text-stop hover:border-stop'
+                    : activePilot === 'advanced'
+                      ? 'border-caution-line bg-caution-surface text-caution-ink hover:border-caution'
+                      : activePilot === 'beginner'
+                        ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:border-sky-400'
+                        : 'border-avionics/40 bg-avionics-soft text-avionics hover:border-avionics'
+                }`}
+                title="Tap to cycle Pilot Skill Level: Beginner → Intermediate → Advanced → Extreme"
+                aria-label={`Pilot skill level: ${activePilot}. Tap to cycle.`}
+              >
+                {activePilot === 'extreme' ? '⚡ Extreme' : activePilot === 'advanced' ? '🎖️ Advanced' : activePilot === 'beginner' ? '🔰 Beginner' : '✈️ Intermed.'}
+              </button>
+
+              <button
+                type="button"
+                onClick={onToggleCalcBasis}
+                className="inline-flex items-center gap-1 rounded border border-line-strong bg-panel-inset px-2 py-0.5 font-instrument text-3xs font-bold uppercase tracking-wider text-ink-soft hover:text-ink hover:border-avionics transition"
+                title="Tap to toggle Wind Calculation Basis: Peak Gusts vs Sustained Wind"
+                aria-label={`Calculation basis: ${activeCalcBasis === 'sustained' ? 'Sustained Wind' : 'Peak Gusts'}. Tap to toggle.`}
+              >
+                {activeCalcBasis === 'sustained' ? '🌬️ Sustained' : '💨 Gusts'}
+              </button>
+
               <button
                 type="button"
                 onClick={onToggleContentProfile}
@@ -192,7 +227,7 @@ export default function HeroStatusBanner({
                 title="Tap to switch between Kid-Friendly and Adult language profiles"
                 aria-label={`Current tone: ${isKid ? 'Kid-Friendly' : 'Adult Humor'}. Tap to toggle.`}
               >
-                {isKid ? '🚸 Kid-Friendly' : '🔞 Adult Humor'}
+                {isKid ? '🚸 Kid-Friendly' : '🔞 Adult'}
               </button>
             </div>
           </div>
