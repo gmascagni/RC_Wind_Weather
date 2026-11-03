@@ -56,8 +56,15 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
           cd android
-          set -o pipefail
-          ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon 2>&1 | tee gradle.log
+          ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon > gradle.log 2>&1 || (cat gradle.log | tail -n 80 && exit 1)
+
+      - name: Report Build Output
+        if: always()
+        run: |
+          echo "### Gradle Output Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -n 80 android/gradle.log >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Gradle Build Log
         if: always()
