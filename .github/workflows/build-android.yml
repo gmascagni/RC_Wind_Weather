@@ -56,7 +56,12 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
           cd android
-          ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon > gradle.log 2>&1 || (cat gradle.log | tail -n 80 && exit 1)
+          if ! ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon > gradle.log 2>&1; then
+            cat gradle.log | tail -n 50
+            MSG=$(tail -n 25 gradle.log | tr '\r\n' ' ' | sed 's/"/\\"/g')
+            echo "::error title=Gradle Build Failed::$MSG"
+            exit 1
+          fi
 
       - name: Report Build Output
         if: always()
