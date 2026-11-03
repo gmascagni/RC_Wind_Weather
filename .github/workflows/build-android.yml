@@ -57,9 +57,12 @@ jobs:
         run: |
           cd android
           if ! ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon > gradle.log 2>&1; then
-            cat gradle.log | tail -n 50
-            MSG=$(tail -n 25 gradle.log | tr '\r\n' ' ' | sed 's/"/\\"/g')
-            echo "::error title=Gradle Build Failed::$MSG"
+            cat gradle.log | tail -n 80
+            MSG=$(grep -A 10 "What went wrong:" gradle.log | tr '\r\n' ' ' | sed 's/"/\\"/g')
+            if [ -z "$MSG" ]; then
+              MSG=$(tail -n 30 gradle.log | tr '\r\n' ' ' | sed 's/"/\\"/g')
+            fi
+            echo "::error title=Gradle Task Failure::$MSG"
             exit 1
           fi
 
