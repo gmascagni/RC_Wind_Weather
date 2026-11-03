@@ -7,7 +7,8 @@ android {
         applicationId "com.rcwind.weatherpro"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv("BUILD_NUMBER") ?: "1").toInteger()
+        def buildNum = System.getenv("BUILD_NUMBER")
+        versionCode (buildNum != null && buildNum.isInteger()) ? buildNum.toInteger() : 1
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
