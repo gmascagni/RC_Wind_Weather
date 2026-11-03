@@ -1,5 +1,6 @@
-import { RefreshCw, Star } from 'lucide-react';
+import { RefreshCw, Star, GitBranch } from 'lucide-react';
 import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
+import { APP_VERSION } from '../config/versionConfig';
 import { evaluateFlightStatus } from '../utils/aerodynamics';
 import { StatusIcon } from './StatusVisuals';
 
@@ -15,29 +16,56 @@ export default function FooterBar({
   hasActiveLocation,
   isRefreshing,
   onRefresh,
+  onOpenVersion,
 }) {
   const unit = getUnitLabel(windUnit);
+  const baseUrl = import.meta.env.BASE_URL || '/RC_Wind_Weather/';
+  const privacyUrl = `${baseUrl}privacy.html`.replace(/\/{2,}/g, '/');
 
   return (
     <>
       <footer className="mt-8 border-t border-line-strong bg-deck-panel/90 py-5 text-xs text-ink-soft shadow-panel">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-6 font-instrument">
-          <div className="text-center sm:text-left">
-            SOURCE:{' '}
-            <a
-              href="https://open-meteo.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-avionics underline underline-offset-4 hover:text-ink font-bold"
-            >
-              OPEN-METEO NOAA HRRR / GFS (10M AGL)
-            </a>
-            {timezoneLabel ? ` • ${timezoneLabel.toUpperCase()}` : ''}
+          <div className="text-center sm:text-left flex flex-wrap items-center gap-2">
+            <span>
+              SOURCE:{' '}
+              <a
+                href="https://open-meteo.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-avionics underline underline-offset-4 hover:text-ink font-bold"
+              >
+                OPEN-METEO NOAA HRRR / GFS (10M AGL)
+              </a>
+              {timezoneLabel ? ` • ${timezoneLabel.toUpperCase()}` : ''}
+            </span>
           </div>
 
-          {hasActiveLocation && (
-            <div className="flex items-center gap-3">
-              <span className="text-ink-dim font-bold">LAST UPDATED: {ageLabel.toUpperCase()}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={onOpenVersion}
+              className="inline-flex items-center gap-1 font-bold text-avionics hover:underline"
+              title="Open Version Control & Changelog"
+            >
+              <GitBranch strokeWidth={2} className="h-3 w-3" aria-hidden="true" />
+              <span>{APP_VERSION}</span>
+            </button>
+
+            <a
+              href={privacyUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-ink-dim hover:text-ink hover:underline text-2xs"
+            >
+              PRIVACY POLICY
+            </a>
+
+            {hasActiveLocation && (
+              <span className="text-ink-dim font-bold">UPDATED: {ageLabel.toUpperCase()}</span>
+            )}
+
+            {hasActiveLocation && (
               <button
                 type="button"
                 onClick={onRefresh}
@@ -51,8 +79,8 @@ export default function FooterBar({
                 />
                 REFRESH
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </footer>
 

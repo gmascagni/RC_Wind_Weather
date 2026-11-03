@@ -16,6 +16,7 @@ import WindChart24h from './components/WindChart24h';
 import HourlyForecast from './components/HourlyForecast';
 import AircraftSuitability from './components/AircraftSuitability';
 import ThresholdSettingsModal from './components/ThresholdSettingsModal';
+import VersionModal from './components/VersionModal';
 import { SkeletonDeck, WelcomeFieldPrompt, OfflineEmptyState } from './components/SkeletonDeck';
 import FooterBar from './components/FooterBar';
 
@@ -32,6 +33,7 @@ export default function App() {
   const [forecastDay, setForecastDay] = useState('today');
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [versionOpen, setVersionOpen] = useState(false);
   const [isLocatingGps, setIsLocatingGps] = useState(false);
   const [gpsError, setGpsError] = useState(null);
   const forecastRef = useRef(null);
@@ -189,6 +191,7 @@ export default function App() {
         daylightBoost={daylightBoost}
         onToggleDaylight={() => setDaylightBoost((v) => !v)}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenVersion={() => setVersionOpen(true)}
         isRefreshing={isRefreshing}
         onRefresh={refreshAll}
       />
@@ -291,6 +294,7 @@ export default function App() {
         hasActiveLocation={Boolean(activeLocation)}
         isRefreshing={isRefreshing}
         onRefresh={refreshAll}
+        onOpenVersion={() => setVersionOpen(true)}
       />
 
       <ThresholdSettingsModal
@@ -305,6 +309,11 @@ export default function App() {
         onChangePilotProfile={handleSetPilotProfile}
         calcBasis={effectiveThresholds.calcBasis}
         onChangeCalcBasis={handleSetCalcBasis}
+      />
+
+      <VersionModal
+        open={versionOpen}
+        onClose={() => setVersionOpen(false)}
       />
     </div>
   );

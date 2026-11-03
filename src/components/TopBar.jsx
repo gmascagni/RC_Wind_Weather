@@ -21,6 +21,7 @@ export default function TopBar({
   daylightBoost,
   onToggleDaylight,
   onOpenSettings,
+  onOpenVersion,
   isRefreshing,
   onRefresh,
 }) {
@@ -33,14 +34,22 @@ export default function TopBar({
       {/* Decorative Cockpit Screws & Top-Right Dog-Ear Badge (Matching rc-power-bench) */}
       <span className="screw top-2 left-2" aria-hidden="true" />
       <span className="screw bottom-2 left-2" aria-hidden="true" />
-      <div
-        className="pointer-events-none absolute top-0 right-0 z-20 h-0 w-0 border-solid border-t-0 border-r-[38px] border-b-[38px] border-l-0 border-r-stop border-transparent"
-        aria-hidden="true"
+      <button
+        type="button"
+        onClick={onOpenVersion}
+        className="group absolute top-0 right-0 z-20 h-9 w-9 cursor-pointer overflow-hidden transition"
+        title="View Version Control & Release Notes (v3.0.0)"
+        aria-label="View Version Control and Release Notes (v3.0.0)"
       >
-        <span className="absolute top-[3px] right-[-32px] block w-[35px] text-center font-instrument text-[7.5px] font-bold text-white rotate-45">
-          v3.0.0
-        </span>
-      </div>
+        <div
+          className="absolute top-0 right-0 h-0 w-0 border-solid border-t-0 border-r-[38px] border-b-[38px] border-l-0 border-r-stop border-transparent group-hover:border-r-red-500 transition-colors"
+          aria-hidden="true"
+        >
+          <span className="absolute top-[3px] right-[-32px] block w-[35px] text-center font-instrument text-[7.5px] font-bold text-white rotate-45 tracking-wider">
+            v3.0.0
+          </span>
+        </div>
+      </button>
 
       <div className="mx-auto max-w-6xl space-y-2.5 px-3 py-2.5 sm:px-6">
         {/* Top Header Row with Winged USAAC Crest, Center Title, and Aviator Banner */}
