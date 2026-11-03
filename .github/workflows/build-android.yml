@@ -56,16 +56,26 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
           cd android
-          ./gradlew bundleRelease assembleRelease --no-daemon --stacktrace
+          set -o pipefail
+          ./gradlew bundleRelease assembleDebug --stacktrace --no-daemon 2>&1 | tee gradle.log
+
+      - name: Upload Gradle Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: android/gradle.log
 
       - name: Upload Google Play Store Bundle (.aab)
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: google-play-bundle-aab
-          path: android/app/build/outputs/bundle/release/*.aab
+          path: android/app/build/outputs/bundle/**/*.aab
 
-      - name: Upload Test Release APK (.apk)
+      - name: Upload Test APK (.apk)
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: test-release-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          name: test-apk
+          path: android/app/build/outputs/apk/**/*.apk
