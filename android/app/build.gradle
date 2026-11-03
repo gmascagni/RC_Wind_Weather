@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.rcwindweather.pro"
+    namespace = "com.rcwind.weatherpro"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.rcwindweather.pro"
+        applicationId "com.rcwind.weatherpro"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode (System.getenv("BUILD_NUMBER") ?: "1").toInteger()

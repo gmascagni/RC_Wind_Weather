@@ -1,4 +1,4 @@
-package com.rcwindweather.pro;
+package com.rcwind.weatherpro;
 
 import com.getcapacitor.BridgeActivity;
 
