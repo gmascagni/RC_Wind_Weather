@@ -21,8 +21,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def ksFile = file("upload-keystore.jks")
+            if (ksFile.exists()) {
+                storeFile ksFile
+                storePassword System.getenv("KEYSTORE_PASSWORD") ?: "rcwindweather2026"
+                keyAlias System.getenv("KEY_ALIAS") ?: "rcwind_upload"
+                keyPassword System.getenv("KEY_PASSWORD") ?: "rcwindweather2026"
+            }
+        }
+    }
     buildTypes {
         release {
+            if (file("upload-keystore.jks").exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

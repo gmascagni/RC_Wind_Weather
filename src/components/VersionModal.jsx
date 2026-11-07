@@ -100,15 +100,26 @@ export default function VersionModal({ open, onClose }) {
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-2 font-instrument text-2xs text-ink-soft">
             <span>Released: {BUILD_DATE}</span>
-            <a
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-avionics hover:underline"
-            >
-              <span>GitHub Repository</span>
-              <ExternalLink strokeWidth={2} className="h-3 w-3" aria-hidden="true" />
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={`${(import.meta.env.BASE_URL || '/RC_Wind_Weather/').replace(/\/{2,}/g, '/')}privacy.html`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-ink-soft hover:text-avionics hover:underline"
+              >
+                <span>Privacy Policy</span>
+                <ExternalLink strokeWidth={2} className="h-3 w-3" aria-hidden="true" />
+              </a>
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-avionics hover:underline"
+              >
+                <span>GitHub Repository</span>
+                <ExternalLink strokeWidth={2} className="h-3 w-3" aria-hidden="true" />
+              </a>
+            </div>
           </div>
 
           {updateMsg && (
