@@ -39,48 +39,65 @@
   </style>
 </head>
 <body>
-  <span class="badge">LEGAL &amp; COMPLIANCE</span>
+  <span class="badge">LEGAL &amp; GOOGLE PLAY COMPLIANCE</span>
   <h1>Privacy Policy — RC Wind Weather Pro</h1>
-  <p><strong>Effective Date:</strong> November 2, 2026</p>
-  <p><strong>Application:</strong> RC Wind Weather Pro (com.rcwind.weatherpro)</p>
+  <p><strong>Effective Date:</strong> November 7, 2026 &bull; <strong>Version:</strong> v3.2.0</p>
+  <p><strong>Application Package ID:</strong> <code>com.rcwind.weatherpro</code></p>
 
   <div class="panel">
-    <h2>1. Overview</h2>
+    <h2>1. Overview &amp; Zero-Tracking Commitment</h2>
     <p>
-      RC Wind Weather Pro is designed specifically for radio-controlled (RC) aircraft pilots, aeromoders, and flight clubs to evaluate runway crosswinds, peak gusts, and flight safety envelopes. Your privacy is paramount: we do not collect, monetize, sell, or track your personal information.
+      RC Wind Weather Pro is designed specifically for radio-controlled (RC) aircraft pilots, aeromodelers, and flight clubs to evaluate runway crosswinds, peak gusts, density altitude, and flight safety envelopes. Your privacy is paramount: <strong>we do not collect, store on external servers, monetize, sell, or share any personal or identifiable user data.</strong> No user accounts or sign-ins are required.
     </p>
 
-    <h2>2. Data Collection and Usage</h2>
-    <h3>A. GPS &amp; Location Data</h3>
+    <h2>2. Data Collection, Permissions &amp; Usage</h2>
+    <h3>A. Precise &amp; Coarse Location (<code>ACCESS_FINE_LOCATION</code> / <code>ACCESS_COARSE_LOCATION</code>)</h3>
     <p>
-      If you choose to use the "Locate by GPS" feature, the app accesses your device's geographical coordinates (latitude and longitude) solely to identify local weather telemetry and magnetic runway alignment. This data is transmitted directly via encrypted HTTPS to the Open-Meteo weather API to retrieve wind and meteorological conditions. Location coordinates are never transmitted to our own servers and are never linked to your personal identity.
+      When you tap the <strong>"GPS"</strong> button, the application requests foreground location access solely to determine your current flying field coordinates (latitude and longitude). These coordinates are sent directly over encrypted HTTPS to the public <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo Weather API</a> and OpenStreetMap Nominatim reverse-geocoding service to retrieve local wind speed, wind gusts, wind direction, temperature, and field elevation.
+    </p>
+    <ul>
+      <li>Location access is strictly <strong>ephemeral and foreground-only</strong> (triggered only when you request it).</li>
+      <li>The app never tracks your location in the background.</li>
+      <li>Your coordinates are never sent to the developer or linked to any personal identifier.</li>
+    </ul>
+
+    <h3>B. Device Sensors (Magnetometer, Accelerometer &amp; Orientation)</h3>
+    <p>
+      The "Live Compass" and "Phone Aim Wind Calibration" features read your device's compass heading in real time to align the runway strip and wind vector with your physical orientation at the flying field. Sensor readings are processed 100% locally in device memory and are never recorded or transmitted off your device.
     </p>
 
-    <h3>B. Device Sensors (Magnetometer &amp; Compass)</h3>
+    <h3>C. Local Device Storage (<code>localStorage</code>)</h3>
     <p>
-      The "Live Compass" feature reads your device's heading to align the flight runway strip and wind indicator with your physical heading at the field. Sensor data is processed entirely in real-time on your device and is never recorded or transmitted.
+      User preferences—including saved favorite flying fields, runway headings, wind speed units (MPH, KT, KM/H), pilot skill profiles (Beginner, Intermediate, Advanced, Extreme), calculation basis (Gust vs. Sustained), and audience humor mode (Adult vs. Kid-Friendly)—are stored exclusively on your device using local browser/WebView storage.
     </p>
 
-    <h3>C. Local Preferences Storage</h3>
+    <h2>3. Data Retention &amp; How to Delete Your Data</h2>
     <p>
-      Settings such as saved flying field favorites, runway headings, wind unit preferences (mph, kt, km/h), pilot experience levels, and content profiles are stored strictly on your local device storage. You can clear this data at any time by clearing your application cache or uninstalling the app.
+      Because RC Wind Weather Pro does not maintain user accounts or external databases, no personal data is retained by the developer. You have full control over all locally stored preferences and cached weather data on your device:
+    </p>
+    <ul>
+      <li><strong>In-App Removal:</strong> You can delete any saved favorite location at any time by tapping the <code>&times;</code> button next to the favorite, or reset your limits inside the <strong>LIMITS</strong> dialog.</li>
+      <li><strong>Full Reset:</strong> Clearing the application's storage/cache in your Android Device Settings or uninstalling the application permanently erases all locally saved preferences.</li>
+    </ul>
+
+    <h2>4. Third-Party Services &amp; Advertising</h2>
+    <p>
+      Weather forecasts and city/ZIP geocoding lookups are fulfilled via the open-source <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a> over HTTPS. RC Wind Weather Pro contains <strong>zero third-party advertising SDKs, zero behavioral analytics trackers, and zero marketing cookies.</strong>
     </p>
 
-    <h2>3. Third-Party Services</h2>
+    <h2>5. Audience Profiles &amp; Children’s Privacy</h2>
     <p>
-      Weather forecasts and geocoding city search queries are served through the public Open-Meteo weather API under standard encrypted HTTPS requests. No third-party advertising SDKs, tracking cookies, or analytics services are integrated into RC Wind Weather Pro.
+      RC Wind Weather Pro includes both a comedic "Adult (18+)" flight-line mode and a 100% family-friendly "Kid-Friendly / Cadet" mode with clean educational aviation terminology. The application does not knowingly collect any personal information from children or adults under COPPA, GDPR, or CCPA.
     </p>
 
-    <h2>4. Children’s Privacy</h2>
+    <h2>6. Contact &amp; Support</h2>
     <p>
-      RC Wind Weather Pro offers a dedicated "Kid-Friendly / Cadet" profile specifically to provide safe, clean, educational flight-safety terminology for young pilots and club cadets. The app does not collect personal information from children or any users.
-    </p>
-
-    <h2>5. Contact Us</h2>
-    <p>
-      If you have questions regarding this Privacy Policy or app permissions, you may contact the development team at:
+      If you have questions regarding this Privacy Policy, app permissions, or Google Play compliance, please contact the developer via the official project repository:
       <br>
-      <strong>GitHub Repository:</strong> <a href="https://github.com/gmascagni/RC_Wind_Weather" target="_blank" rel="noopener">https://github.com/gmascagni/RC_Wind_Weather</a>
+      <strong>GitHub Repository &amp; Issue Tracker:</strong> <a href="https://github.com/gmascagni/RC_Wind_Weather" target="_blank" rel="noopener">https://github.com/gmascagni/RC_Wind_Weather</a>
+    </p>
+    <p style="margin-top: 1.5rem;">
+      <a href="./index.html" class="badge" style="text-decoration: none; padding: 0.45rem 0.9rem;">&larr; Return to RC Wind Weather Pro Flight Deck</a>
     </p>
   </div>
 </body>
