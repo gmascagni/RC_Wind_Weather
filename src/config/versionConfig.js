@@ -1,8 +1,21 @@
-export const APP_VERSION = 'v3.1.0';
+export const APP_VERSION = 'v3.2.0';
 export const BUILD_DATE = 'November 2026';
 export const GITHUB_REPO_URL = 'https://github.com/gmascagni/RC_Wind_Weather';
 
 export const CHANGELOG = [
+  {
+    version: 'v3.2.0',
+    date: 'November 2026',
+    title: '4-Expert Aviation Audit: Cockpit Flow, Density Altitude & Touch Drag HSI',
+    highlights: [
+      '✈️ Logical Cockpit Flow (Panels 01–07): Promoted Wind Vector & HSI Compass (02) and 24h Envelope Chart (03) directly below the Primary Flight Deck (01) for instant field reference.',
+      '🌡️ Density Altitude (DA) Telemetry: Computes live ISA Density Altitude from field elevation and ambient temperature to warn of thin air, longer takeoff rolls, and reduced prop/EDF thrust.',
+      '👆 Smooth 360° Touch & Mouse Drag Compass: Drag your finger or mouse continuously around the compass bezel to calibrate local wind direction in real time.',
+      '🛑 Severe Crosswind NO-GO Protection: Extreme runway crosswinds (>135% of pilot-scaled limit) now trigger a red NO-GO alert instead of only a yellow caution.',
+      '📱 Mobile Viewport & PC Optimization: Unpinned bulky mobile header while scrolling, softened screen vignette, removed duplicate controls, and fixed 24h chart click-to-hour syncing.',
+      '🛡️ Google Play Store Policy Compliance: Sanitized default stop-verdict copy while preserving comedic adult flight-line humor.',
+    ],
+  },
   {
     version: 'v3.1.0',
     date: 'November 2026',

@@ -52,6 +52,22 @@ export function computeRunwayComponents(windMph, gustMph, windFromDeg, stripHead
   };
 }
 
+export const PILOT_FACTORS = {
+  beginner: 0.70,
+  intermediate: 1.0,
+  advanced: 1.30,
+  extreme: 1.65,
+};
+
+// Computes standard ISA Density Altitude in feet from ambient temp (°F) and field elevation (ft)
+export function computeDensityAltitudeFt(tempF = 70, elevationFt = 0) {
+  const elev = Number.isFinite(Number(elevationFt)) ? Number(elevationFt) : 0;
+  const tF = Number.isFinite(Number(tempF)) ? Number(tempF) : 70;
+  const tempC = ((tF - 32) * 5) / 9;
+  const isaTempC = 15 - (elev / 1000) * 1.98;
+  return Math.round(elev + 118.8 * (tempC - isaTempC));
+}
+
 export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, crosswindMph = null) {
   const t = { ...DEFAULT_THRESHOLDS, ...userThresholds };
   const isKid = (t.contentProfile || 'adult') === 'kid';
@@ -67,15 +83,7 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
   const tempF = Number.isFinite(Number(obs?.temperature)) ? Number(obs.temperature) : 70;
   const wmo = Number(obs?.weatherCode) || 0;
 
-  // Pilot skill multiplier:
-  // Beginner (0.70), Intermediate (1.00), Advanced (1.30), Extreme (1.65)
-  const pilotFactors = {
-    beginner: 0.70,
-    intermediate: 1.0,
-    advanced: 1.30,
-    extreme: 1.65,
-  };
-  const pFactor = pilotFactors[pilot] ?? 1.0;
+  const pFactor = PILOT_FACTORS[pilot] ?? 1.0;
 
   const effMaxSustained = Math.round(t.maxSustainedWindMph * pFactor);
   const effCautionWind = Math.round(t.cautionWindMph * pFactor);
@@ -154,8 +162,13 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
     }
   }
 
-  if (crosswindMph !== null && crosswindMph > effMaxCrosswind) {
-    cautionReasons.push(`Runway crosswind ${crosswindMph} mph (> ${effMaxCrosswind} mph limit for ${pilot})`);
+  if (crosswindMph !== null) {
+    const hardCrosswindMax = Math.round(effMaxCrosswind * 1.35 * 10) / 10;
+    if (crosswindMph > hardCrosswindMax) {
+      stopReasons.push(`Severe runway crosswind ${crosswindMph} mph (> ${hardCrosswindMax} mph max for ${pilot.toUpperCase()})`);
+    } else if (crosswindMph > effMaxCrosswind) {
+      cautionReasons.push(`Runway crosswind ${crosswindMph} mph (> ${effMaxCrosswind} mph limit for ${pilot})`);
+    }
   }
 
   if (tempF < 30 || tempF > 103) {
@@ -202,7 +215,7 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
     }
     return {
       level: 'stop',
-      verdict: isKid ? 'GROUNDED / NO-GO' : 'DONT BE A RETARD!',
+      verdict: isKid ? 'GROUNDED / NO-GO' : 'HANGAR QUEEN DAY!',
       shortTag: 'NO-GO',
       gustSpread: spread,
       reasons: stopReasons,

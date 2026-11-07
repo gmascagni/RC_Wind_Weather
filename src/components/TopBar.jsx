@@ -1,5 +1,6 @@
 import { RefreshCw, SlidersHorizontal, Star, Sun, X } from 'lucide-react';
 import { STATUS_THEME, WIND_UNITS, convertWind, getUnitLabel } from '../config/flightConfig';
+import { APP_VERSION } from '../config/versionConfig';
 import { evaluateFlightStatus } from '../utils/aerodynamics';
 import { StatusIcon, UsaacStarEmblem } from './StatusVisuals';
 import LocationSearchBar from './LocationSearchBar';
@@ -30,7 +31,7 @@ export default function TopBar({
   const p40Src = `${baseUrl}p40-warhawk.jpg`.replace(/\/{2,}/g, '/');
 
   return (
-    <header className="safe-top-bar sticky top-0 z-30 metal-panel rounded-none border-t-0 border-x-0 border-b-2 border-line-strong bg-panel/95 backdrop-blur-md">
+    <header className="safe-top-bar relative md:sticky md:top-0 z-30 metal-panel rounded-none border-t-0 border-x-0 border-b-2 border-line-strong bg-panel/95 backdrop-blur-md">
       {/* Decorative Cockpit Screws & Top-Right Dog-Ear Badge (Matching rc-power-bench) */}
       <span className="screw top-2 left-2" aria-hidden="true" />
       <span className="screw bottom-2 left-2" aria-hidden="true" />
@@ -38,15 +39,15 @@ export default function TopBar({
         type="button"
         onClick={onOpenVersion}
         className="group absolute top-0 right-0 z-20 h-9 w-9 cursor-pointer overflow-hidden transition"
-        title="View Version Control & Release Notes (v3.0.0)"
-        aria-label="View Version Control and Release Notes (v3.0.0)"
+        title={`View Version Control & Release Notes (${APP_VERSION})`}
+        aria-label={`View Version Control and Release Notes (${APP_VERSION})`}
       >
         <div
           className="absolute top-0 right-0 h-0 w-0 border-solid border-t-0 border-r-[38px] border-b-[38px] border-l-0 border-r-stop border-transparent group-hover:border-r-red-500 transition-colors"
           aria-hidden="true"
         >
           <span className="absolute top-[3px] right-[-32px] block w-[35px] text-center font-instrument text-[7.5px] font-bold text-white rotate-45 tracking-wider">
-            v3.0.0
+            {APP_VERSION}
           </span>
         </div>
       </button>

@@ -1,5 +1,6 @@
 import { Wind, Gauge, Compass, Thermometer } from 'lucide-react';
 import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
+import { PILOT_FACTORS, computeDensityAltitudeFt } from '../utils/aerodynamics';
 
 export default function CockpitMetricsGrid({
   current,
@@ -7,16 +8,20 @@ export default function CockpitMetricsGrid({
   runwayInfo,
   thresholds,
   windUnit,
+  elevationFt = 0,
 }) {
   const theme = STATUS_THEME[status.level];
   const unit = getUnitLabel(windUnit);
+  const pFactor = PILOT_FACTORS[thresholds?.pilotProfile] ?? 1.0;
+  const effMaxSustainedMph = Math.round((thresholds?.maxSustainedWindMph || 16) * pFactor);
   const windVal = convertWind(current.windSpeed, windUnit);
   const gustVal = convertWind(current.windGusts, windUnit);
   const spreadVal = convertWind(status.gustSpread, windUnit);
-  const maxLimitVal = convertWind(thresholds.maxSustainedWindMph, windUnit);
+  const maxLimitVal = convertWind(effMaxSustainedMph, windUnit);
+  const densityAltFt = computeDensityAltitudeFt(current.temperature, elevationFt);
   const windScale = Math.min(
     1,
-    current.windSpeed / Math.max(18, thresholds.maxSustainedWindMph * 1.25)
+    current.windSpeed / Math.max(18, effMaxSustainedMph * 1.25)
   );
 
   return (
@@ -101,7 +106,7 @@ export default function CockpitMetricsGrid({
           <span className="ml-1 font-instrument text-sm text-ink-soft font-semibold">F</span>
         </div>
         <div className="font-instrument text-2xs text-ink-dim">
-          Feels {current.apparentTemperature}°F • Rain {current.precipProb}%
+          DA {densityAltFt.toLocaleString()} ft • Rain {current.precipProb}%
         </div>
       </div>
     </div>

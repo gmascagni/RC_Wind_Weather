@@ -254,6 +254,7 @@ export default function HeroStatusBanner({
           runwayInfo={runwayInfo}
           thresholds={thresholds}
           windUnit={windUnit}
+          elevationFt={elevFt}
         />
       </div>
     </section>

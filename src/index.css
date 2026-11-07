@@ -99,7 +99,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.45);
 }
 
 /* Direct Sunlight High-Contrast Boost Mode */

@@ -39,6 +39,7 @@ export default function WindConditionScale({
 
       <summary className="touch-target flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 cursor-pointer">
         <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+          <span className="panel-badge" aria-hidden="true">05</span>
           <Wind strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wide text-ink">
             Wind Condition Categories

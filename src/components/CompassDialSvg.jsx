@@ -21,10 +21,11 @@ export default function CompassDialSvg({
   onDialClick,
 }) {
   const svgRef = useRef(null);
+  const isDraggingRef = useRef(false);
   const dialDeg = liveEnabled ? -unwrappedHeading : 0;
   const uprightDeg = liveEnabled && deviceHeading !== null ? deviceHeading : 0;
 
-  const handleDialInteraction = (e) => {
+  const updateAngleFromPointer = (e) => {
     if (!onDialClick) return;
     const svg = svgRef.current;
     if (!svg) return;
@@ -39,8 +40,8 @@ export default function CompassDialSvg({
     const dx = clientX - cx;
     const dy = clientY - cy;
     const dist = Math.hypot(dx, dy);
-    // Ignore clicks too close to center hub (r < 18) to avoid accidental triggers
-    if (dist < 18) return;
+    // Ignore clicks too close to center hub (r < 16) to avoid accidental triggers
+    if (dist < 16) return;
 
     // Calculate angle in degrees clockwise from North (12 o'clock)
     let rad = Math.atan2(dx, -dy);
@@ -56,12 +57,41 @@ export default function CompassDialSvg({
     onDialClick(snapped);
   };
 
+  const handlePointerDown = (e) => {
+    if (!onDialClick) return;
+    isDraggingRef.current = true;
+    try {
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {
+      // Ignore if pointer capture is unsupported
+    }
+    updateAngleFromPointer(e);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingRef.current) return;
+    updateAngleFromPointer(e);
+  };
+
+  const handlePointerUp = (e) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    try {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    } catch {
+      // Ignore
+    }
+  };
+
   return (
     <svg
       ref={svgRef}
       viewBox="0 0 200 200"
-      onClick={handleDialInteraction}
-      className={`h-48 w-48 sm:h-52 sm:w-52 block select-none ${onDialClick ? 'cursor-pointer' : ''}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      className={`h-48 w-48 sm:h-52 sm:w-52 block select-none touch-none ${onDialClick ? 'cursor-pointer' : ''}`}
       role="img"
     >
       <title>

@@ -275,18 +275,6 @@ export default function App() {
               onToggleCalcBasis={handleToggleCalcBasis}
             />
 
-            <HourlyForecast
-              ref={forecastRef}
-              hourly={activeHourly}
-              locationName={activeLocation.name}
-              thresholds={effectiveThresholds}
-              windUnit={windUnit}
-              forecastDay={forecastDay}
-              onChangeForecastDay={setForecastDay}
-              tomorrowDateLabel={locState.data?.tomorrowDateLabel || 'Tomorrow'}
-              tomorrowWeekday={locState.data?.tomorrowWeekday || 'Tomorrow'}
-            />
-
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <WindCompassCard
                 windDirection={activeObs?.windDirection ?? 0}
@@ -312,6 +300,18 @@ export default function App() {
                 dayLabel={isTomorrow ? (locState.data?.tomorrowDateLabel || 'Tomorrow') : 'Next 24h'}
               />
             </div>
+
+            <HourlyForecast
+              ref={forecastRef}
+              hourly={activeHourly}
+              locationName={activeLocation.name}
+              thresholds={effectiveThresholds}
+              windUnit={windUnit}
+              forecastDay={forecastDay}
+              onChangeForecastDay={setForecastDay}
+              tomorrowDateLabel={locState.data?.tomorrowDateLabel || 'Tomorrow'}
+              tomorrowWeekday={locState.data?.tomorrowWeekday || 'Tomorrow'}
+            />
 
             <AircraftSuitability
               currentObs={activeObs}

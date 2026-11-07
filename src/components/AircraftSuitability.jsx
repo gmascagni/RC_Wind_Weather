@@ -49,7 +49,7 @@ export default function AircraftSuitability({
 
         <summary className="touch-target flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 cursor-pointer">
           <div className="flex flex-wrap items-center gap-2.5 min-w-0">
-            <span className="panel-badge" aria-hidden="true">05</span>
+            <span className="panel-badge" aria-hidden="true">06</span>
             <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-stop/70 bg-panel-inset shadow-panel">
               <img
                 src={p40Src}
@@ -117,10 +117,13 @@ export default function AircraftSuitability({
         <span className="rivet bottom-left" aria-hidden="true" />
         <span className="rivet bottom-right" aria-hidden="true" />
 
-        <summary className="touch-target flex flex-col items-start gap-2.5 p-4 sm:px-5 cursor-pointer">
-          <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wide text-ink">
-            ★ Field Manual: RC Wind &amp; Crosswind Rules of Thumb
-          </span>
+        <summary className="touch-target flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 cursor-pointer">
+          <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+            <span className="panel-badge" aria-hidden="true">07</span>
+            <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wide text-ink">
+              ★ Field Manual: RC Wind &amp; Crosswind Rules of Thumb
+            </span>
+          </div>
         </summary>
 
         <div className="grid grid-cols-1 gap-3 border-t border-line p-4 sm:p-5 sm:grid-cols-3">

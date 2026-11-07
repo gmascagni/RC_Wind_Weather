@@ -1,5 +1,6 @@
 import { Sparkles, TrendingUp } from 'lucide-react';
 import { convertWind, getUnitLabel } from '../config/flightConfig';
+import { PILOT_FACTORS } from '../utils/aerodynamics';
 
 export default function WindChart24h({
   hourly = [],
@@ -13,6 +14,8 @@ export default function WindChart24h({
   if (hourly.length < 2) return null;
 
   const unit = getUnitLabel(windUnit);
+  const pFactor = PILOT_FACTORS[thresholds?.pilotProfile] ?? 1.0;
+  const effLimitMph = Math.round((thresholds?.maxSustainedWindMph || 16) * pFactor);
   const width = 680;
   const height = 210;
   const pad = { top: 22, right: 18, bottom: 32, left: 38 };
@@ -20,12 +23,12 @@ export default function WindChart24h({
   const plotH = height - pad.top - pad.bottom;
 
   const maxRawMph = Math.max(
-    thresholds.maxSustainedWindMph + 4,
+    effLimitMph + 4,
     ...hourly.map((h) => h.windGusts),
     20
   );
   const maxVal = convertWind(maxRawMph, windUnit);
-  const limitVal = convertWind(thresholds.maxSustainedWindMph, windUnit);
+  const limitVal = convertWind(effLimitMph, windUnit);
 
   const xFor = (i) => pad.left + (i / (hourly.length - 1)) * plotW;
   const yForMph = (mph) => {
@@ -52,7 +55,7 @@ export default function WindChart24h({
     'Z',
   ].join(' ');
 
-  const limitY = yForMph(thresholds.maxSustainedWindMph);
+  const limitY = yForMph(effLimitMph);
   const winX1 = bestWindow ? xFor(bestWindow.startIdx) : 0;
   const winX2 = bestWindow ? xFor(bestWindow.endIdx) : 0;
 
@@ -66,7 +69,7 @@ export default function WindChart24h({
       {/* WWII Cockpit Header */}
       <div className="panel-header flex-wrap justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="panel-badge" aria-hidden="true">04</span>
+          <span className="panel-badge" aria-hidden="true">03</span>
           <TrendingUp strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
           <h2 className="font-display text-sm sm:text-base font-bold uppercase tracking-wider text-ink truncate">
             24h Sustained vs. Gust Envelope • {dayLabel || (forecastDay === 'tomorrow' ? 'Tomorrow' : 'Next 24h')}
@@ -164,7 +167,7 @@ export default function WindChart24h({
               const cx = xFor(i);
               const cy = yForMph(h.windSpeed);
               return (
-                <g key={h.time} className="cursor-pointer group" onClick={() => onSelectHour?.(h.time)}>
+                <g key={h.isoTime || h.epochSec || i} className="cursor-pointer group" onClick={() => onSelectHour?.(h.isoTime)}>
                   <circle
                     cx={cx}
                     cy={cy}

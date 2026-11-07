@@ -13,7 +13,7 @@ android {
             vCode = buildNum.toInteger()
         }
         versionCode vCode
-        versionName "3.1.0"
+        versionName "3.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
