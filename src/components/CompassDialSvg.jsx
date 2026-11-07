@@ -1,4 +1,5 @@
-import { degreesToCardinal } from '../utils/aerodynamics';
+import { useRef } from 'react';
+import { degreesToCardinal, normalizeDegrees } from '../utils/aerodynamics';
 
 const CARDINAL_LABELS = [
   { label: 'N', x: 100, y: 31, color: '#ff4d4d', weight: '700' },
@@ -15,16 +16,60 @@ export default function CompassDialSvg({
   liveEnabled,
   deviceHeading,
   unwrappedHeading,
+  stationWindDirection,
+  isManualWind,
+  onDialClick,
 }) {
+  const svgRef = useRef(null);
   const dialDeg = liveEnabled ? -unwrappedHeading : 0;
   const uprightDeg = liveEnabled && deviceHeading !== null ? deviceHeading : 0;
 
+  const handleDialInteraction = (e) => {
+    if (!onDialClick) return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+    if (clientX === undefined || clientX === null || clientY === undefined || clientY === null) return;
+
+    const dx = clientX - cx;
+    const dy = clientY - cy;
+    const dist = Math.hypot(dx, dy);
+    // Ignore clicks too close to center hub (r < 18) to avoid accidental triggers
+    if (dist < 18) return;
+
+    // Calculate angle in degrees clockwise from North (12 o'clock)
+    let rad = Math.atan2(dx, -dy);
+    let deg = (rad * 180) / Math.PI;
+    if (deg < 0) deg += 360;
+
+    // Compensate for dial rotation if live compass is active
+    if (liveEnabled && typeof unwrappedHeading === 'number') {
+      deg = (deg + unwrappedHeading) % 360;
+    }
+
+    const snapped = normalizeDegrees(Math.round(deg / 5) * 5);
+    onDialClick(snapped);
+  };
+
   return (
-    <svg viewBox="0 0 200 200" className="h-48 w-48 sm:h-52 sm:w-52 block" role="img">
+    <svg
+      ref={svgRef}
+      viewBox="0 0 200 200"
+      onClick={handleDialInteraction}
+      className={`h-48 w-48 sm:h-52 sm:w-52 block select-none ${onDialClick ? 'cursor-pointer' : ''}`}
+      role="img"
+    >
       <title>
         {`Wind coming from ${fromDeg} degrees (${degreesToCardinal(fromDeg)}). Red arrow points against/into the wind. Active runway heading ${activeRunwayDeg} degrees.${
+          isManualWind ? ' Manually calibrated for local field.' : ' Sourced from live weather station.'
+        }${
           liveEnabled && deviceHeading !== null ? ` Phone heading ${deviceHeading} degrees.` : ''
-        }`}
+        } Tap anywhere around dial to align wind direction.`}
       </title>
 
       <defs>
@@ -103,6 +148,19 @@ export default function CompassDialSvg({
           <line x1="100" y1="50" x2="100" y2="150" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="6 5" />
           <polygon points="100,45 95,55 105,55" fill="#38bdf8" />
         </g>
+
+        {/* Ghost Weather Station Vector when manual calibration is active */}
+        {isManualWind && stationWindDirection !== undefined && stationWindDirection !== null && (
+          <g
+            className="station-ghost-rotate"
+            transform={`rotate(${normalizeDegrees(stationWindDirection)} 100 100)`}
+            opacity="0.45"
+          >
+            <line x1="100" y1="34" x2="100" y2="134" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" />
+            <polygon points="100,20 94,34 106,34" fill="#38bdf8" />
+            <circle cx="100" cy="134" r="2.5" fill="#38bdf8" />
+          </g>
+        )}
 
         {/* Aeronautical Wind Vector: Bold Red Arrow pointing directly AGAINST / INTO the wind (FROM heading) */}
         <g className="wind-vector-rotate" style={{ '--wind-deg': `${fromDeg}deg`, transformOrigin: '100px 100px' }}>

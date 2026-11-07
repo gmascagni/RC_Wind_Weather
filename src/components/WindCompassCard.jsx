@@ -1,4 +1,4 @@
-import { Compass, Crosshair, Navigation, PlaneTakeoff, AlertCircle } from 'lucide-react';
+import { Compass, Crosshair, Navigation, PlaneTakeoff, AlertCircle, Wind, RotateCcw } from 'lucide-react';
 import { STATUS_THEME, convertWind, getUnitLabel } from '../config/flightConfig';
 import { normalizeDegrees, degreesToCardinal } from '../utils/aerodynamics';
 import { useDeviceCompass } from '../hooks/useDeviceCompass';
@@ -6,6 +6,10 @@ import CompassDialSvg from './CompassDialSvg';
 
 export default function WindCompassCard({
   windDirection = 0,
+  stationWindDirection = 0,
+  isManualWind = false,
+  onChangeWindDirection,
+  onResetWindDirection,
   runwayHeadingDeg = 270,
   onChangeRunway,
   runwayInfo,
@@ -75,6 +79,31 @@ export default function WindCompassCard({
       </div>
 
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+        {/* Local Field Calibration Notice */}
+        {isManualWind && (
+          <div
+            role="status"
+            className="flex items-center justify-between gap-2 rounded-control border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 shadow-inset"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-400 animate-pulse shrink-0" aria-hidden="true" />
+              <div className="truncate">
+                <strong>Field Microclimate Calibration:</strong> Wind set to <strong>{String(fromDeg).padStart(3, '0')}° {degreesToCardinal(fromDeg)}</strong>
+                <span className="text-amber-300/80 text-2xs ml-1.5 hidden sm:inline">(Station: {String(normalizeDegrees(stationWindDirection)).padStart(3, '0')}°)</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onResetWindDirection}
+              className="btn-retro text-2xs py-1 px-2.5 text-amber-300 hover:text-white border-amber-500/50 shrink-0"
+              title="Reset wind direction to live weather station forecast"
+            >
+              <RotateCcw strokeWidth={2} className="h-3 w-3 shrink-0" aria-hidden="true" />
+              RESET TO LIVE
+            </button>
+          </div>
+        )}
+
         {(compassError || (liveEnabled && (!isAbsolute || needsCalibration))) && (
           <div
             role="status"
@@ -95,6 +124,9 @@ export default function WindCompassCard({
           <div className="flex flex-col items-center">
             <CompassDialSvg
               fromDeg={fromDeg}
+              stationWindDirection={stationWindDirection}
+              isManualWind={isManualWind}
+              onDialClick={onChangeWindDirection}
               blowsToDeg={blowsToDeg}
               activeRunwayDeg={runwayInfo.activeHeadingDeg}
               accentHex={accentHex}
@@ -102,9 +134,18 @@ export default function WindCompassCard({
               deviceHeading={deviceHeading}
               unwrappedHeading={unwrappedHeading}
             />
-            <p className="mt-1 text-center font-instrument text-2xs text-ink-dim">
-              <span className="text-red-400 font-bold">▲ Red Arrow</span> = Facing against wind (<strong>FROM {String(fromDeg).padStart(3, '0')}° {degreesToCardinal(fromDeg)}</strong>)
-            </p>
+            <div className="mt-1 text-center font-instrument text-2xs text-ink-dim space-y-0.5">
+              <p>
+                <span className="text-red-400 font-bold">▲ Red Arrow</span> = Facing into wind (<strong>FROM {String(fromDeg).padStart(3, '0')}° {degreesToCardinal(fromDeg)}</strong>)
+              </p>
+              <p className="text-3xs">
+                {isManualWind ? (
+                  <span className="text-amber-400 font-semibold">● Local Field Calibrated (Tap dial or use slider to adjust)</span>
+                ) : (
+                  <span className="text-avionics font-semibold">● Auto Live Station (Tap dial or slide below to calibrate)</span>
+                )}
+              </p>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -135,6 +176,87 @@ export default function WindCompassCard({
               </div>
             </div>
 
+            {/* Local Wind Calibration Control Module */}
+            <div className="rounded-control border border-line-strong bg-panel-inset p-3 space-y-2 shadow-inset">
+              <div className="flex items-center justify-between">
+                <label htmlFor="wind-heading-range" className="flex items-center gap-1.5 font-instrument text-2xs font-bold text-ink-soft">
+                  <Wind strokeWidth={2} className="h-3.5 w-3.5 text-avionics" aria-hidden="true" />
+                  WIND DIRECTION (CALIBRATE)
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {isManualWind ? (
+                    <span className="rounded border border-amber-500/50 bg-amber-500/20 px-1.5 py-0.5 font-instrument text-3xs font-bold text-amber-300">
+                      CALIBRATED
+                    </span>
+                  ) : (
+                    <span className="rounded border border-good/40 bg-good/10 px-1.5 py-0.5 font-instrument text-3xs font-bold text-good">
+                      AUTO (STATION)
+                    </span>
+                  )}
+                  <span className={`font-instrument text-xs font-bold ${isManualWind ? 'text-amber-300' : 'text-avionics'}`}>
+                    {String(fromDeg).padStart(3, '0')}° {degreesToCardinal(fromDeg)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onChangeWindDirection?.(normalizeDegrees(fromDeg - 10))}
+                  className="btn-retro text-xs py-1 px-2.5"
+                  title="Shift wind direction 10° counter-clockwise"
+                >
+                  -10°
+                </button>
+                <input
+                  id="wind-heading-range"
+                  type="range"
+                  min="0"
+                  max="355"
+                  step="5"
+                  value={fromDeg}
+                  onChange={(e) => onChangeWindDirection?.(Number(e.target.value))}
+                  className="w-full accent-amber-400 cursor-pointer"
+                  aria-label="Manually calibrate wind vector from heading in degrees"
+                />
+                <button
+                  type="button"
+                  onClick={() => onChangeWindDirection?.(normalizeDegrees(fromDeg + 10))}
+                  className="btn-retro text-xs py-1 px-2.5"
+                  title="Shift wind direction 10° clockwise"
+                >
+                  +10°
+                </button>
+              </div>
+
+              <div className="space-y-1 pt-0.5">
+                {liveEnabled && deviceHeading !== null && (
+                  <button
+                    type="button"
+                    onClick={() => onChangeWindDirection?.(snappedPhoneDeg)}
+                    className="btn-retro w-full justify-center text-amber-300 text-2xs"
+                    title="Aim top of phone directly into the wind and tap to calibrate"
+                  >
+                    <Crosshair strokeWidth={2} className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    ALIGN WIND TO PHONE AIM ({String(snappedPhoneDeg).padStart(3, '0')}°)
+                  </button>
+                )}
+
+                {isManualWind && (
+                  <button
+                    type="button"
+                    onClick={onResetWindDirection}
+                    className="btn-retro w-full justify-center text-ink-soft hover:text-white border-dashed text-2xs"
+                    title="Clear field override and revert to live weather forecast"
+                  >
+                    <RotateCcw strokeWidth={2} className="h-3 w-3 shrink-0" aria-hidden="true" />
+                    REVERT TO WEATHER STATION ({String(normalizeDegrees(stationWindDirection)).padStart(3, '0')}°)
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Field Strip Alignment Module */}
             <div className="rounded-control border border-line-strong bg-panel-inset p-3 space-y-2 shadow-inset">
               <div className="flex items-center justify-between">
                 <label htmlFor="runway-heading-range" className="flex items-center gap-1.5 font-instrument text-2xs font-bold text-ink-soft">

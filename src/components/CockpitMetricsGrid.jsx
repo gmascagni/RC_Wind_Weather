@@ -61,16 +61,30 @@ export default function CockpitMetricsGrid({
             <Compass strokeWidth={2} className="h-4 w-4 text-avionics shrink-0" aria-hidden="true" />
             FROM VECTOR
           </span>
-          <span className="text-avionics font-bold">{runwayInfo.rwyLabel}</span>
+          {current.isManualWind ? (
+            <span className="rounded border border-amber-500/50 bg-amber-500/20 px-1.5 py-0.2 font-instrument text-3xs font-bold text-amber-300">
+              CALIBRATED
+            </span>
+          ) : (
+            <span className="text-avionics font-bold">{runwayInfo.rwyLabel}</span>
+          )}
         </div>
         <div className="my-2">
-          <span className="font-instrument text-3xl sm:text-4xl font-bold text-ink">{current.cardinal}</span>
+          <span className={`font-instrument text-3xl sm:text-4xl font-bold ${current.isManualWind ? 'text-amber-300' : 'text-ink'}`}>
+            {current.cardinal}
+          </span>
           <span className="ml-1.5 font-instrument text-sm text-avionics font-bold">
             {String(current.windDirection).padStart(3, '0')}°
           </span>
         </div>
         <div className="font-instrument text-2xs text-ink-dim">
-          Blows toward {String((current.windDirection + 180) % 360).padStart(3, '0')}°
+          {current.isManualWind ? (
+            <span className="text-amber-300/80">
+              Field override (Station: {String(current.stationWindDirection ?? 0).padStart(3, '0')}°)
+            </span>
+          ) : (
+            `Blows toward ${String((current.windDirection + 180) % 360).padStart(3, '0')}°`
+          )}
         </div>
       </div>
 

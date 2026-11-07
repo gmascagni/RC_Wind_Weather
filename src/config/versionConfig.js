@@ -1,8 +1,21 @@
-export const APP_VERSION = 'v3.0.0';
+export const APP_VERSION = 'v3.1.0';
 export const BUILD_DATE = 'November 2026';
 export const GITHUB_REPO_URL = 'https://github.com/gmascagni/RC_Wind_Weather';
 
 export const CHANGELOG = [
+  {
+    version: 'v3.1.0',
+    date: 'November 2026',
+    title: 'Local Field Wind Direction Calibration & Microclimate Override',
+    highlights: [
+      '🧭 Local Wind Field Calibration: Option to manually align the wind indicator when local airfield conditions differ from the regional weather station forecast.',
+      '🔄 Auto vs Calibrated Wind Mode: Uses live weather forecast by default with a seamless 1-click [RESET TO LIVE] button to revert at any time.',
+      '👆 Interactive Compass Dial: Tap or click anywhere around the compass face to immediately point the red arrow into the incoming wind.',
+      '🎯 Phone Aim Wind Alignment: Point your phone directly into the wind and tap to calibrate the wind vector to your phone’s live compass heading.',
+      '🛩️ Dynamic Aerodynamics Update: Headwind, crosswind, and Go/No-Go flight status instantly recalculate based on calibrated field conditions.',
+      '👻 Ghost Station Vector: Faint reference needle displays original weather station forecast alongside your calibrated local field heading.',
+    ],
+  },
   {
     version: 'v3.0.0',
     date: 'November 2026',

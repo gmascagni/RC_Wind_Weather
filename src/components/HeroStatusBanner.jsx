@@ -8,6 +8,7 @@ export default function HeroStatusBanner({
   isFavorite,
   onToggleFavorite,
   locState,
+  activeObs,
   status,
   runwayInfo,
   thresholds,
@@ -22,9 +23,11 @@ export default function HeroStatusBanner({
   calcBasis = 'gust',
   onToggleCalcBasis,
 }) {
-  const current = (forecastDay === 'tomorrow' && locState.data?.tomorrow?.obs)
-    ? locState.data.tomorrow.obs
-    : locState.data.current;
+  const current = activeObs || (
+    (forecastDay === 'tomorrow' && locState.data?.tomorrow?.obs)
+      ? locState.data.tomorrow.obs
+      : locState.data.current
+  );
   const theme = STATUS_THEME[status.level];
   const unit = getUnitLabel(windUnit);
   const elevFt = locState.data.elevationFt ?? location.elevationFt;

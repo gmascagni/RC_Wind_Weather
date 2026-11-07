@@ -4,6 +4,8 @@ import {
   computeRunwayComponents,
   evaluateFlightStatus,
   findBestFlyingWindow,
+  degreesToCardinal,
+  normalizeDegrees,
 } from './utils/aerodynamics';
 import { locateUserViaGps } from './services/geocoding';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
@@ -29,6 +31,7 @@ export default function App() {
   const [pilotProfile, setPilotProfile] = useLocalStorageState('rc_wind_pilot_profile', 'intermediate');
   const [calcBasis, setCalcBasis] = useLocalStorageState('rc_wind_calc_basis', 'gust');
   const [runwayByField, setRunwayByField] = useLocalStorageState('rc_wind_runways_v2', {});
+  const [manualWindByField, setManualWindByField] = useLocalStorageState('rc_wind_manual_dir_v1', {});
   const [daylightBoost, setDaylightBoost] = useLocalStorageState('rc_wind_daylight_boost', false);
   const [forecastDay, setForecastDay] = useState('today');
 
@@ -133,13 +136,32 @@ export default function App() {
   };
 
   const isTomorrow = forecastDay === 'tomorrow' && Boolean(locState.data?.tomorrow);
-  const activeObs = useMemo(() => {
-    if (isTomorrow) return locState.data.tomorrow.obs;
+  const rawActiveObs = useMemo(() => {
+    if (isTomorrow) return locState.data?.tomorrow?.obs;
     return locState.data?.current || null;
   }, [isTomorrow, locState.data]);
 
+  const manualWindDir = (activeLocation?.id && manualWindByField[activeLocation.id] !== undefined)
+    ? manualWindByField[activeLocation.id]
+    : null;
+
+  const isWindManual = manualWindDir !== null;
+
+  const activeObs = useMemo(() => {
+    if (!rawActiveObs) return null;
+    if (manualWindDir === null) return rawActiveObs;
+    return {
+      ...rawActiveObs,
+      windDirection: manualWindDir,
+      cardinal: degreesToCardinal(manualWindDir),
+      isManualWind: true,
+      stationWindDirection: rawActiveObs.windDirection,
+      stationCardinal: rawActiveObs.cardinal || degreesToCardinal(rawActiveObs.windDirection),
+    };
+  }, [rawActiveObs, manualWindDir]);
+
   const activeHourly = useMemo(() => {
-    if (isTomorrow) return locState.data.tomorrow.hourly || [];
+    if (isTomorrow) return locState.data?.tomorrow?.hourly || [];
     return locState.data?.hourly || [];
   }, [isTomorrow, locState.data]);
 
@@ -159,8 +181,26 @@ export default function App() {
   );
 
   const handleRunwayChange = (deg) => {
-    if (!activeLocation) return;
+    if (!activeLocation?.id) return;
     setRunwayByField((prev) => ({ ...prev, [activeLocation.id]: deg }));
+  };
+
+  const handleWindDirectionChange = (deg) => {
+    if (!activeLocation?.id) return;
+    const normalized = normalizeDegrees(Math.round(deg));
+    setManualWindByField((prev) => ({
+      ...prev,
+      [activeLocation.id]: normalized,
+    }));
+  };
+
+  const handleResetWindDirection = () => {
+    if (!activeLocation?.id) return;
+    setManualWindByField((prev) => {
+      const next = { ...prev };
+      delete next[activeLocation.id];
+      return next;
+    });
   };
 
   return (
@@ -219,6 +259,7 @@ export default function App() {
               isFavorite={isFavorite}
               onToggleFavorite={handleToggleFavorite}
               locState={locState}
+              activeObs={activeObs}
               status={status}
               runwayInfo={runwayInfo}
               thresholds={effectiveThresholds}
@@ -249,6 +290,10 @@ export default function App() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <WindCompassCard
                 windDirection={activeObs?.windDirection ?? 0}
+                stationWindDirection={rawActiveObs?.windDirection ?? 0}
+                isManualWind={isWindManual}
+                onChangeWindDirection={handleWindDirectionChange}
+                onResetWindDirection={handleResetWindDirection}
                 runwayHeadingDeg={runwayDeg}
                 onChangeRunway={handleRunwayChange}
                 runwayInfo={runwayInfo}
