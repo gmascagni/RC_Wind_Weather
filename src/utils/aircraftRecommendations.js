@@ -393,12 +393,20 @@ export function getAircraftRecommendations(
       };
     }
 
+    const adultCardStopByPilot = {
+      beginner: 'KEEP IT IN THE CAR!',
+      intermediate: 'HANGAR QUEEN DAY!',
+      advanced: 'DONT BE STUPID!',
+      extreme: 'YOU SERIOUS?! BRING TRASH BAG!',
+    };
+    const adultCardStop = adultCardStopByPilot[pilotProfile] || 'HANGAR QUEEN DAY!';
+
     // Check sustained limit
     if (speed > cls.sustainedMax) {
       return {
         ...cls,
         status: 'stop',
-        statusLabel: isKid ? 'EXCEEDS LIMITS' : 'HANGAR QUEEN DAY!',
+        statusLabel: isKid ? 'EXCEEDS LIMITS' : adultCardStop,
       };
     }
 
@@ -416,7 +424,7 @@ export function getAircraftRecommendations(
         return {
           ...cls,
           status: 'stop',
-          statusLabel: isKid ? 'EXCEEDS GUST LIMIT' : 'HANGAR QUEEN DAY!',
+          statusLabel: isKid ? 'EXCEEDS GUST LIMIT' : adultCardStop,
         };
       }
     }

@@ -213,9 +213,17 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
         calcBasis,
       };
     }
+    const adultStopByPilot = {
+      beginner: 'KEEP IT IN THE TRUNK, ROOKIE!',
+      intermediate: 'HANGAR QUEEN DAY!',
+      advanced: 'DONT BE STUPID!',
+      extreme: 'YOU SERIOUS?! BRING A TRASH BAG!',
+    };
+    const adultStopVerdict = adultStopByPilot[pilot] || 'HANGAR QUEEN DAY!';
+
     return {
       level: 'stop',
-      verdict: isKid ? 'GROUNDED / NO-GO' : 'HANGAR QUEEN DAY!',
+      verdict: isKid ? 'GROUNDED / NO-GO' : adultStopVerdict,
       shortTag: 'NO-GO',
       gustSpread: spread,
       reasons: stopReasons,
