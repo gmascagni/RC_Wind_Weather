@@ -398,7 +398,7 @@ export function getAircraftRecommendations(
       return {
         ...cls,
         status: 'stop',
-        statusLabel: isKid ? 'EXCEEDS LIMITS' : 'DONT BE A RETARD!',
+        statusLabel: isKid ? 'EXCEEDS LIMITS' : 'HANGAR QUEEN DAY!',
       };
     }
 
@@ -416,7 +416,7 @@ export function getAircraftRecommendations(
         return {
           ...cls,
           status: 'stop',
-          statusLabel: isKid ? 'EXCEEDS GUST LIMIT' : 'DONT BE A RETARD!',
+          statusLabel: isKid ? 'EXCEEDS GUST LIMIT' : 'HANGAR QUEEN DAY!',
         };
       }
     }
