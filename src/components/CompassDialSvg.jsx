@@ -91,7 +91,7 @@ export default function CompassDialSvg({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className={`h-48 w-48 sm:h-52 sm:w-52 block select-none touch-none ${onDialClick ? 'cursor-pointer' : ''}`}
+      className={`h-44 w-44 sm:h-52 sm:w-52 block select-none touch-none ${onDialClick ? 'cursor-pointer' : ''}`}
       role="img"
     >
       <title>

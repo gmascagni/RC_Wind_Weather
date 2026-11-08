@@ -56,9 +56,9 @@ export default function FooterBar({
               href={privacyUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-ink-dim hover:text-ink hover:underline text-2xs"
+              className="text-ink-dim/70 hover:text-ink hover:underline text-[9px] tracking-normal font-normal"
             >
-              PRIVACY POLICY
+              Privacy
             </a>
 
             {hasActiveLocation && (
