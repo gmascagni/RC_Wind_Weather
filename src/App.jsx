@@ -21,8 +21,10 @@ import ThresholdSettingsModal from './components/ThresholdSettingsModal';
 import VersionModal from './components/VersionModal';
 import { SkeletonDeck, WelcomeFieldPrompt, OfflineEmptyState } from './components/SkeletonDeck';
 import FooterBar from './components/FooterBar';
+import WebOwnerGate, { isNativeOrUnlockedWeb } from './components/WebOwnerGate';
 
 export default function App() {
+  const [webUnlocked, setWebUnlocked] = useState(() => isNativeOrUnlockedWeb());
   const [favorites, setFavorites] = useLocalStorageState('rc_wind_favorites_v1', []);
   const [activeLocation, setActiveLocation] = useLocalStorageState('rc_wind_active_location_v1', null);
   const [windUnit, setWindUnit] = useLocalStorageState('rc_wind_unit', 'mph');
@@ -202,6 +204,15 @@ export default function App() {
       return next;
     });
   };
+
+  if (!webUnlocked) {
+    return (
+      <>
+        <UsaacStarSymbolDef />
+        <WebOwnerGate onUnlock={() => setWebUnlocked(true)} />
+      </>
+    );
+  }
 
   return (
     <div className={`min-h-dvh flex flex-col justify-between ${favorites.length > 0 ? 'pb-20 md:pb-0' : ''}`}>
