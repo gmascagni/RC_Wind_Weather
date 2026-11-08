@@ -4,24 +4,7 @@ import { APP_VERSION } from '../config/versionConfig';
 import { UsaacStarEmblem } from './StatusVisuals';
 
 const OWNER_PIN = '1940';
-export const OWNER_UNLOCK_STORAGE_KEY = 'rc_wind_owner_unlocked_v1';
-
-export function isNativeOrUnlockedWeb() {
-  if (typeof window === 'undefined') return true;
-  // Always unlocked inside the native Android APK / Google Play AAB build
-  const isNativeAndroid =
-    Boolean(window.Capacitor?.isNativePlatform?.()) ||
-    import.meta.env.BASE_URL === './' ||
-    /;\s*wv\)/i.test(window.navigator?.userAgent || '');
-
-  if (isNativeAndroid) return true;
-
-  try {
-    return window.localStorage.getItem(OWNER_UNLOCK_STORAGE_KEY) === 'unlocked';
-  } catch {
-    return false;
-  }
-}
+const OWNER_UNLOCK_STORAGE_KEY = 'rc_wind_owner_unlocked_v1';
 
 export default function WebOwnerGate({ onUnlock }) {
   const [pin, setPin] = useState('');

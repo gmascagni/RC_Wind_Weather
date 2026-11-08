@@ -21,10 +21,24 @@ import ThresholdSettingsModal from './components/ThresholdSettingsModal';
 import VersionModal from './components/VersionModal';
 import { SkeletonDeck, WelcomeFieldPrompt, OfflineEmptyState } from './components/SkeletonDeck';
 import FooterBar from './components/FooterBar';
-import WebOwnerGate, { isNativeOrUnlockedWeb } from './components/WebOwnerGate';
+import WebOwnerGate from './components/WebOwnerGate';
+
+function checkInitialWebUnlock() {
+  if (typeof window === 'undefined') return true;
+  const isNativeAndroid =
+    Boolean(window.Capacitor?.isNativePlatform?.()) ||
+    import.meta.env.BASE_URL === './' ||
+    /;\s*wv\)/i.test(window.navigator?.userAgent || '');
+  if (isNativeAndroid) return true;
+  try {
+    return window.localStorage.getItem('rc_wind_owner_unlocked_v1') === 'unlocked';
+  } catch {
+    return false;
+  }
+}
 
 export default function App() {
-  const [webUnlocked, setWebUnlocked] = useState(() => isNativeOrUnlockedWeb());
+  const [webUnlocked, setWebUnlocked] = useState(() => checkInitialWebUnlock());
   const [favorites, setFavorites] = useLocalStorageState('rc_wind_favorites_v1', []);
   const [activeLocation, setActiveLocation] = useLocalStorageState('rc_wind_active_location_v1', null);
   const [windUnit, setWindUnit] = useLocalStorageState('rc_wind_unit', 'mph');
