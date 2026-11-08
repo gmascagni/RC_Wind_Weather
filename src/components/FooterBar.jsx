@@ -24,31 +24,31 @@ export default function FooterBar({
 
   return (
     <>
-      <footer className="mt-8 border-t border-line-strong bg-deck-panel/90 py-5 text-xs text-ink-soft shadow-panel">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-6 font-instrument">
-          <div className="text-center sm:text-left flex flex-wrap items-center gap-2">
+      <footer className="mt-4 border-t border-line bg-deck-panel/90 py-2 text-[10px] text-ink-dim shadow-panel">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center sm:justify-between gap-x-3 gap-y-1 px-3 sm:px-6 font-instrument">
+          <div className="text-center sm:text-left">
             <span>
               SOURCE:{' '}
               <a
                 href="https://open-meteo.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-avionics underline underline-offset-4 hover:text-ink font-bold"
+                className="text-ink-soft underline underline-offset-2 hover:text-ink"
               >
-                OPEN-METEO NOAA HRRR / GFS (10M AGL)
+                OPEN-METEO (10M AGL)
               </a>
               {timezoneLabel ? ` • ${timezoneLabel.toUpperCase()}` : ''}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 text-[10px]">
             <button
               type="button"
               onClick={onOpenVersion}
               className="inline-flex items-center gap-1 font-bold text-avionics hover:underline"
               title="Open Version Control & Changelog"
             >
-              <GitBranch strokeWidth={2} className="h-3 w-3" aria-hidden="true" />
+              <GitBranch strokeWidth={2} className="h-2.5 w-2.5" aria-hidden="true" />
               <span>{APP_VERSION}</span>
             </button>
 
@@ -62,7 +62,7 @@ export default function FooterBar({
             </a>
 
             {hasActiveLocation && (
-              <span className="text-ink-dim font-bold">UPDATED: {ageLabel.toUpperCase()}</span>
+              <span className="text-ink-dim">UPDATED: {ageLabel.toUpperCase()}</span>
             )}
 
             {hasActiveLocation && (
@@ -70,11 +70,11 @@ export default function FooterBar({
                 type="button"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                className="btn-retro text-2xs py-1 px-3 text-ink font-bold"
+                className="inline-flex items-center gap-1 rounded border border-line bg-panel-inset px-2 py-0.5 text-[9px] text-ink-soft hover:text-ink"
               >
                 <RefreshCw
                   strokeWidth={2}
-                  className={`h-3 w-3 text-avionics ${isRefreshing ? 'spin-refresh' : ''}`}
+                  className={`h-2.5 w-2.5 text-avionics ${isRefreshing ? 'spin-refresh' : ''}`}
                   aria-hidden="true"
                 />
                 REFRESH
