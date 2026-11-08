@@ -33,6 +33,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            if (file("upload-keystore.jks").exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
         release {
             if (file("upload-keystore.jks").exists()) {
                 signingConfig signingConfigs.release
