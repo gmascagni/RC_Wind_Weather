@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { DEFAULT_THRESHOLDS } from './config/flightConfig';
 import {
   computeRunwayComponents,
@@ -25,11 +26,11 @@ import WebOwnerGate from './components/WebOwnerGate';
 
 function checkInitialWebUnlock() {
   if (typeof window === 'undefined') return true;
-  const isNativeAndroid =
-    Boolean(window.Capacitor?.isNativePlatform?.()) ||
-    import.meta.env.BASE_URL === './' ||
-    /;\s*wv\)/i.test(window.navigator?.userAgent || '');
-  if (isNativeAndroid) return true;
+  const host = window.location?.hostname || '';
+  // Always unlocked on native Android app (Capacitor / localhost) — only gate the public github.io web URL
+  if (Capacitor.isNativePlatform() || host === 'localhost' || host === '127.0.0.1' || !host.includes('github.io')) {
+    return true;
+  }
   try {
     return window.localStorage.getItem('rc_wind_owner_unlocked_v1') === 'unlocked';
   } catch {
