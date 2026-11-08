@@ -214,7 +214,7 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
       };
     }
     const adultStopByPilot = {
-      beginner: 'KEEP IT IN THE TRUNK, ROOKIE!',
+      beginner: 'WALK OF SHAME GUARANTEED!',
       intermediate: 'HANGAR QUEEN DAY!',
       advanced: 'DONT BE STUPID!',
       extreme: 'YOU SERIOUS?! BRING A TRASH BAG!',
@@ -232,9 +232,17 @@ export function evaluateFlightStatus(obs, userThresholds = DEFAULT_THRESHOLDS, c
     };
   }
   if (cautionReasons.length > 0) {
+    const adultCautionByPilot = {
+      beginner: 'CALL YOUR INSTRUCTOR!',
+      intermediate: 'YOU SURE ABOUT THIS?',
+      advanced: 'CHECK YOUR RATES & PUCKER UP!',
+      extreme: 'SEND IT IF YOU DARE!',
+    };
+    const adultCautionVerdict = adultCautionByPilot[pilot] || 'YOU SURE ABOUT THIS?';
+
     return {
       level: 'marginal',
-      verdict: isKid ? 'FLY WITH CAUTION' : 'YOU SURE?',
+      verdict: isKid ? 'FLY WITH CAUTION' : adultCautionVerdict,
       shortTag: 'CAUTION',
       gustSpread: spread,
       reasons: cautionReasons,

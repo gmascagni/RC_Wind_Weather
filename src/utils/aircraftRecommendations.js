@@ -50,7 +50,7 @@ export const WIND_CONDITION_TIERS = [
     maxMph: 29.9,
     rangeLabel: '25+ MPH',
     title: 'BRING YOUR CREDIT CARD',
-    detail: 'Horizon Hobby cart ready — airframe carnage zone',
+    detail: 'Walk of shame guaranteed — Horizon Hobby cart ready',
     level: 'stop',
   },
   {
@@ -394,12 +394,20 @@ export function getAircraftRecommendations(
     }
 
     const adultCardStopByPilot = {
-      beginner: 'KEEP IT IN THE CAR!',
+      beginner: 'WALK OF SHAME GUARANTEED!',
       intermediate: 'HANGAR QUEEN DAY!',
       advanced: 'DONT BE STUPID!',
       extreme: 'YOU SERIOUS?! BRING TRASH BAG!',
     };
     const adultCardStop = adultCardStopByPilot[pilotProfile] || 'HANGAR QUEEN DAY!';
+
+    const adultCardCautionByPilot = {
+      beginner: 'CALL YOUR INSTRUCTOR',
+      intermediate: 'YOU SURE ABOUT THIS?',
+      advanced: 'CHECK RATES & PUCKER UP',
+      extreme: 'SEND IT IF YOU DARE!',
+    };
+    const adultCardCaution = adultCardCautionByPilot[pilotProfile] || 'EXPERIENCED / CAUTION';
 
     // Check sustained limit
     if (speed > cls.sustainedMax) {
@@ -416,7 +424,7 @@ export function getAircraftRecommendations(
         return {
           ...cls,
           status: 'marginal',
-          statusLabel: isKid ? 'GUST CAUTION' : 'WATCH THE GUSTS',
+          statusLabel: isKid ? 'GUST CAUTION' : adultCardCaution,
         };
       }
     } else {
@@ -438,7 +446,7 @@ export function getAircraftRecommendations(
       return {
         ...cls,
         status: 'marginal',
-        statusLabel: isKid ? 'PILOT CAUTION' : 'EXPERIENCED / CAUTION',
+        statusLabel: isKid ? 'PILOT CAUTION' : adultCardCaution,
       };
     }
 
